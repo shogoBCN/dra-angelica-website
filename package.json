@@ -1,0 +1,18 @@
+{
+  "name": "dra-angelica-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-site.mjs",
+    "firebase": "firebase",
+    "deploy": "npm run build && firebase deploy",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "deploy:firestore": "firebase deploy --only firestore"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.29.0"
+  }
+}

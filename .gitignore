@@ -1,0 +1,18 @@
+# Build output (generated; hosts build from Git)
+dist/
+
+# Dependencies
+node_modules/
+
+# Firebase CLI local cache (paths and hashes; do not commit)
+.firebase/
+
+# Environment and secrets — never commit real keys or service accounts
+.env
+.env.*
+!.env.example
+*.pem
+
+# OS / editor
+.DS_Store
+*.log

@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Replace REPLACE_WITH_FIREBASE_AUTH_UID with Angelica's UID from Firebase Console → Authentication.
+    // Optional: switch to a custom claim (admin) and check request.auth.token.admin == true.
+    function isPublisher() {
+      return request.auth != null
+        && request.auth.uid in [
+          'bOxGfdFWmNTSIIJe1aD0QDeDTAy2',
+          '949TyO0R5gbtFWpjpp2zzoakYD62'
+        ];
+    }
+
+    match /posts/{postId} {
+      // Visitors: only published posts (queries must filter published == true).
+      allow read: if resource.data.published == true;
+      // Publisher: read all posts (including drafts).
+      allow read: if isPublisher();
+      allow create, update, delete: if isPublisher();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
