@@ -1,321 +1,489 @@
-(function () {
-  var yearEl = document.querySelector("[data-year]");
-  if (yearEl) {
-    yearEl.textContent = String(new Date().getFullYear());
+/**
+ * Site behaviour for medicina-familiar.co (single-page brochure).
+ *
+ * Responsibilities:
+ *  - Footer year stamp
+ *  - Contact form: progressive enhancement via FormSubmit JSON API when possible;
+ *    falls back to a classic POST navigation when fetch or parsing fails
+ *  - Mobile navigation (ARIA / body scroll lock)
+ *  - Scroll progress indicator
+ *  - Scroll-spy highlighting for primary nav anchors
+ *  - Gentle “reveal on scroll” for section blocks (respects reduced-motion via CSS)
+ *  - Inline “infotip” panels beside long-form copy (positioning on mobile/desktop)
+ */
+
+/* -------------------------------------------------------------------------- */
+/* Configuration                                                              */
+/* -------------------------------------------------------------------------- */
+
+/** Section `#id`s that appear in the main nav and hero CTAs — order matches visual flow. */
+const MAIN_NAV_SECTION_IDS = Object.freeze([
+  "inicio",
+  "sobre-mi",
+  "medicina-familiar",
+  "servicios",
+  "contacto",
+]);
+
+/** Breakpoint reused for collapsing the horizontal nav behind the menu toggle. */
+const COLLAPSED_NAV_MEDIA_QUERY = "(max-width: 899px)";
+
+/** Below this width infotips use fixed positioning and viewport clamping. */
+const INFOTIP_MOBILE_MEDIA_QUERY = "(max-width: 639px)";
+
+/** Shown inline when AJAX returns non-success JSON without a usable `message` from the provider. */
+const CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES =
+  "No se pudo enviar el mensaje. Compruebe su conexión e inténtelo de nuevo.";
+
+/** FormSubmit AJAX path segment after the domain (email id or token string). */
+function formsubmitAjaxPathFromAction(formActionAttribute) {
+  if (!formActionAttribute) return "";
+  const slug = formActionAttribute.split("formsubmit.co/").pop();
+  return slug && slug !== formActionAttribute ? slug.trim() : "";
+}
+
+function setFooterYearCurrent() {
+  const yearTarget = document.querySelector("[data-year]");
+  if (yearTarget) {
+    yearTarget.textContent = String(new Date().getFullYear());
   }
+}
 
-  /* FormSubmit AJAX: evita redirección a formsubmit.co; requiere connect-src https://formsubmit.co en CSP. */
-  var contactForm = document.querySelector(".contact-form");
-  if (contactForm && window.fetch) {
-    contactForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var errEl = document.getElementById("contact-form-error");
-      var thanksEl = document.getElementById("contact-form-thanks");
-      if (errEl) {
-        errEl.hidden = true;
-        errEl.textContent = "";
-      }
-      if (thanksEl) {
-        thanksEl.hidden = true;
-      }
-      if (!contactForm.checkValidity()) {
-        contactForm.reportValidity();
-        return;
-      }
-      var submitBtn = contactForm.querySelector(".contact-form__submit");
-      var actionUrl = contactForm.getAttribute("action") || "";
-      var tail = actionUrl.split("formsubmit.co/").pop();
-      if (!tail) return;
-      var ajaxUrl = "https://formsubmit.co/ajax/" + tail;
-      var payload = {};
-      new FormData(contactForm).forEach(function (value, key) {
-        payload[key] = value;
-      });
-      if (submitBtn) {
-        submitBtn.disabled = true;
-      }
-      fetch(ajaxUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
-      })
-        .then(function (response) {
-          return response.json().then(function (data) {
-            return { ok: response.ok, data: data };
-          });
-        })
-        .then(function (result) {
-          var data = result.data || {};
-          var success =
-            result.ok && (data.success === true || data.success === "true");
-          if (success) {
-            if (thanksEl) {
-              thanksEl.hidden = false;
-            }
-            contactForm.reset();
-            var contactSection = document.getElementById("contacto");
-            if (contactSection) {
-              requestAnimationFrame(function () {
-                contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
-              });
-            }
-            if (errEl) {
-              errEl.hidden = true;
-            }
-            return;
-          }
-          var msg =
-            (data && data.message) ||
-            "No se pudo enviar el mensaje. Compruebe su conexión e inténtelo de nuevo.";
-          if (errEl) {
-            errEl.textContent = msg;
-            errEl.hidden = false;
-          }
-        })
-        .catch(function () {
-          if (errEl) {
-            errEl.textContent =
-              "No se pudo enviar el mensaje. Compruebe su conexión e inténtelo de nuevo.";
-            errEl.hidden = false;
-          }
-        })
-        .finally(function () {
-          if (submitBtn) {
-            submitBtn.disabled = false;
-          }
-        });
-    });
-  }
+/**
+ * @param {HTMLFormElement} formElement
+ */
+function navigateWithNativeFormPost(formElement) {
+  HTMLFormElement.prototype.submit.call(formElement);
+}
 
-  var header = document.querySelector("[data-header]");
-  var toggle = document.querySelector("[data-menu-toggle]");
-  var nav = document.querySelector("[data-nav]");
-  var sectionLinks = document.querySelectorAll("[data-section-link]");
-  var progressEl = document.querySelector(".scroll-progress");
-  var revealEls = document.querySelectorAll("[data-reveal]");
+/**
+ * Submits via FormSubmit’s JSON endpoint to avoid redirecting visitors to formsubmit.co.
+ * CSP must include `connect-src https://formsubmit.co` (already set in index.html).
+ *
+ * Falls back to a normal navigational POST when the environment cannot reliably use fetch.
+ *
+ * @param {HTMLFormElement} contactForm
+ */
+function attachContactFormHandler(contactForm) {
+  const errorMessageParagraph = document.getElementById("contact-form-error");
+  const confirmationParagraph = document.getElementById("contact-form-thanks");
+  const submitButton = contactForm.querySelector(".contact-form__submit");
 
-  var sectionIds = [
-    "inicio",
-    "sobre-mi",
-    "medicina-familiar",
-    "servicios",
-    "contacto",
-  ];
+  contactForm.addEventListener("submit", (submitEvent) => {
+    submitEvent.preventDefault();
 
-  function setMenuOpen(open) {
-    if (!toggle || !nav) return;
-    nav.classList.toggle("is-open", open);
-    toggle.setAttribute("aria-expanded", open ? "true" : "false");
-    document.body.classList.toggle("nav-open", open);
-  }
+    if (errorMessageParagraph) {
+      errorMessageParagraph.hidden = true;
+      errorMessageParagraph.textContent = "";
+    }
+    if (confirmationParagraph) {
+      confirmationParagraph.hidden = true;
+    }
 
-  if (toggle && nav) {
-    toggle.addEventListener("click", function () {
-      var open = !nav.classList.contains("is-open");
-      setMenuOpen(open);
-    });
-
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") setMenuOpen(false);
-    });
-
-    nav.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () {
-        if (window.matchMedia("(max-width: 899px)").matches) setMenuOpen(false);
-      });
-    });
-  }
-
-  function updateScrollProgress() {
-    if (!progressEl) return;
-    var doc = document.documentElement;
-    var scrollTop = doc.scrollTop || document.body.scrollTop;
-    var height = doc.scrollHeight - doc.clientHeight;
-    var pct = height > 0 ? (scrollTop / height) * 100 : 0;
-    progressEl.style.width = String(Math.min(100, Math.max(0, pct))) + "%";
-  }
-
-  window.addEventListener("scroll", updateScrollProgress, { passive: true });
-  updateScrollProgress();
-
-  function setActiveSection(id) {
-    sectionIds.forEach(function (sid) {
-      var active = sid === id;
-      document.querySelectorAll('[data-target="' + sid + '"]').forEach(function (el) {
-        el.classList.toggle("is-active", active);
-      });
-    });
-    sectionLinks.forEach(function (link) {
-      var href = link.getAttribute("href") || "";
-      var hash = href.replace(/^#/, "");
-      link.classList.toggle("is-active", hash === id);
-    });
-  }
-
-  var observersSupported = "IntersectionObserver" in window;
-
-  if (observersSupported) {
-    var sectionObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting && entry.intersectionRatio > 0) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: "-42% 0px -48% 0px",
-        threshold: [0, 0.08, 0.2],
-      },
-    );
-
-    sectionIds.forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) sectionObserver.observe(el);
-    });
-  }
-
-  if (observersSupported && revealEls.length) {
-    var revealObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) entry.target.classList.add("is-visible");
-        });
-      },
-      { root: null, rootMargin: "0px 0px -8% 0px", threshold: 0.1 },
-    );
-
-    revealEls.forEach(function (el) {
-      revealObserver.observe(el);
-    });
-  } else {
-    revealEls.forEach(function (el) {
-      el.classList.add("is-visible");
-    });
-  }
-
-  if (!observersSupported && sectionIds.length) {
-    setActiveSection("inicio");
-  }
-
-  var MOBILE_INFOTIP_MQ = "(max-width: 639px)";
-
-  function clearInfotipPanelStyles(panel) {
-    panel.style.removeProperty("top");
-    panel.style.removeProperty("bottom");
-    panel.style.removeProperty("max-height");
-  }
-
-  /* Infotip: escritorio = arriba/abajo relativo al disparador; móvil = position fixed dentro del viewport */
-  function positionInfotip(wrap) {
-    var panel = wrap.querySelector(".infotip__panel");
-    var trigger = wrap.querySelector(".infotip__trigger");
-    if (!panel || !trigger) return;
-
-    var isMobile = window.matchMedia(MOBILE_INFOTIP_MQ).matches;
-
-    if (!isMobile) {
-      clearInfotipPanelStyles(panel);
-      var gap = 7;
-      var tr = trigger.getBoundingClientRect();
-      var ph = panel.offsetHeight || panel.getBoundingClientRect().height;
-      if (ph < 40) ph = 200;
-
-      var vv = window.visualViewport;
-      var vh = vv ? vv.height : window.innerHeight;
-      var spaceBelow = vh - tr.bottom - gap;
-      var spaceAbove = tr.top - gap;
-
-      var placeAbove = false;
-      if (spaceBelow < ph && spaceAbove > spaceBelow) {
-        placeAbove = true;
-      } else if (spaceBelow < ph && spaceAbove < ph) {
-        placeAbove = spaceAbove >= spaceBelow;
-      }
-
-      panel.classList.toggle("infotip__panel--above", placeAbove);
+    if (!contactForm.checkValidity()) {
+      contactForm.reportValidity();
       return;
     }
 
-    panel.classList.remove("infotip__panel--above");
-    var gap = 8;
-    var tr = trigger.getBoundingClientRect();
-    var vv = window.visualViewport;
-    var vh = vv ? vv.height : window.innerHeight;
-    var pad = 12;
+    const formAttributesAction = contactForm.getAttribute("action") || "";
 
-    panel.style.bottom = "auto";
-    var top = tr.bottom + gap;
-    panel.style.top = top + "px";
+    /** JSON payload keys mirror POST field names exactly for FormSubmit. */
+    const formFieldPayload = {};
+    new FormData(contactForm).forEach((value, key) => {
+      formFieldPayload[key] = value;
+    });
 
-    var clamp = function () {
-      var pr = panel.getBoundingClientRect();
-      if (pr.bottom > vh - pad) {
-        var delta = pr.bottom - (vh - pad);
-        top = Math.max(pad, pr.top - delta);
-        panel.style.top = top + "px";
-        pr = panel.getBoundingClientRect();
-      }
-      if (pr.top < pad) {
-        panel.style.top = pad + "px";
-        pr = panel.getBoundingClientRect();
-      }
-      var maxH = vh - pad - pr.top;
-      if (pr.height > maxH - 1 && maxH > 80) {
-        panel.style.maxHeight = Math.round(maxH) + "px";
-      } else {
-        panel.style.removeProperty("max-height");
+    if (!globalThis.fetch) {
+      navigateWithNativeFormPost(contactForm);
+      return;
+    }
+
+    const ajaxPathSegment = formsubmitAjaxPathFromAction(formAttributesAction);
+    if (!ajaxPathSegment) {
+      navigateWithNativeFormPost(contactForm);
+      return;
+    }
+
+    const formSubmitAjaxUrl = `https://formsubmit.co/ajax/${ajaxPathSegment}`;
+
+    const setSubmitBusy = (isBusy) => {
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = isBusy;
       }
     };
 
-    requestAnimationFrame(function () {
-      clamp();
-      requestAnimationFrame(clamp);
+    setSubmitBusy(true);
+
+    fetch(formSubmitAjaxUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(formFieldPayload),
+    })
+      .then(async (fetchResponse) => {
+        /** FormSubmit replies with JSON bodies; malformed responses degrade gracefully. */
+        let parsedJson = {};
+        try {
+          parsedJson = await fetchResponse.json();
+        } catch {
+          parsedJson = {};
+        }
+        return { okHttp: fetchResponse.ok, parsedJson };
+      })
+      .then(({ okHttp, parsedJson }) => {
+        const serverSaysSuccess =
+          parsedJson.success === true || parsedJson.success === "true";
+
+        if (okHttp && serverSaysSuccess) {
+          if (errorMessageParagraph) {
+            errorMessageParagraph.hidden = true;
+            errorMessageParagraph.textContent = "";
+          }
+          if (confirmationParagraph) {
+            confirmationParagraph.hidden = false;
+          }
+          contactForm.reset();
+          const contactSection = document.getElementById("contacto");
+          if (contactSection) {
+            requestAnimationFrame(() => {
+              contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+          }
+          return;
+        }
+
+        const messageFromServer =
+          typeof parsedJson.message === "string" && parsedJson.message.trim().length > 0
+            ? parsedJson.message
+            : CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES;
+
+        if (errorMessageParagraph) {
+          errorMessageParagraph.textContent = messageFromServer;
+          errorMessageParagraph.hidden = false;
+        }
+      })
+      .catch(() => {
+        navigateWithNativeFormPost(contactForm);
+      })
+      .finally(() => {
+        setSubmitBusy(false);
+      });
+  });
+}
+
+/**
+ * Mirrors the collapsible navigation drawer into ARIA + body scroll-lock state.
+ *
+ * @param {boolean} isMenuExpanded
+ * @param {Element | null} toggleButton `[data-menu-toggle]`
+ * @param {Element | null} navPanel `[data-nav]` (styled as drawer on narrow viewports only)
+ */
+function setMobileMenuExpanded(isMenuExpanded, toggleButton, navPanel) {
+  if (!toggleButton || !navPanel) return;
+  navPanel.classList.toggle("is-open", isMenuExpanded);
+  toggleButton.setAttribute("aria-expanded", isMenuExpanded ? "true" : "false");
+  document.body.classList.toggle("nav-open", isMenuExpanded);
+}
+
+/**
+ * Highlights the anchor that matches the nearest section scrolled into view.
+ *
+ * @param {string} sectionId DOM id without leading `#`.
+ * @param {NodeListOf<HTMLAnchorElement> | HTMLAnchorElement[]} sectionAnchorLinks
+ */
+function updateActiveNavigationState(sectionId, sectionAnchorLinks) {
+  sectionAnchorLinks.forEach((anchorLink) => {
+    const hrefValue = anchorLink.getAttribute("href") || "";
+    const hashWithoutPound = hrefValue.replace(/^#/, "");
+    anchorLink.classList.toggle("is-active", hashWithoutPound === sectionId);
+  });
+}
+
+/**
+ * Tracks reading progress across the entire document (`html` scroll height minus viewport).
+ *
+ * @param {HTMLElement | null} progressBarTrack
+ */
+function createScrollProgressUpdater(progressBarTrack) {
+  return () => {
+    if (!progressBarTrack) return;
+    const scrollingRoot = document.documentElement;
+    const scrollDistanceFromTop =
+      scrollingRoot.scrollTop || document.body.scrollTop;
+    const totalScrollableHeight =
+      scrollingRoot.scrollHeight - scrollingRoot.clientHeight;
+    const scrollCompletenessApproximatePercent =
+      totalScrollableHeight > 0
+        ? (scrollDistanceFromTop / totalScrollableHeight) * 100
+        : 0;
+    const clampedPercentage = Math.min(
+      100,
+      Math.max(0, scrollCompletenessApproximatePercent),
+    );
+    progressBarTrack.style.width = `${clampedPercentage}%`;
+  };
+}
+
+/**
+ * Wires positioning for inline “infotip” footnotes (Hospital Clínic, CAP Casanova, …).
+ *
+ * CSS renders the panel invisible until hover/focus; this module only nudges geometry:
+ *  - **Wide screens**: panel is `position: absolute` beside the trigger; we pick “open
+ *    above” vs “below” from available viewport space and toggle `.infotip__panel--above`.
+ *  - **Narrow screens**: panel is `position: fixed` full-width; JS sets `top` /
+ *    `max-height` so it stays inside the (possibly zoomed) viewport.
+ */
+function createInfotipController() {
+  /** Drops inline styles from a previous mobile layout so desktop CSS can own placement again. */
+  function clearForcedPanelGeometry(panelElement) {
+    panelElement.style.removeProperty("top");
+    panelElement.style.removeProperty("bottom");
+    panelElement.style.removeProperty("max-height");
+  }
+
+  function positionInfotipPanel(wrapElement) {
+    const panelElement = wrapElement.querySelector(".infotip__panel");
+    const triggerElement = wrapElement.querySelector(".infotip__trigger");
+    if (!(panelElement instanceof HTMLElement) || !triggerElement) return;
+
+    const isNarrowViewport = window.matchMedia(INFOTIP_MOBILE_MEDIA_QUERY).matches;
+
+    if (!isNarrowViewport) {
+      clearForcedPanelGeometry(panelElement);
+      const spacerBetweenTriggerAndPanel = 7;
+      const triggerBox = triggerElement.getBoundingClientRect();
+      let panelHeightPx =
+        panelElement.offsetHeight || panelElement.getBoundingClientRect().height;
+      // While the panel is hidden, height can read ~0; assume a reasonable box so we still pick above/below.
+      if (panelHeightPx < 40) {
+        panelHeightPx = 200;
+      }
+
+      // Prefer visualViewport when the mobile browser chrome resizes the visible area.
+      const visualViewportMaybe = window.visualViewport;
+      const viewportHeightPx = visualViewportMaybe
+        ? visualViewportMaybe.height
+        : window.innerHeight;
+      const spaceBelowTrigger =
+        viewportHeightPx - triggerBox.bottom - spacerBetweenTriggerAndPanel;
+      const spaceAboveTrigger = triggerBox.top - spacerBetweenTriggerAndPanel;
+
+      let openAboveTrigger = false;
+      if (
+        spaceBelowTrigger < panelHeightPx &&
+        spaceAboveTrigger > spaceBelowTrigger
+      ) {
+        openAboveTrigger = true;
+      } else if (
+        spaceBelowTrigger < panelHeightPx &&
+        spaceAboveTrigger < panelHeightPx
+      ) {
+        // Neither side fully fits: choose the side that offers more usable space.
+        openAboveTrigger = spaceAboveTrigger >= spaceBelowTrigger;
+      }
+
+      panelElement.classList.toggle("infotip__panel--above", openAboveTrigger);
+      return;
+    }
+
+    /* --- Mobile fixed panel: anchor under the trigger, then clamp vertically --- */
+    panelElement.classList.remove("infotip__panel--above");
+    const mobileGapPx = 8;
+    const triggerAfterLayout = triggerElement.getBoundingClientRect();
+    const visualViewportMaybe = window.visualViewport;
+    const viewportHeightPx = visualViewportMaybe
+      ? visualViewportMaybe.height
+      : window.innerHeight;
+    const sidePaddingPx = 12;
+
+    panelElement.style.bottom = "auto";
+    let topCoordinatePx = triggerAfterLayout.bottom + mobileGapPx;
+    panelElement.style.top = `${topCoordinatePx}px`;
+
+    function clampInsideViewportVertically() {
+      let boundingRect = panelElement.getBoundingClientRect();
+      if (boundingRect.bottom > viewportHeightPx - sidePaddingPx) {
+        const overflowPx =
+          boundingRect.bottom - (viewportHeightPx - sidePaddingPx);
+        topCoordinatePx = Math.max(sidePaddingPx, boundingRect.top - overflowPx);
+        panelElement.style.top = `${topCoordinatePx}px`;
+        boundingRect = panelElement.getBoundingClientRect();
+      }
+      if (boundingRect.top < sidePaddingPx) {
+        panelElement.style.top = `${sidePaddingPx}px`;
+        boundingRect = panelElement.getBoundingClientRect();
+      }
+      const usableMaxHeight = viewportHeightPx - sidePaddingPx - boundingRect.top;
+      if (
+        boundingRect.height > usableMaxHeight - 1 &&
+        usableMaxHeight > 80
+      ) {
+        panelElement.style.maxHeight = `${Math.round(usableMaxHeight)}px`;
+      } else {
+        panelElement.style.removeProperty("max-height");
+      }
+    }
+
+    // First frame: DOM may still be settling after the panel becomes visible; second frame: final measure.
+    requestAnimationFrame(() => {
+      clampInsideViewportVertically();
+      requestAnimationFrame(clampInsideViewportVertically);
     });
   }
 
-  function infotipIsActive(wrap) {
-    if (wrap.matches(":hover")) return true;
-    var ae = document.activeElement;
-    return !!(ae && wrap.contains(ae));
+  /** True while the user is likely “inside” this infotip (mouse over wrap, or focus inside trigger/panel links). */
+  function infotipHasPointerOrKeyboardFocus(wrapElement) {
+    if (wrapElement.matches(":hover")) return true;
+    const active = document.activeElement;
+    return Boolean(active && wrapElement.contains(active));
   }
 
-  function repositionActiveInfotips() {
-    document.querySelectorAll(".infotip").forEach(function (wrap) {
-      if (infotipIsActive(wrap)) positionInfotip(wrap);
+  /** Keep an open infotip aligned when the page or virtual keyboard moves the viewport. */
+  function repositionOpenInfotips() {
+    document.querySelectorAll(".infotip").forEach((wrap) => {
+      if (infotipHasPointerOrKeyboardFocus(wrap)) {
+        positionInfotipPanel(wrap);
+      }
     });
   }
 
-  document.querySelectorAll(".infotip").forEach(function (wrap) {
-    var trigger = wrap.querySelector(".infotip__trigger");
-    wrap.addEventListener("mouseenter", function () {
-      positionInfotip(wrap);
+  document.querySelectorAll(".infotip").forEach((wrap) => {
+    const triggerInside = wrap.querySelector(".infotip__trigger");
+    wrap.addEventListener("mouseenter", () => {
+      positionInfotipPanel(wrap);
     });
-    wrap.addEventListener("focusin", function () {
-      requestAnimationFrame(function () {
-        positionInfotip(wrap);
-        requestAnimationFrame(function () {
-          positionInfotip(wrap);
+    wrap.addEventListener("focusin", () => {
+      // Keyboard / tab focus: wait until focus and layout have settled before measuring.
+      requestAnimationFrame(() => {
+        positionInfotipPanel(wrap);
+        requestAnimationFrame(() => {
+          positionInfotipPanel(wrap);
         });
       });
     });
-    if (trigger) {
-      trigger.addEventListener("click", function () {
-        requestAnimationFrame(function () {
-          positionInfotip(wrap);
+    if (triggerInside) {
+      triggerInside.addEventListener("click", () => {
+        requestAnimationFrame(() => {
+          positionInfotipPanel(wrap);
         });
       });
     }
   });
 
-  window.addEventListener("scroll", repositionActiveInfotips, { passive: true });
-  window.addEventListener("resize", repositionActiveInfotips, { passive: true });
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener("scroll", repositionActiveInfotips, { passive: true });
-    window.visualViewport.addEventListener("resize", repositionActiveInfotips, { passive: true });
+  window.addEventListener("scroll", repositionOpenInfotips, { passive: true });
+  window.addEventListener("resize", repositionOpenInfotips, { passive: true });
+  const vv = window.visualViewport;
+  if (vv) {
+    vv.addEventListener("scroll", repositionOpenInfotips, { passive: true });
+    vv.addEventListener("resize", repositionOpenInfotips, { passive: true });
   }
-})();
+}
+
+/**
+ * Boots every interactive behaviour needed after the markup exists.
+ * Loads with `defer`, so DOM querySelector calls are safe immediately.
+ */
+function init() {
+  setFooterYearCurrent();
+
+  const contactForm = document.querySelector(".contact-form");
+  if (contactForm instanceof HTMLFormElement) {
+    attachContactFormHandler(contactForm);
+  }
+
+  const headerMenuToggleButton = document.querySelector("[data-menu-toggle]");
+  const headerNavigationPanel = document.querySelector("[data-nav]");
+  const sectionAnchorLinks = document.querySelectorAll("[data-section-link]");
+  const scrollProgressTrack = document.querySelector(".scroll-progress");
+  const revealTargets = document.querySelectorAll("[data-reveal]");
+  const supportsIntersectionObserver = "IntersectionObserver" in window;
+
+  // Top-of-page gradient bar reflecting overall scroll depth.
+  const updateProgressBarWidth = createScrollProgressUpdater(scrollProgressTrack);
+  window.addEventListener("scroll", updateProgressBarWidth, { passive: true });
+  updateProgressBarWidth();
+
+  if (headerMenuToggleButton && headerNavigationPanel) {
+    headerMenuToggleButton.addEventListener("click", () => {
+      const willOpen = !headerNavigationPanel.classList.contains("is-open");
+      setMobileMenuExpanded(
+        willOpen,
+        headerMenuToggleButton,
+        headerNavigationPanel,
+      );
+    });
+
+    document.addEventListener("keydown", (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        setMobileMenuExpanded(false, headerMenuToggleButton, headerNavigationPanel);
+      }
+    });
+
+    // Collapse the drawer after in-page navigation on phone-sized layouts only.
+    headerNavigationPanel.querySelectorAll("a").forEach((navigationLink) => {
+      navigationLink.addEventListener("click", () => {
+        const collapsedDrawerQuery = window.matchMedia(COLLAPSED_NAV_MEDIA_QUERY);
+        if (collapsedDrawerQuery.matches) {
+          setMobileMenuExpanded(false, headerMenuToggleButton, headerNavigationPanel);
+        }
+      });
+    });
+  }
+
+  if (supportsIntersectionObserver) {
+    const sectionIntersectionObserver = new IntersectionObserver(
+      (observerEntries) => {
+        observerEntries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0) {
+            updateActiveNavigationState(entry.target.id, sectionAnchorLinks);
+          }
+        });
+      },
+      {
+        root: null,
+        /** Biases spy state toward whichever block crosses the geometric “reading line”. */
+        rootMargin: "-42% 0px -48% 0px",
+        threshold: [0, 0.08, 0.2],
+      },
+    );
+
+    MAIN_NAV_SECTION_IDS.forEach((sectionDomId) => {
+      const sectionElement = document.getElementById(sectionDomId);
+      if (sectionElement) {
+        sectionIntersectionObserver.observe(sectionElement);
+      }
+    });
+  }
+
+  if (supportsIntersectionObserver && revealTargets.length > 0) {
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          }
+        });
+      },
+      { root: null, rootMargin: "0px 0px -8% 0px", threshold: 0.1 },
+    );
+
+    revealTargets.forEach((revealEl) => {
+      revealObserver.observe(revealEl);
+    });
+  } else {
+    // No observer API (very old browsers): show content immediately instead of leaving it invisible.
+    revealTargets.forEach((revealEl) => {
+      revealEl.classList.add("is-visible");
+    });
+  }
+
+  if (!supportsIntersectionObserver && MAIN_NAV_SECTION_IDS.length > 0) {
+    updateActiveNavigationState("inicio", sectionAnchorLinks);
+  }
+
+  createInfotipController();
+}
+
+init();

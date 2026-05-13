@@ -1,3 +1,13 @@
+/**
+ * Stylesheet map (quick navigation)
+ *  1. Design tokens + global reset (:root … page-gradient)
+ *  2. Header + primary navigation (sticky bar, drawer on small screens)
+ *  3. Section layouts (about, certifications, medicina familiar splits)
+ *  4. Infotips (rich footnotes inlined in prose)
+ *  5. Marketing blocks (hero, typography, buttons, cards, reveal)
+ *  6. Contact (map iframe, WhatsApp chip, footer)
+ */
+
 :root {
   /* Brand logos: mint–cyan (logo-teal-transparent in header/favicon; logo-white on gradient) */
   --logo-teal-light: #86d2c9;
@@ -1414,18 +1424,6 @@ body.nav-open {
   color: var(--color-text-muted);
   background: var(--color-bg);
   border-top: 1px solid var(--color-border);
-}
-
-.contact {
-  display: grid;
-  gap: 1.5rem;
-  max-width: 36rem;
-}
-
-@media (min-width: 640px) {
-  .contact {
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  }
 }
 
 .contact__block {
