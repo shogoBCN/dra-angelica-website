@@ -1,0 +1,116 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "MedicalClinic",
+      "@id": "https://medicina-familiar.co/#clinic",
+      "name": "Consultorio · Dra. Angélica Granados Silva · Medicina familiar",
+      "url": "https://medicina-familiar.co/",
+      "telephone": "+57-310-770-0625",
+      "email": "doc.angelica@medicina-familiar.co",
+      "image": "https://medicina-familiar.co/assets/images/logo-teal-transparent.png",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Calle 8 # 24-12, Centro Comercial Andaki, Consultorio 7",
+        "addressLocality": "La Mesa",
+        "addressRegion": "Cundinamarca",
+        "addressCountry": "CO"
+      },
+      "hasMap": "https://www.google.com/maps/place/Dra+Ang%C3%A9lica+Granados+Silva/@4.6295574,-74.4663571,17z"
+    },
+    {
+      "@type": "Physician",
+      "@id": "https://medicina-familiar.co/#physician",
+      "name": "Dra. Angélica Granados Silva",
+      "url": "https://medicina-familiar.co/",
+      "image": "https://medicina-familiar.co/assets/images/logo-teal-transparent.png",
+      "email": "doc.angelica@medicina-familiar.co",
+      "telephone": "+57-310-770-0625",
+      "medicalSpecialty": {
+        "@type": "MedicalSpecialty",
+        "name": "Medicina familiar y comunitaria"
+      },
+      "knowsLanguage": ["es-CO", "fr", "en"],
+      "worksFor": { "@id": "https://medicina-familiar.co/#clinic" },
+      "sameAs": "https://www.linkedin.com/in/maryi-ang%C3%A9lica-granados-silva-2976b969/"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://medicina-familiar.co/#website",
+      "url": "https://medicina-familiar.co/",
+      "name": "Medicina familiar | Dra. Angélica Granados Silva",
+      "inLanguage": "es-CO",
+      "publisher": { "@id": "https://medicina-familiar.co/#physician" }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://medicina-familiar.co/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿Qué es la medicina familiar y en qué se diferencia del médico general o de la «medicina general»?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La medicina familiar y comunitaria organiza el cuidado en el tiempo: integra su historia, síntomas que a veces parecen no relacionados, prevención y enfermedades crónicas en un mismo hilo, y define cuándo el consultorio alcanza y cuándo hace falta otra especialidad o un servicio de urgencias. En el habla cotidiana, «médico general» o «medicina general» suele significar que uno busca esa primera atención amplia y cercana. Quien ejerce medicina familiar atiende a menudo esa misma necesidad. El añadido está en el método y en la formación de posgrado (continuidad, contexto familiar, derivación ordenada), no en desmentir la palabra con la que usted llegó a esta página."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿En qué temas de salud tiene especial interés la Dra. Angélica?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "En la consulta prioriza el cuidado de personas con patología compleja (varias condiciones o medicaciones que conviene leer juntas), el adulto mayor y la prevención y el seguimiento de la diabetes y del riesgo cardiometabólico, con metas claras y tiempo para resolver dudas. También acompaña cuando el cuadro es difícil de ordenar: síntomas prolongados, historias o exámenes dispersos, o condiciones poco frecuentes. Ahí el enfoque es una mirada global, la anticipación de complicaciones y una definición clara de los pasos siguientes, incluida la derivación cuando hace falta otro nivel especializado."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Por qué acudir a una especialista en medicina familiar si ya tiene médico de cabecera, EPS u otro tratante?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "En muchos esquemas con EPS el tiempo por consulta es acotado; no es extraño que ronde los diez o quince minutos. Con eso a veces alcanza para un episodio puntual, pero suele faltar margen para explorar con calma, cruzar varios síntomas a la vez (presión, sueño, medicación, dolor), o armar una lectura global que incluya prevención y contexto familiar. La medicina familiar y comunitaria se forma para ese tipo de conversación: un posgrado con rotaciones supervisadas por distintas áreas clínicas. El objetivo no es igualar a cada especialista en su propio terreno, sino desarrollar una mirada que integre lo que en otros niveles suele verse en fragmentos, con criterio clínico propio y con claridad para derivar cuando el caso lo exige. Su médico de cabecera y su EPS siguen siendo, según su plan, donde se gestionan póliza, autorizaciones y urgencias. La consulta en este consultorio es particular y puede sumarse cuando en La Mesa busque más tiempo, profundidad o seguimiento."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿El consultorio atiende por EPS o es atención particular?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Es atención particular: cita y honorarios se acuerdan directamente con el consultorio. Autorizaciones, remisiones obligatorias y urgencias que su aseguradora maneje por regla siguen su curso habitual con la EPS u otro pagador."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué pasa si se necesita un especialista?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Cuando el caso lo exige, la Dra. Angélica deriva con criterio hacia colegas de confianza en La Mesa o en Bogotá. La red incluye, entre otras áreas, neurología, pediatría, dermatología, psiquiatría, traumatología, oftalmología y más, de modo que el paso entre niveles sea ordenado y pueda mantenerse seguimiento desde el consultorio cuando corresponde."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Atienden todas las edades?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí. Una misma mirada familiar puede acompañar a niños, adultos y adultos mayores cuando el caso permite manejo en consultorio externo, y derivar con claridad cuando hace falta otra especialidad o hospitalización."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿En qué idiomas puede atenderse la consulta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La atención es en español, francés e inglés, con dominio fluido en los tres. La Dra. Angélica creció en Colombia, estudió en el Lycée Français de Bogotá y en su hogar se habla inglés, lo que suele facilitar la consulta para familias multilingües o quienes prefieren explicarse en otro idioma."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Dónde queda el consultorio y cómo agendar?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "En el Centro Comercial Andaki - Consultorio 7, La Mesa (Cundinamarca); el mapa y la dirección están más arriba en esta página. Lo más ágil suele ser WhatsApp al 310 770 0625 o el formulario de contacto."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -4,7 +4,7 @@
  *  2. Header + primary navigation (sticky bar, drawer on small screens)
  *  3. Section layouts (about, certifications, medicina familiar splits)
  *  4. Infotips (rich footnotes inlined in prose)
- *  5. Marketing blocks (hero, typography, buttons, cards, reveal)
+ *  5. Marketing blocks (hero, typography, buttons, cards, FAQ accordions, reveal)
  *  6. Contact (map iframe, WhatsApp chip, footer)
  */
 
@@ -66,7 +66,7 @@ html {
   scroll-padding-bottom: calc(var(--footer-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1100px) {
   html {
     scroll-padding-top: calc(var(--header-h) + 1rem);
   }
@@ -164,7 +164,7 @@ body {
  * ancestro convierte el panel del menú (position: fixed) en relativo a esa caja,
  * y el menú queda recortado detrás del contenido.
  */
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
   .header {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -219,7 +219,7 @@ body {
   color: var(--color-text-muted);
 }
 
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
   .header__row {
     gap: 0.45rem;
     padding-left: 0.75rem;
@@ -288,7 +288,7 @@ body.nav-open {
   overflow: hidden;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1100px) {
   body.nav-open {
     overflow: visible;
   }
@@ -345,7 +345,7 @@ body.nav-open {
   display: none;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
   .header__nav {
     position: fixed;
     inset: var(--header-h) 0 0 0;
@@ -364,7 +364,7 @@ body.nav-open {
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1100px) {
   .header__toggle {
     display: none;
   }
@@ -374,13 +374,54 @@ body.nav-open {
   }
 
   .header__links {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-end;
   }
 
   .header__link {
-    font-size: 0.9rem;
-    padding: 0.35rem 0.65rem;
+    font-size: 0.875rem;
+    padding: 0.32rem 0.55rem;
+    white-space: nowrap;
+  }
+}
+
+/* Secondary pages: show compact inline nav on all breakpoints (no drawer). */
+.header.header--simple .header__nav {
+  display: block !important;
+  position: static;
+  inset: auto;
+  z-index: auto;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  border: 0;
+  box-shadow: none;
+}
+
+@media (max-width: 1099px) {
+  .header.header--simple .header__row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .header.header--simple .header__nav {
+    width: 100%;
+  }
+
+  .header.header--simple .header__links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
+
+  .header.header--simple .header__link {
+    font-size: 0.92rem;
+    padding: 0.45rem 0.65rem;
   }
 }
 
@@ -393,11 +434,11 @@ body.nav-open {
   gap: 0.25rem;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1100px) {
   .header__links {
     flex-direction: row;
     align-items: center;
-    gap: 0.1rem;
+    gap: 0.06rem;
   }
 }
 
@@ -538,12 +579,20 @@ body.nav-open {
   color: var(--color-text-muted);
 }
 
+.medfam-read-more {
+  margin: 0.85rem 0 0;
+  max-width: var(--max-text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 .section__inner {
   max-width: var(--max-wide);
   margin: 0 auto;
 }
 
-/* Sobre mí: text + photo — 60/40 split on wide screens; image fills its cell */
+/* Sobre mí: text + photo - 60/40 split on wide screens; image fills its cell */
 .section__inner--about {
   display: grid;
   gap: 2rem;
@@ -960,7 +1009,7 @@ body.nav-open {
 }
 
 .hero__inner {
-  max-width: 36rem;
+  max-width: 50rem;
   margin: 0 auto;
   text-align: center;
 }
@@ -976,11 +1025,34 @@ body.nav-open {
 }
 
 .hero__tag {
-  margin: 0 0 1.75rem;
+  margin: 0 0 0.95rem;
   font-size: 1.1rem;
   color: var(--color-text-muted);
   font-weight: 500;
   line-height: 1.55;
+}
+
+.hero__bridge {
+  margin: 0 auto 1.1rem;
+  max-width: 34rem;
+  font-size: 0.95rem;
+  line-height: 1.58;
+  text-align: left;
+  color: var(--color-text-muted);
+}
+
+.hero__bridge strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.hero__clarifier {
+  margin: 0 auto 1.75rem;
+  max-width: 34rem;
+  font-size: 0.975rem;
+  line-height: 1.62;
+  text-align: left;
+  color: var(--color-text-muted);
 }
 
 .hero__actions {
@@ -1063,6 +1135,89 @@ body.nav-open {
 
 .prose h3:first-child {
   margin-top: 0;
+}
+
+/*
+ * FAQs: native <details> (no JS) for SEO-visible Q&A paired with FAQPage JSON-LD.
+ * Single outer panel (aligned with .section__lead / formación) instead of centered cards.
+ */
+.faq {
+  max-width: var(--max-text);
+  margin: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: 0 4px 18px rgba(26, 34, 40, 0.04);
+  overflow: hidden;
+}
+
+.faq__item {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: none;
+  transition: background-color 0.18s ease;
+}
+
+.faq__item:last-child {
+  border-bottom: none;
+}
+
+.faq__question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.82rem 1rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.945rem;
+  line-height: 1.42;
+  color: var(--color-text);
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq__question::-webkit-details-marker {
+  display: none;
+}
+
+.faq__question::marker {
+  content: "";
+}
+
+.faq__question:focus {
+  outline: none;
+}
+
+.faq__question:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-md);
+}
+
+.faq__item[open] {
+  background: var(--color-accent-soft);
+}
+
+.faq__answer {
+  padding: 0 1rem 0.92rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.faq__answer p {
+  margin: 0.72rem 0 0;
+  font-size: 0.935rem;
+  line-height: 1.62;
+  color: var(--color-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq__item {
+    transition: none;
+  }
 }
 
 .cards {
@@ -1172,6 +1327,39 @@ body.nav-open {
 
 .contact-main__address {
   margin: 0;
+}
+
+.contact-main__modalidad {
+  margin: 2.5rem 0 0;
+  padding-top: 1.5rem;
+  width: 100%;
+  border-top: 1px solid var(--color-border);
+}
+
+.contact-main__modalidad .contact__label {
+  margin: 0 0 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.contact-main__modalidad-text {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.contact-main__modalidad-text + .contact-main__modalidad-text {
+  margin-top: 0.75rem;
+}
+
+.contact-main__modalidad-text strong {
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .contact-aside {
@@ -1496,7 +1684,7 @@ body.nav-open {
   box-shadow: 0 -1px 0 rgba(26, 34, 40, 0.06);
 }
 
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
   .site-footer {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;

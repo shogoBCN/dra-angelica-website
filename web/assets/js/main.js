@@ -16,17 +16,18 @@
 /* Configuration                                                              */
 /* -------------------------------------------------------------------------- */
 
-/** Section `#id`s that appear in the main nav and hero CTAs — order matches visual flow. */
+/** Section `#id`s that appear in the main nav and hero CTAs - order matches visual flow. */
 const MAIN_NAV_SECTION_IDS = Object.freeze([
   "inicio",
   "sobre-mi",
   "medicina-familiar",
   "servicios",
+  "preguntas-frecuentes",
   "contacto",
 ]);
 
 /** Breakpoint reused for collapsing the horizontal nav behind the menu toggle. */
-const COLLAPSED_NAV_MEDIA_QUERY = "(max-width: 899px)";
+const COLLAPSED_NAV_MEDIA_QUERY = "(max-width: 1099px)";
 
 /** Below this width infotips use fixed positioning and viewport clamping. */
 const INFOTIP_MOBILE_MEDIA_QUERY = "(max-width: 639px)";

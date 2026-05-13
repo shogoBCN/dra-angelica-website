@@ -7,6 +7,18 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const src = join(root, "web");
 const dist = join(root, "dist");
 
+/** HTML entry points: all processed with asset cache-bust; only index gets inline JSON-LD. */
+const HTML_PAGES = ["index.html", "medicina-familiar-colombia.html"];
+
+const SITEMAP_URLS = [
+  { loc: "https://medicina-familiar.co/", priority: "1.0", changefreq: "monthly" },
+  {
+    loc: "https://medicina-familiar.co/medicina-familiar-colombia",
+    priority: "0.75",
+    changefreq: "monthly",
+  },
+];
+
 /** Unique per deploy so asset URLs change and browsers fetch fresh CSS/JS/images. */
 function makeBuildId() {
   if (process.env.BUILD_ID) return String(process.env.BUILD_ID).slice(0, 32);
@@ -17,16 +29,56 @@ function makeBuildId() {
   return createHash("sha256").update(String(Date.now())).digest("hex").slice(0, 12);
 }
 
+function applyAssetCacheBust(html, buildId) {
+  return html.replace(/\b(href|src)="(assets\/[^"?#]+)"/g, (_m, attr, assetPath) => {
+    return `${attr}="${assetPath}?v=${buildId}"`;
+  });
+}
+
+async function injectInlineJsonLd(html) {
+  const schemaRaw = await readFile(join(src, "assets/seo/schema.json"), "utf8");
+  const schemaInline = JSON.stringify(JSON.parse(schemaRaw)).replace(/</g, "\\u003c");
+  const ldJsonScriptRe =
+    /<script type="application\/ld\+json" src="assets\/seo\/schema\.json(?:\?v=[^"]*)?"><\/script>/;
+  if (!ldJsonScriptRe.test(html)) {
+    throw new Error(
+      'build-site: index.html must contain: <script type="application/ld+json" src="assets/seo/schema.json"></script>'
+    );
+  }
+  return html.replace(ldJsonScriptRe, `<script type="application/ld+json">${schemaInline}</script>`);
+}
+
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
 const buildId = makeBuildId();
-let html = await readFile(join(src, "index.html"), "utf8");
-html = html.replace(/\b(href|src)="(assets\/[^"?#]+)"/g, (_m, attr, assetPath) => {
-  return `${attr}="${assetPath}?v=${buildId}"`;
-});
-await writeFile(join(dist, "index.html"), html, "utf8");
 
+for (const page of HTML_PAGES) {
+  const pagePath = join(src, page);
+  let html = await readFile(pagePath, "utf8");
+  html = applyAssetCacheBust(html, buildId);
+  if (page === "index.html") {
+    html = await injectInlineJsonLd(html);
+  }
+  await writeFile(join(dist, page), html, "utf8");
+}
+
+await cp(join(src, "robots.txt"), join(dist, "robots.txt"));
 await cp(join(src, "assets"), join(dist, "assets"), { recursive: true });
 
-console.info(`build-site: wrote dist/ (cache-bust v=${buildId})`);
+const lastmod = new Date().toISOString().slice(0, 10);
+const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${SITEMAP_URLS.map(
+  (u) => `  <url>
+    <loc>${u.loc}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`
+).join("\n")}
+</urlset>
+`;
+await writeFile(join(dist, "sitemap.xml"), sitemapXml, "utf8");
+
+console.info(`build-site: wrote dist/ (cache-bust v=${buildId}, pages=${HTML_PAGES.join(", ")})`);
