@@ -3,6 +3,7 @@ dist/
 
 # Dependencies
 node_modules/
+.venv-favicon/
 
 # Firebase CLI local cache (paths and hashes; do not commit)
 .firebase/
