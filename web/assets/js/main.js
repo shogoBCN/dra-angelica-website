@@ -10,6 +10,7 @@
  *  - Scroll-spy highlighting for primary nav anchors
  *  - Gentle “reveal on scroll” for section blocks (respects reduced-motion via CSS)
  *  - Inline “infotip” panels beside long-form copy (positioning on mobile/desktop)
+ *  - Optional GA4 (gtag) when `google-analytics-measurement-id` meta is set
  */
 
 /* -------------------------------------------------------------------------- */
@@ -35,6 +36,30 @@ const INFOTIP_MOBILE_MEDIA_QUERY = "(max-width: 639px)";
 /** Shown inline when AJAX returns non-success JSON without a usable `message` from the provider. */
 const CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES =
   "No se pudo enviar el mensaje. Compruebe su conexión e inténtelo de nuevo.";
+
+/**
+ * Loads GA4 (gtag.js) when each page includes
+ * `<meta name="google-analytics-measurement-id" content="G-xxxxxxxxxx">`.
+ * Implemented here (not inline) so Content-Security-Policy can avoid 'unsafe-inline'.
+ */
+function initGoogleAnalyticsIfConfigured() {
+  const meta = document.querySelector('meta[name="google-analytics-measurement-id"]');
+  const measurementId = meta?.getAttribute("content")?.trim();
+  if (!measurementId || !/^G-[A-Z0-9]+$/i.test(measurementId)) return;
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+  gtag("js", new Date());
+  gtag("config", measurementId);
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+  document.head.appendChild(script);
+}
 
 /** FormSubmit AJAX path segment after the domain (email id or token string). */
 function formsubmitAjaxPathFromAction(formActionAttribute) {
@@ -487,4 +512,5 @@ function init() {
   createInfotipController();
 }
 
+initGoogleAnalyticsIfConfigured();
 init();
