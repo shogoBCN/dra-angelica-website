@@ -199,19 +199,35 @@
 
 .blog-admin-grid {
   display: grid;
-  gap: 2rem;
+  gap: 1.5rem;
+  align-items: start;
+  width: 100%;
+}
+
+.blog-admin-grid > * {
+  min-width: 0;
 }
 
 @media (min-width: 900px) {
   .blog-admin-grid {
-    grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
-    align-items: start;
+    grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
   }
 }
 
 .blog-admin-side {
   position: sticky;
   top: calc(var(--header-h) + 0.75rem);
+  padding: 1.1rem 1.15rem;
+}
+
+@media (max-width: 899px) {
+  .blog-admin-side {
+    position: static;
+  }
+
+  .blog-admin-list {
+    max-height: min(14rem, 40vh);
+  }
 }
 
 .blog-admin-actions-top {
@@ -386,4 +402,64 @@
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
   line-height: 1.55;
+}
+
+/* ——— Blog admin page: header + grid (scoped to /blog/admin) ————————— */
+
+.blog-admin-page #blog-admin-login[hidden],
+.blog-admin-page #blog-admin-app[hidden],
+.blog-admin-page #blog-admin-guest-banner[hidden] {
+  display: none !important;
+}
+
+.blog-admin-page #blog-admin-app:not([hidden]) {
+  display: grid !important;
+}
+
+.blog-admin-page #blog-admin-login:not([hidden]) {
+  display: block !important;
+}
+
+.blog-admin-page .blog-admin-welcome {
+  max-width: var(--max-text);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1.75rem;
+}
+
+.blog-admin-page .blog-admin-welcome__title {
+  margin-bottom: 0.35rem;
+}
+
+.blog-admin-page .blog-admin-welcome__lead {
+  margin: 0;
+}
+
+.blog-admin-page.blog-admin--authed .blog-main {
+  padding-top: calc(var(--header-h, 4rem) + 0.75rem);
+}
+
+@media (max-width: 1099px) {
+  .blog-admin-page .header.header--simple .header__row {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .blog-admin-page .header.header--simple .header__brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .blog-admin-page .header.header--simple .header__nav {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .blog-admin-page .header.header--simple .header__links {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 0.15rem;
+  }
 }

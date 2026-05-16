@@ -24,6 +24,7 @@
 
   const elLogin = document.getElementById("blog-admin-login");
   const elApp = document.getElementById("blog-admin-app");
+  const elGuestBanner = document.getElementById("blog-admin-guest-banner");
   const elAuthError = document.getElementById("blog-admin-auth-error");
   const elFormError = document.getElementById("blog-admin-form-error");
   const elFormOk = document.getElementById("blog-admin-form-ok");
@@ -174,9 +175,17 @@
     return snap;
   }
 
+  function setAuthedUi(authed) {
+    if (elGuestBanner) elGuestBanner.hidden = authed;
+    elLogin.toggleAttribute("hidden", authed);
+    elApp.toggleAttribute("hidden", !authed);
+    document.body.classList.toggle("blog-admin--authed", authed);
+  }
+
   if (!window.__blogFirebaseConfigured) {
-    elLogin.hidden = true;
-    elApp.hidden = true;
+    if (elGuestBanner) elGuestBanner.hidden = true;
+    elLogin.toggleAttribute("hidden", true);
+    elApp.toggleAttribute("hidden", true);
     document.getElementById("blog-admin-config-warning").hidden = false;
     return;
   }
@@ -198,14 +207,12 @@
 
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-      elLogin.hidden = true;
-      elApp.hidden = false;
+      setAuthedUi(true);
       elAuthError.hidden = true;
       clearForm();
       refreshList().catch(() => {});
     } else {
-      elLogin.hidden = false;
-      elApp.hidden = true;
+      setAuthedUi(false);
     }
   });
 

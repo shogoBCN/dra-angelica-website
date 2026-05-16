@@ -8,12 +8,12 @@ const src = join(root, "web");
 const dist = join(root, "dist");
 
 /** HTML entry points: all processed with asset cache-bust; only index gets inline JSON-LD. */
-const HTML_PAGES = ["index.html", "medicina-familiar-colombia.html"];
+const HTML_PAGES = ["index.html"];
 
 const SITEMAP_URLS = [
   { loc: "https://medicina-familiar.co/", priority: "1.0", changefreq: "monthly" },
   {
-    loc: "https://medicina-familiar.co/medicina-familiar-colombia",
+    loc: "https://medicina-familiar.co/blog/articulo?slug=medicina-familiar-en-colombia",
     priority: "0.75",
     changefreq: "monthly",
   },

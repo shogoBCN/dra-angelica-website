@@ -7,7 +7,7 @@ Static **frontend** (visitor-facing copy in **Colombian Spanish**) and **Firebas
 
 | Path            | Purpose                                                        |
 | --------------- | -------------------------------------------------------------- |
-| `web/`          | Source pages (home, secondary article), **`blog/`** subtree, shared **`assets/`** |
+| `web/`          | Site **source**: `index.html`, **`blog/`** subtree, shared **`assets/`** |
 | `dist/`         | **Build output** (generated; do not edit). Deploy this folder. |
 | `scripts/`      | Build tooling (`build-site.mjs`)                               |
 | `firebase/`     | `firestore.rules`, `firestore.indexes.json`                    |
@@ -18,7 +18,7 @@ Static **frontend** (visitor-facing copy in **Colombian Spanish**) and **Firebas
 
 - **Secrets:** do not commit `.env`, service account JSON, or private keys. `.gitignore` lists common patterns; use `firebase functions:config:set` or Secret Manager for real secrets later.
 - **Firestore:** rules live in `firebase/firestore.rules` (default deny outside `posts/`).
-- **Hosting:** `firebase.json` sets security headers (HSTS, `X-Frame-Options`, `Referrer-Policy`, etc.). **Content-Security-Policy** lives in **`web/index.html`**, **`web/medicina-familiar-colombia.html`**, and per-page on **`web/blog/**/*.html`** (Firebase SDK CDN, and jsDelivr for Quill on `/blog/admin`). (`frame-ancestors` belongs in a **response header**, not meta.)
+- **Hosting:** `firebase.json` sets security headers (HSTS, `X-Frame-Options`, `Referrer-Policy`, etc.). **Content-Security-Policy** lives in **`web/index.html`** and per-page on **`web/blog/**/*.html`** (Firebase SDK CDN, and jsDelivr for Quill on `/blog/admin`). (`frame-ancestors` belongs in a **response header**, not meta.)
 
 ## Conda environment (Node + Firebase CLI)
 
