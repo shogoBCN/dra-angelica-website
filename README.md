@@ -162,12 +162,70 @@ Add or keep records **exactly** as **Firebase Hosting** shows for each connected
 
 Static pages under **`web/blog/`** deploy to **`/blog/`**. The **admin UI** (`/blog/admin/`, tagged `noindex`) writes to Firestore so Angélica can compose and publish **without deploying**.
 
-#### First-time setup
+#### Tutorial: Firestore from scratch (nothing configured yet)
 
-1. In Firebase Console → **Project settings** → **Your apps** → existing or new **Web app** → copy **`firebaseConfig`** into **`web/blog/assets/js/firebase-config.js`** (replace every `REPLACE_*` placeholder).
-2. **Authentication** → enable **Email/Password** → create the publisher account(s).
-3. Copy each user's **Authentication UID** into the **`isPublisher()`** allow-list in **`firebase/firestore.rules`**. Then run **`npm run deploy:firestore`** (deploys rules **and** the composite indexes from `firebase/firestore.indexes.json`).
-4. Build and ship hosting (**`npm run build`** then **`npm run deploy:hosting`** — or **`npm run deploy`**). After that, new posts appear **immediately** from the DB; ordinary article edits do **not** require redeploy.
+Do these in the **same Firebase project** as **`firebase-config.js`** and **`.firebaserc`**.
+
+##### 1. Create Firestore Database (Firebase Console only)
+
+1. Open **[Firebase Console](https://console.firebase.google.com/)** → choose your project.
+2. Sidebar **Build** → **Firestore Database**.
+3. **Create database**.
+4. Choose **production mode** (you will publish strict rules from this repo right after; avoid leaving “wide open” rules in production longer than testing).
+5. Pick a **location** Firebase offers (often **`southamerica-east1`** (São Paulo) is a reasonable default for Colombian traffic; **cannot be changed later** — read the picker text carefully).
+6. **Enable**.
+
+The database starts **empty**. You will **not** create `posts` by hand—the admin UI writes them.
+
+##### 2. Enable Authentication (sign-in)
+
+1. **Build** → **Authentication** → **Get started**.
+2. **Sign-in method** → **Email/Password** → **Enable** → **Save**.
+3. **Users** → **Add user** with the editorial email/password.
+4. Click that user → copy **UID** → put it inside **`firebase/firestore.rules`** in the **`isPublisher()`** array (with the repo’s comma-separated UID list syntax).
+
+Firestore rules deploy does **not** create users—you must complete this step once.
+
+##### 3. Deploy rules + indexes from the repository
+
+From **this repo root** (Node installed):
+
+```bash
+npm install
+npm run firebase -- login                    # browser auth, once per machine
+npm run firebase -- use --add                # choose dra-angelica-website
+npm run deploy:firestore
+```
+
+That command publishes **`firebase/firestore.rules`** and **`firebase/firestore.indexes.json`**. Visitors may only read **`posts`** where **`published == true`**; **`isPublisher()`** UIDs may read/write all **`posts`**.
+
+Until the composite index (**`published` + `publishedAt`**) finishes building, the **`/blog/`** list query may temporarily fail—in the Console → Firestore → **Indexes**, watch until it turns green.
+
+##### 4. Hosting + Firebase web config + first post
+
+1. Paste **`firebaseConfig`** from Firebase → **Project settings** → Web app → into **`web/blog/assets/js/firebase-config.js`**.
+2. **`npm run build`** then **`npm run deploy:hosting`** (or **`npm run deploy`** to ship Firestore config + hosting together sometimes).
+3. Open **`…/blog/admin/`** → sign in → write a post → check **Publish** → **Save**.
+4. **Firestore → Data**: you should see collection **`posts`**, document ID = **slug**.
+
+If signing in hits **`API key not valid`**, fix the **Google Cloud Browser key** restrictions (see **Troubleshooting admin login** below).
+
+##### 5. You do **not** need to “create the `posts` collection” yourself
+
+Firestore creates the **`posts`** collection automatically when the first document is saved. No manual seed is required unless you prefer it.
+
+---
+
+#### Compact checklist
+
+| Step | Where | What |
+| --- | --- | --- |
+| 1 | Console | Create **Firestore Database** (step 1 above) |
+| 2 | Console | **Authentication**: Email/password + user; UID copied into **`isPublisher()`** in repo rules |
+| 3 | Laptop | **`npm run deploy:firestore`** |
+| 4 | Repo | **`firebase-config.js`** filled |
+| 5 | Laptop | **`npm run build`** && **`npm run deploy:hosting`** |
+| 6 | Browser | **`/blog/admin`** → first article → verify in **Firestore → Data** |
 
 #### `posts` document shape
 
