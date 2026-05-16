@@ -10,30 +10,58 @@
  *  - Scroll-spy highlighting for primary nav anchors
  *  - Gentle “reveal on scroll” for section blocks (respects reduced-motion via CSS)
  *  - Inline “infotip” panels beside long-form copy (positioning on mobile/desktop)
+ *  - Mis servicios: tarjetas interactivas con volteo (título ↔ detalle)
+ *  - FAQ: acordeón (solo un `<details>` abierto a la vez)
+ *  - Optional GA4 (gtag) when `google-analytics-measurement-id` meta is set
  */
 
 /* -------------------------------------------------------------------------- */
 /* Configuration                                                              */
 /* -------------------------------------------------------------------------- */
 
-/** Section `#id`s that appear in the main nav and hero CTAs — order matches visual flow. */
+/** Section `#id`s that appear in the main nav and hero CTAs - order matches visual flow. */
 const MAIN_NAV_SECTION_IDS = Object.freeze([
   "inicio",
   "sobre-mi",
   "medicina-familiar",
   "servicios",
+  "preguntas-frecuentes",
   "contacto",
 ]);
 
 /** Breakpoint reused for collapsing the horizontal nav behind the menu toggle. */
-const COLLAPSED_NAV_MEDIA_QUERY = "(max-width: 899px)";
+const COLLAPSED_NAV_MEDIA_QUERY = "(max-width: 1099px)";
 
 /** Below this width infotips use fixed positioning and viewport clamping. */
 const INFOTIP_MOBILE_MEDIA_QUERY = "(max-width: 639px)";
 
 /** Shown inline when AJAX returns non-success JSON without a usable `message` from the provider. */
 const CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES =
-  "No se pudo enviar el mensaje. Compruebe su conexión e inténtelo de nuevo.";
+  "No se pudo enviar el mensaje. Comprueba tu conexión e inténtalo de nuevo.";
+
+/**
+ * Loads GA4 (gtag.js) when each page includes
+ * `<meta name="google-analytics-measurement-id" content="G-xxxxxxxxxx">`.
+ * Implemented here (not inline) so Content-Security-Policy can avoid 'unsafe-inline'.
+ */
+function initGoogleAnalyticsIfConfigured() {
+  const meta = document.querySelector('meta[name="google-analytics-measurement-id"]');
+  const measurementId = meta?.getAttribute("content")?.trim();
+  if (!measurementId || !/^G-[A-Z0-9]+$/i.test(measurementId)) return;
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+  gtag("js", new Date());
+  gtag("config", measurementId);
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+  document.head.appendChild(script);
+}
 
 /** FormSubmit AJAX path segment after the domain (email id or token string). */
 function formsubmitAjaxPathFromAction(formActionAttribute) {
@@ -224,6 +252,41 @@ function createScrollProgressUpdater(progressBarTrack) {
     );
     progressBarTrack.style.width = `${clampedPercentage}%`;
   };
+}
+
+/** Toggle flip cards en Mis servicios (título ↔ texto completo). */
+function initServiceFlipCards() {
+  document.querySelectorAll("[data-card-flip]").forEach((flipControlElement) => {
+    if (!(flipControlElement instanceof HTMLButtonElement)) return;
+    flipControlElement.addEventListener("click", () => {
+      const expandedCurrently =
+        flipControlElement.getAttribute("aria-expanded") === "true";
+      flipControlElement.setAttribute(
+        "aria-expanded",
+        expandedCurrently ? "false" : "true",
+      );
+    });
+  });
+}
+
+/**
+ * Keeps the preguntas frecuentes list compact: opening one `<details>` closes the others.
+ */
+function initFaqAccordion() {
+  const faqRoot = document.querySelector("#preguntas-frecuentes .faq");
+  if (!faqRoot) return;
+
+  const detailElements = faqRoot.querySelectorAll("details.faq__item");
+  if (detailElements.length <= 1) return;
+
+  detailElements.forEach((detailsElement) => {
+    detailsElement.addEventListener("toggle", () => {
+      if (!detailsElement.open) return;
+      detailElements.forEach((otherDetails) => {
+        if (otherDetails !== detailsElement) otherDetails.open = false;
+      });
+    });
+  });
 }
 
 /**
@@ -483,7 +546,11 @@ function init() {
     updateActiveNavigationState("inicio", sectionAnchorLinks);
   }
 
+  initServiceFlipCards();
+  initFaqAccordion();
+
   createInfotipController();
 }
 
+initGoogleAnalyticsIfConfigured();
 init();

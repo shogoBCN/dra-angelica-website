@@ -18,7 +18,7 @@ Static **frontend** (visitor-facing copy in **Colombian Spanish**) and **Firebas
 
 - **Secrets:** do not commit `.env`, service account JSON, or private keys. `.gitignore` lists common patterns; use `firebase functions:config:set` or Secret Manager for real secrets later.
 - **Firestore:** rules live in `firebase/firestore.rules` (default deny outside `posts/`).
-- **Hosting:** response headers (HSTS, CSP, `X-Frame-Options`, etc.) are set in `firebase.json`. If you load the Firebase SDK from `gstatic.com` or add inline scripts, you must **relax or extend** the `Content-Security-Policy` there.
+- **Hosting:** `firebase.json` sets security headers (HSTS, `X-Frame-Options`, `Referrer-Policy`, etc.). **Content-Security-Policy** for HTML pages is defined in `web/index.html` / `web/medicina-familiar-colombia.html` via `<meta http-equiv="Content-Security-Policy">`. (`frame-ancestors` belongs in a **response header**, not meta; use `X-Frame-Options` / a header CSP in `firebase.json` if you extend framing rules.) If you add third-party scripts or Firebase SDK hosts, update CSP accordingly.
 
 ## Conda environment (Node + Firebase CLI)
 
@@ -77,50 +77,80 @@ Again, open the printed localhost URL.
 npm run build
 ```
 
-Copies `**web/**` → `**dist/**` (static assets only).
+Runs `scripts/build-site.mjs`: reads `web/`, writes `**dist/**` with asset cache-busting, inlined FAQ JSON-LD on the homepage, generated `sitemap.xml`, and copies `robots.txt` plus `assets/`.
 
-## Deployment (e.g. domain at GoDaddy)
+## Deployment
 
-The site is **static** `dist/` output. Point DNS at your host (this project is set up for **Firebase Hosting**; you can also upload `dist/` anywhere that serves static files).
+The site is **static** output in `**dist/**`. This repo targets **Firebase Hosting**; you can also publish `dist/` to any static host.
 
 ### 1. Prerequisites
 
-- Git repository (e.g. on GitHub), or upload `dist/` where your host allows it.
-- `npm run build` produces `**dist/`** as above.
+- Node / npm (see **Conda environment** if you use the project env).
+- `npm run build` writes `**dist/**`.
 
 ### 2. Other static hosts (optional)
 
-You can deploy `**dist/**` to Netlify, Vercel, or Cloudflare Pages: **build command** `npm run build`, **publish directory** `dist`, then follow that provider’s custom-domain steps. This repo does not ship provider-specific config files for those.
+Netlify, Vercel, Cloudflare Pages, etc.: **build command** `npm run build`, **publish directory** `dist`, then follow that provider’s custom-domain docs. This repository does not include provider-specific config files.
 
-### 3. Google Cloud (Firebase) — primary path
+### 3. Firebase Hosting (CLI + deploy)
 
-**A) Firebase Hosting** (HTTPS and custom domain in the Firebase console)
-
-1. Create or pick a project in the [Firebase Console](https://console.firebase.google.com/).
-2. Activate Conda and install JS deps (see **Conda environment** above), then run `npm run firebase -- login`.
-3. From the repo root (once): `npm run firebase -- init hosting` — select the project; **do not overwrite** `firebase.json` if you keep the one from this repo; set the public directory to `**dist`**.
-4. Build and deploy:
-  ```bash
+1. [Firebase Console](https://console.firebase.google.com/) — create or select a project.
+2. `npm run firebase -- login` and `npm run firebase -- use --add` (select the project).
+3. One-time: `npm run firebase -- init hosting` — public directory **`dist`**; do **not** overwrite this repo’s `firebase.json` if you want to keep its headers and ignore rules.
+4. Deploy:
+   ```bash
    npm run deploy:hosting
+   ```
+   (`npm run deploy` can include Firestore rules if you use them.)
+
+### 4. Custom domain & DNS (industry-standard setup)
+
+**Goals (same as this site’s HTML `rel="canonical"` and `sitemap.xml`):**
+
+- **`https://medicina-familiar.co`** (apex) is the **canonical** hostname: it should answer **200** for the site.
+- **`https://www.medicina-familiar.co`** should **301** to the apex (one host in Search Console/social copies; avoids duplicate content).
+
+**Firebase Hosting (console)**
+
+1. **Hosting** → your site → **Add custom domain** (or **Manage custom domains**).
+2. Connect the **apex** `medicina-familiar.co` — finish the flow until status is **Connected** (DNS + SSL).
+3. Connect **`www.medicina-familiar.co`** on the **same** Hosting site.
+4. **Edit domain** for `www` → choose **Redirect this domain to another** → target **`medicina-familiar.co`** (hostname only, no `https://`).  
+   For the **apex**, use **Serve traffic from this domain** (do **not** redirect the apex to `www`).
+
+**Why not `redirects` in `firebase.json` for www→apex?**  
+Hosting `redirects` match **path only**, not hostname. A rule that sends every path to `https://medicina-familiar.co/...` would run on **both** `www` and apex and can break canonical behavior. Hostname redirects belong in the **Firebase custom domain** UI (above).
+
+**Registrar DNS (e.g. GoDaddy — DNS management)**
+
+Add or keep records **exactly** as **Firebase Hosting** shows for each connected domain. Typical pattern:
+
+| Type | Host / Name | Purpose |
+|------|-------------|--------|
+| **TXT** | `@` | Domain verification / ACME / ownership values Firebase specifies. Keep **`hosting-site=<your-site-id>`** if present. |
+| **TXT** | `@` | Optional: Google Search Console / other verifications. |
+| **A** | `@` | **Apex web traffic** — one or more IPv4 addresses Firebase lists (example often seen: `199.36.158.100`). Add **every** A row the console shows. |
+| **AAAA** | `@` | Only if Firebase lists IPv6 for the apex. |
+| **CNAME** | `www` | **Subdomain web traffic** — target **exactly** as Firebase shows (commonly `<your-site-id>.web.app`). |
+| **MX** / other **TXT** | `@`, `_dmarc`, etc. | Email (GoDaddy / Workspace, SPF, DKIM, DMARC) — leave as required for mail; they are independent of the **A** records used for the website. |
+
+**Registrar settings outside the DNS table**
+
+- Turn **off** **domain forwarding / redirect** that sends the **naked domain** to **`www`** (or to a third-party URL). That conflicts with “apex is canonical” and with Firebase’s own **www → apex** redirect.
+
+**Propagate, then verify**
+
+- Changes can take minutes to several hours. After propagation, both domains should show **Connected** in Firebase.
+- Quick checks:
+  ```bash
+  curl -sI "https://medicina-familiar.co/"  | head -5
+  curl -sI "https://www.medicina-familiar.co/" | head -8
   ```
-5. In Firebase: **Hosting** → **Add custom domain** and add the DNS records they show (same idea as step 5 below).
+  Expect **200** on the apex and **301** with `location: https://medicina-familiar.co/...` on `www`. If results look wrong, use a private/incognito window or another network to rule out cached redirects.
 
-**B) Cloud Storage** (bucket + static website)
+**Search Console**
 
-- Upload `**dist/`** contents, enable **static website hosting** (`index.html` as main page).
-- **HTTPS + apex domain** usually needs a load balancer + certificate; more work than Firebase Hosting.
-
-**C) Cloud Run**
-
-- Optional if you later serve **dynamic** APIs from GCP; not required for this static site.
-
-### 4. GoDaddy DNS → your host
-
-In GoDaddy: **My Products** → your domain → **DNS** / **Manage DNS**.
-
-- `**www`:** add a **CNAME** as your host instructs (Firebase, Netlify, etc. each show the exact target).
-- **Apex (`@`):** often **A** records or **ALIAS/ANAME**; follow the host’s custom-domain docs.
-- Wait for DNS propagation (minutes to hours). **HTTPS** is handled by the host (e.g. Firebase provisions certificates).
+- Prefer a **Domain** property for `medicina-familiar.co` (covers `www` and apex). Submit **`sitemap.xml`** after deploy.
 
 ### 5. Blog posts (Firestore)
 
