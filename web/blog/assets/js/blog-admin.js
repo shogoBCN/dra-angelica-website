@@ -1,0 +1,347 @@
+(() => {
+  let quill;
+
+  function slugify(s) {
+    const raw = String(s || "")
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+    const cleaned = raw.replace(/^-|-$/g, "");
+    return cleaned || "articulo";
+  }
+
+  function validSlug(sl) {
+    return (
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(sl) &&
+      sl.length >= 2 &&
+      sl.length <= 96
+    );
+  }
+
+  const elLogin = document.getElementById("blog-admin-login");
+  const elApp = document.getElementById("blog-admin-app");
+  const elGuestBanner = document.getElementById("blog-admin-guest-banner");
+  const elAuthError = document.getElementById("blog-admin-auth-error");
+  const elFormError = document.getElementById("blog-admin-form-error");
+  const elFormOk = document.getElementById("blog-admin-form-ok");
+  const elPostList = document.getElementById("blog-admin-post-list");
+  const fldTitle = document.getElementById("fld-title");
+  const fldSlug = document.getElementById("fld-slug");
+  const fldExcerpt = document.getElementById("fld-excerpt");
+  const fldPublished = document.getElementById("fld-published");
+  const btnNew = document.getElementById("btn-new");
+  const btnSave = document.getElementById("btn-save");
+  const btnDelete = document.getElementById("btn-delete");
+  const fldSlugLocked = document.getElementById("fld-slug-locked-msg");
+
+  let currentSlug = null;
+  /** @type {{ published?: boolean }} | null */
+  let originalData = null;
+  let slugManual = false;
+
+  function flashFormError(msg) {
+    elFormOk.hidden = true;
+    elFormError.textContent = msg || "";
+    elFormError.hidden = !msg;
+  }
+
+  function flashFormOk(msg) {
+    elFormError.hidden = true;
+    elFormOk.textContent = msg;
+    elFormOk.hidden = false;
+  }
+
+  function clearFeedback() {
+    elFormOk.hidden = true;
+    elFormError.hidden = true;
+  }
+
+  function messageForAuthError(err) {
+    const code = err && err.code != null ? String(err.code).trim() : "unknown";
+    const msg = err && err.message ? String(err.message).toLowerCase() : "";
+    const haystack = `${code} ${msg}`;
+    const detail = ` (${code})`;
+
+    /** Rejected API key — often GCP “Application restrictions” (HTTP referrer) blocking localhost/port. */
+    if (
+      code === "auth/invalid-api-key" ||
+      /\binvalid[- ]api-key\b|\bapi[-_]key\b|pass a valid api key|\bplease pass\b|\binvalid key\b/i.test(
+        haystack
+      )
+    ) {
+      return (
+        "Google rechaza la apiKey web: revise en Google Cloud → APIs y servicios → Credenciales la «Browser key» del proyecto Firebase. " +
+        "En restricciones (referrés/orígenes) incluya exactamente cómo entra en el admin (ej. https://medicina-familiar.co y http://127.0.0.1:PUERTO o http://localhost:PUERTO con el mismo número de puerto), " +
+        "o ponga aplicación «Sin restricciones» un momento para probar. También compruebe que la clave en firebase-config.js coincide con Firebase Console → Ajustes del proyecto."
+      ).concat(detail);
+    }
+
+    /** @type {Record<string, string>} */
+    const map = {
+      "auth/invalid-email": "El correo no tiene un formato válido.",
+      "auth/user-disabled": "Esta cuenta está deshabilitada.",
+      "auth/user-not-found": "No hay usuario con ese correo en este proyecto Firebase.",
+      "auth/wrong-password": "Contraseña incorrecta.",
+      "auth/invalid-credential":
+        "Credenciales incorrectas. Compruebe correo y contraseña, o cree el usuario en este proyecto Firebase.",
+      "auth/too-many-requests":
+        "Demasiados intentos; espere unos minutos o restablezca la contraseña en la consola Firebase.",
+      "auth/network-request-failed":
+        "Fallo de red. Compruebe conexión, bloqueadores o que el dominio esté autorizado para Auth.",
+      "auth/operation-not-allowed":
+        "Correo/contraseña no está activado. En Firebase → Authentication → Métodos de acceso.",
+      "auth/unauthorized-domain":
+        "Este dominio no está autorizado para Auth (Authorized domains): añada localhost o medicina-familiar.co.",
+    };
+
+    const fallback =
+      "No se pudo iniciar sesión. Copie el código entre paréntesis si necesita soporte técnico.";
+    return (map[code] || fallback) + detail;
+  }
+
+  function clearForm() {
+    currentSlug = null;
+    originalData = null;
+    slugManual = false;
+    fldSlug.removeAttribute("readonly");
+    fldSlugLocked.hidden = true;
+    fldTitle.value = "";
+    fldSlug.value = "";
+    fldExcerpt.value = "";
+    fldPublished.checked = false;
+    btnDelete.hidden = true;
+    if (quill) quill.setContents([]);
+    clearFeedback();
+    fldTitle.focus();
+  }
+
+  function loadIntoForm(slug, data) {
+    currentSlug = slug;
+    originalData = { published: !!data.published };
+    slugManual = true;
+    fldTitle.value = data.title || "";
+    fldSlug.value = slug;
+    fldSlug.readOnly = true;
+    fldSlugLocked.hidden = false;
+    fldExcerpt.value = data.excerpt || "";
+    fldPublished.checked = !!data.published;
+    if (quill) {
+      quill.clipboard.dangerouslyPasteHTML(data.bodyHtml || "");
+    }
+    btnDelete.hidden = false;
+    clearFeedback();
+  }
+
+  function renderPostList(snap, activeSlug) {
+    elPostList.textContent = "";
+    if (!snap || snap.empty) {
+      elPostList.innerHTML =
+        '<p class="blog-admin-empty">Ningún artículo guardado.</p>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    snap.forEach((doc) => {
+      const d = doc.data();
+      const slug = doc.id;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `blog-admin-list-item${slug === activeSlug ? " is-active" : ""}`;
+      const st = d.published ? "" : " <span class='draft-tag'>borrador</span>";
+      btn.innerHTML = `${d.title || "Sin título"}${st} <span class='slug-label'>(${slug})</span>`;
+      btn.addEventListener("click", async () => {
+        const ds = await firebase.firestore().collection("posts").doc(slug).get();
+        if (ds.exists) loadIntoForm(slug, ds.data());
+      });
+      frag.appendChild(btn);
+    });
+    elPostList.appendChild(frag);
+  }
+
+  async function refreshList() {
+    const user = firebase.auth().currentUser;
+    if (!user) return null;
+    const snap = await firebase
+      .firestore()
+      .collection("posts")
+      .orderBy("updatedAt", "desc")
+      .get()
+      .catch(() => null);
+    if (!snap) return null;
+    renderPostList(snap, currentSlug);
+    return snap;
+  }
+
+  function setAuthedUi(authed) {
+    if (elGuestBanner) elGuestBanner.hidden = authed;
+    elLogin.toggleAttribute("hidden", authed);
+    elApp.toggleAttribute("hidden", !authed);
+    document.body.classList.toggle("blog-admin--authed", authed);
+  }
+
+  if (!window.__blogFirebaseConfigured) {
+    if (elGuestBanner) elGuestBanner.hidden = true;
+    elLogin.toggleAttribute("hidden", true);
+    elApp.toggleAttribute("hidden", true);
+    document.getElementById("blog-admin-config-warning").hidden = false;
+    return;
+  }
+
+  quill = new Quill("#editor", {
+    theme: "snow",
+    modules: {
+      toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        ["blockquote"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link"],
+        ["clean"],
+      ],
+    },
+    placeholder: "Escriba el artículo…",
+  });
+
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      setAuthedUi(true);
+      elAuthError.hidden = true;
+      clearForm();
+      refreshList().catch(() => {});
+    } else {
+      setAuthedUi(false);
+    }
+  });
+
+  document.getElementById("form-login").addEventListener("submit", (e) => {
+    e.preventDefault();
+    elAuthError.hidden = true;
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .catch((err) => {
+        elAuthError.hidden = false;
+        elAuthError.textContent = messageForAuthError(err);
+      });
+  });
+
+  document.getElementById("btn-logout").addEventListener("click", () => {
+    firebase.auth().signOut();
+  });
+
+  btnNew.addEventListener("click", () => {
+    clearForm();
+    refreshList().catch(() => {});
+  });
+
+  fldTitle.addEventListener("input", () => {
+    if (currentSlug && fldSlug.readOnly) return;
+    if (!slugManual) fldSlug.value = slugify(fldTitle.value);
+  });
+
+  fldSlug.addEventListener("input", () => {
+    slugManual = true;
+    fldSlug.value = slugify(fldSlug.value.replace(/\s+/g, "-"));
+  });
+
+  fldSlug.addEventListener("focus", () => {
+    slugManual = true;
+  });
+
+  btnSave.addEventListener("click", async () => {
+    clearFeedback();
+    const title = fldTitle.value.trim();
+    const excerpt = fldExcerpt.value.trim();
+    const published = fldPublished.checked;
+    let docSlug =
+      currentSlug || slugify((fldSlug.value.trim() || title).replace(/\s+/g, "-"));
+
+    if (!title) {
+      flashFormError("Falta el título.");
+      return;
+    }
+    const bodyHtml = quill ? quill.root.innerHTML.trim() : "";
+    if (!bodyHtml || bodyHtml === "<p><br></p>") {
+      flashFormError("Escriba el texto del artículo.");
+      return;
+    }
+
+    if (!currentSlug && fldSlug.value.trim()) {
+      docSlug = slugify(fldSlug.value.trim());
+    }
+
+    if (!validSlug(docSlug)) {
+      flashFormError(
+        "Use un identificador (slug) tipo «mi-articulo» (solo letras minúsculas, números y guiones)."
+      );
+      return;
+    }
+
+    const ref = firebase.firestore().collection("posts").doc(docSlug);
+    const prevSnap = await ref.get();
+
+    let prevPublished = originalData?.published;
+    if (prevSnap.exists) {
+      const pd = prevSnap.data();
+      prevPublished = !!pd?.published;
+    }
+
+    if (!currentSlug && prevSnap.exists) {
+      flashFormError("Ya existe un artículo con ese slug; cambie el identificador.");
+      return;
+    }
+
+    /** @type {Record<string, unknown>} */
+    const patch = {
+      title,
+      excerpt,
+      slug: docSlug,
+      bodyHtml,
+      published,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (!prevSnap.exists) {
+      patch.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    }
+
+    if (published && prevPublished !== true) {
+      patch.publishedAt = firebase.firestore.FieldValue.serverTimestamp();
+    }
+
+    try {
+      await ref.set(patch, { merge: true });
+      originalData = { published };
+      currentSlug = docSlug;
+      fldSlug.value = docSlug;
+      fldSlug.readOnly = true;
+      fldSlugLocked.hidden = false;
+      btnDelete.hidden = false;
+      await refreshList();
+      flashFormOk("Guardado correctamente.");
+    } catch (_e) {
+      flashFormError(
+        "No se pudo guardar. Compruebe que este usuario aparece como editor en firebase/firestore.rules."
+      );
+    }
+  });
+
+  btnDelete.addEventListener("click", async () => {
+    if (!currentSlug) return;
+    if (!confirm(`¿Eliminar definitivamente «${currentSlug}»?`)) return;
+    clearFeedback();
+    try {
+      await firebase.firestore().collection("posts").doc(currentSlug).delete();
+      clearForm();
+      await refreshList();
+      flashFormOk("Artículo eliminado.");
+    } catch (_e) {
+      flashFormError("No se pudo borrar este artículo.");
+    }
+  });
+})();

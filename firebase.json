@@ -7,6 +7,13 @@
     "public": "dist",
     "cleanUrls": true,
     "ignore": ["**/.*", "**/node_modules/**"],
+    "redirects": [
+      {
+        "source": "/medicina-familiar-colombia",
+        "destination": "/blog/articulo?slug=medicina-familiar-en-colombia",
+        "type": 301
+      }
+    ],
     "headers": [
       {
         "source": "/robots.txt",
