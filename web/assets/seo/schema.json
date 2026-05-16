@@ -30,7 +30,7 @@
         "@type": "MedicalSpecialty",
         "name": "Medicina familiar y comunitaria"
       },
-      "knowsLanguage": ["es-CO", "fr", "en"],
+      "knowsLanguage": ["es-CO", "fr", "en", "ca"],
       "worksFor": { "@id": "https://medicina-familiar.co/#clinic" },
       "sameAs": "https://www.linkedin.com/in/maryi-ang%C3%A9lica-granados-silva-2976b969/"
     },
@@ -48,50 +48,66 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "¿Qué es la medicina familiar y en qué se diferencia del médico general o de la «medicina general»?",
+          "name": "¿En qué se diferencia el médico familiar del médico general?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "La medicina familiar y comunitaria organiza el cuidado en el tiempo: integra su historia, síntomas que a veces parecen no relacionados, prevención y enfermedades crónicas en un mismo hilo, y define cuándo el consultorio alcanza y cuándo hace falta otra especialidad o un servicio de urgencias. En el habla cotidiana, «médico general» o «medicina general» suele significar que uno busca esa primera atención amplia y cercana. Quien ejerce medicina familiar atiende a menudo esa misma necesidad. El añadido está en el método y en la formación de posgrado (continuidad, contexto familiar, derivación ordenada), no en desmentir la palabra con la que usted llegó a esta página."
+            "text": "El médico familiar es un especialista con posgrado que enfoca la atención de forma integral y continua en cada paciente y su familia en todas las etapas de la vida. Mientras que el médico general enfoca su práctica en la enfermedad y la atención primaria básica. Adicionalmente, el médico general es un médico de pregrado (sin especialidad), mientras que el médico familiar es un especialista certificado que realiza 3–4 años de formación de posgrado."
           }
         },
         {
           "@type": "Question",
-          "name": "¿En qué temas de salud tiene especial interés la Dra. Angélica?",
+          "name": "¿En qué se diferencia el médico familiar del internista?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "En la consulta prioriza el cuidado de personas con patología compleja (varias condiciones o medicaciones que conviene leer juntas), el adulto mayor y la prevención y el seguimiento de la diabetes y del riesgo cardiometabólico, con metas claras y tiempo para resolver dudas. También acompaña cuando el cuadro es difícil de ordenar: síntomas prolongados, historias o exámenes dispersos, o condiciones poco frecuentes. Ahí el enfoque es una mirada global, la anticipación de complicaciones y una definición clara de los pasos siguientes, incluida la derivación cuando hace falta otro nivel especializado."
+            "text": "Mientras que la medicina familiar atiende a personas de todas las edades con un enfoque integral y preventivo, la medicina interna se especializa exclusivamente en adultos y trata padecimientos complejos o crónicos."
           }
         },
         {
           "@type": "Question",
-          "name": "¿Por qué acudir a una especialista en medicina familiar si ya tiene médico de cabecera, EPS u otro tratante?",
+          "name": "¿En qué temas de salud la Dra. Angélica tiene formación especializada?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "En muchos esquemas con EPS el tiempo por consulta es acotado; no es extraño que ronde los diez o quince minutos. Con eso a veces alcanza para un episodio puntual, pero suele faltar margen para explorar con calma, cruzar varios síntomas a la vez (presión, sueño, medicación, dolor), o armar una lectura global que incluya prevención y contexto familiar. La medicina familiar y comunitaria se forma para ese tipo de conversación: un posgrado con rotaciones supervisadas por distintas áreas clínicas. El objetivo no es igualar a cada especialista en su propio terreno, sino desarrollar una mirada que integre lo que en otros niveles suele verse en fragmentos, con criterio clínico propio y con claridad para derivar cuando el caso lo exige. Su médico de cabecera y su EPS siguen siendo, según su plan, donde se gestionan póliza, autorizaciones y urgencias. La consulta en este consultorio es particular y puede sumarse cuando en La Mesa busque más tiempo, profundidad o seguimiento."
+            "text": "La Dra. Angélica ha realizado estudios adicionales en la atención del paciente crónico complejo (paciente con una o más enfermedades crónicas), el adulto mayor y la prevención y seguimiento del paciente con diabetes, junto con el manejo de pacientes con riesgo cardiovascular elevado, estableciendo metas claras. También atiende al paciente que presenta cuadros con síntomas dispersos difíciles de orientar: síntomas prolongados, historias o exámenes dispersos, o condiciones poco frecuentes. En este caso realiza un enfoque global, con manejo oportuno y anticipación de complicaciones, con una definición clara de los pasos a seguir, incluida la derivación a un nivel más especializado cuando sea necesario."
           }
         },
         {
           "@type": "Question",
-          "name": "¿El consultorio atiende por EPS o es atención particular?",
+          "name": "¿Por qué acudir a un especialista en medicina familiar si ya tienes médico de cabecera, EPS u otro médico tratante?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Es atención particular: cita y honorarios se acuerdan directamente con el consultorio. Autorizaciones, remisiones obligatorias y urgencias que su aseguradora maneje por regla siguen su curso habitual con la EPS u otro pagador."
+            "text": "El tiempo de atención con médicos de la EPS —tanto médicos generales como especialistas— suele ser limitado, muchas veces entre unos 10 y 20 minutos. Con ese tiempo suele alcanzar solo para uno o, como máximo, dos problemas de salud; acorta la entrevista clínica y a veces limita o impide una exploración física adecuada, lo que aumenta el margen de error para diagnosticar y tratar bien. La medicina familiar y comunitaria se forma para ese tipo de conversación. El posgrado se realiza en rotaciones supervisadas por distintas áreas clínicas. El objetivo no es igualar a cada especialista en su propio terreno, sino desarrollar una mirada que integre lo que en otros niveles suele verse fragmentado. El médico general y los especialistas de tu EPS siguen siendo tus médicos tratantes. La atención con la Dra. Angélica es adicional y ayuda a integrar opiniones y manejos: más tiempo, profundidad y seguimiento. También puede evitar errores cuando varios especialistas no coordinan; por ejemplo, un cardiólogo puede prescribir un medicamento que daña tu función renal y el médico de familia es quien suele detectarlo y corregirlo."
           }
         },
         {
           "@type": "Question",
-          "name": "¿Qué pasa si se necesita un especialista?",
+          "name": "¿El consultorio tiene convenio con EPS o es atención particular?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Cuando el caso lo exige, la Dra. Angélica deriva con criterio hacia colegas de confianza en La Mesa o en Bogotá. La red incluye, entre otras áreas, neurología, pediatría, dermatología, psiquiatría, traumatología, oftalmología y más, de modo que el paso entre niveles sea ordenado y pueda mantenerse seguimiento desde el consultorio cuando corresponde."
+            "text": "Es atención particular: solicitas la cita y los honorarios se cancelan directamente en el consultorio. Las autorizaciones, remisiones y urgencias de alta complejidad gestionadas por tu EPS siguen el curso normal con tu aseguradora."
           }
         },
         {
           "@type": "Question",
-          "name": "¿Atienden todas las edades?",
+          "name": "¿Cuál es la modalidad de la consulta?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Sí. Una misma mirada familiar puede acompañar a niños, adultos y adultos mayores cuando el caso permite manejo en consultorio externo, y derivar con claridad cuando hace falta otra especialidad o hospitalización."
+            "text": "El consultorio atiende en modalidad particular: puedes solicitar la cita y la valoración directamente aquí, por WhatsApp o correo electrónico. Esto no sustituye el circuito que sigas con tu EPS u otro asegurador, autorizaciones, remisiones obligatorias ni servicios de urgencias."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué pasa si necesitas otro especialista?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Cuando la situación lo amerita, la Dra. Angélica deriva a otros niveles de atención u otras especialidades en La Mesa o Bogotá. La red incluye, entre otros, neurología, cirugía, medicina interna, pediatría, oftalmología y traumatología, para coordinar de forma ordenada el manejo sin perder información."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Hay atención para todas las edades?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí. Conviene conocer y mirar a la familia en conjunto: la enfermedad de un ser querido o situaciones familiares complejas pueden tener una relación crucial con tu salud y tu tratamiento."
           }
         },
         {
@@ -99,12 +115,12 @@
           "name": "¿En qué idiomas puede atenderse la consulta?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "La atención es en español, francés e inglés, con dominio fluido en los tres. La Dra. Angélica creció en Colombia, estudió en el Lycée Français de Bogotá y en su hogar se habla inglés, lo que suele facilitar la consulta para familias multilingües o quienes prefieren explicarse en otro idioma."
+            "text": "La atención es en español, inglés, francés y catalán, con dominio fluido en los cuatro idiomas. La Dra. Angélica creció en Colombia, estudió en el Colegio Liceo Francés de Bogotá, vivió en Barcelona (capital de Cataluña/España) y en casa se habla inglés; eso suele facilitar la consulta para familias multilingües o quienes prefieren explicarse en otro idioma."
           }
         },
         {
           "@type": "Question",
-          "name": "¿Dónde queda el consultorio y cómo agendar?",
+          "name": "¿Dónde queda el consultorio y cómo puedes pedir cita?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "En el Centro Comercial Andaki - Consultorio 7, La Mesa (Cundinamarca); el mapa y la dirección están más arriba en esta página. Lo más ágil suele ser WhatsApp al 310 770 0625 o el formulario de contacto."
