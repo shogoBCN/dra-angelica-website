@@ -59,6 +59,49 @@
     elFormError.hidden = true;
   }
 
+  function messageForAuthError(err) {
+    const code = err && err.code != null ? String(err.code).trim() : "unknown";
+    const msg = err && err.message ? String(err.message).toLowerCase() : "";
+    const haystack = `${code} ${msg}`;
+    const detail = ` (${code})`;
+
+    /** Rejected API key — often GCP “Application restrictions” (HTTP referrer) blocking localhost/port. */
+    if (
+      code === "auth/invalid-api-key" ||
+      /\binvalid[- ]api-key\b|\bapi[-_]key\b|pass a valid api key|\bplease pass\b|\binvalid key\b/i.test(
+        haystack
+      )
+    ) {
+      return (
+        "Google rechaza la apiKey web: revise en Google Cloud → APIs y servicios → Credenciales la «Browser key» del proyecto Firebase. " +
+        "En restricciones (referrés/orígenes) incluya exactamente cómo entra en el admin (ej. https://medicina-familiar.co y http://127.0.0.1:PUERTO o http://localhost:PUERTO con el mismo número de puerto), " +
+        "o ponga aplicación «Sin restricciones» un momento para probar. También compruebe que la clave en firebase-config.js coincide con Firebase Console → Ajustes del proyecto."
+      ).concat(detail);
+    }
+
+    /** @type {Record<string, string>} */
+    const map = {
+      "auth/invalid-email": "El correo no tiene un formato válido.",
+      "auth/user-disabled": "Esta cuenta está deshabilitada.",
+      "auth/user-not-found": "No hay usuario con ese correo en este proyecto Firebase.",
+      "auth/wrong-password": "Contraseña incorrecta.",
+      "auth/invalid-credential":
+        "Credenciales incorrectas. Compruebe correo y contraseña, o cree el usuario en este proyecto Firebase.",
+      "auth/too-many-requests":
+        "Demasiados intentos; espere unos minutos o restablezca la contraseña en la consola Firebase.",
+      "auth/network-request-failed":
+        "Fallo de red. Compruebe conexión, bloqueadores o que el dominio esté autorizado para Auth.",
+      "auth/operation-not-allowed":
+        "Correo/contraseña no está activado. En Firebase → Authentication → Métodos de acceso.",
+      "auth/unauthorized-domain":
+        "Este dominio no está autorizado para Auth (Authorized domains): añada localhost o medicina-familiar.co.",
+    };
+
+    const fallback =
+      "No se pudo iniciar sesión. Copie el código entre paréntesis si necesita soporte técnico.";
+    return (map[code] || fallback) + detail;
+  }
+
   function clearForm() {
     currentSlug = null;
     originalData = null;
@@ -174,9 +217,9 @@
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .catch(() => {
+      .catch((err) => {
         elAuthError.hidden = false;
-        elAuthError.textContent = "Usuario o contraseña incorrectos.";
+        elAuthError.textContent = messageForAuthError(err);
       });
   });
 

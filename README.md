@@ -51,6 +51,12 @@ Use this while editing HTML, CSS, or JS. Serves the same tree Firebase builds fr
 npx --yes serve web
 ```
 
+The document root **must be `web/`** (same layout as Hosting’s `dist/` after `npm run build`). **`/blog/**` URLs must literally start with `/blog/`** — if you serve only the `blog` subfolder at the site root (`/admin/` instead of `/blog/admin/`), relative URLs break because “blog-owned” scripts live under **`/blog/assets/…`**, not **`/assets/…`**.
+
+If you still see **`404` on `/blog/assets/`**, you are pointing the static server at the wrong folder. Use **`npx serve web`** (or **`npx serve dist`** after a build).
+
+Blog templates load **`/blog/assets/`** for Firebase + blog bundles and **`/assets/`** for the shared stylesheet and `main.js`, so **`main.js`** is always **`/assets/js/main.js`** and **`firebase-config`** is **`/blog/assets/js/firebase-config.js`**.
+
 Open the URL shown in the terminal (often **[http://localhost:3000](http://localhost:3000)**). Stop with `Ctrl+C`.
 
 If you use the Conda env from this repo, activate it first (`conda activate angelica-website`); `npx` still downloads the `serve` package on first use.
@@ -176,6 +182,13 @@ Static pages under **`web/blog/`** deploy to **`/blog/`**. The **admin UI** (`/b
 | `createdAt`, `updatedAt` | Metadata; admin list sorts by **`updatedAt` desc** |
 
 Public queries only **`where('published','==', true)`**, which aligns with Firestore security rules.
+
+#### Troubleshooting admin login (`/blog/admin`)
+
+- **Browser console CSP + `.map` files:** DevTools may try to fetch **source maps** (`firebase-*.js.map`, Quill `.map`). That uses **`connect-src`**. Blog pages allow **`https://www.gstatic.com`** and **`https://cdn.jsdelivr.net`** for those fetches so the warnings go away; blocking maps does **not** break Auth or saving.
+- **`auth/api-key-not-valid`** / **`auth/invalid-api-key`:** Google's Identity Toolkit is rejecting your **Browser API key**. This is unrelated to CSP. In **Google Cloud Console** → **APIs & Services** → **Credentials**, open your project’s browser key (same `apiKey` as in **`firebase-config.js`**).
+  - **Application restrictions:** If **HTTP referrers** is enabled, **every origin you use must match**, including **`localhost` vs `127.0.0.1`** and the **exact port** (e.g. `http://127.0.0.1:5500`). Or set restrictions to **None** briefly to confirm that was the cause.
+  - **API restrictions:** If the key uses **Restrict key**, the allow-list must include **Identity Toolkit API** (and usually **Token Service API** / Firebase-related APIs). If that list was edited and dropped Identity Toolkit, sign-in returns **400** / **API key not valid**. For a quick check, choose **Don't restrict key** on that credential, verify login works, then narrow again deliberately.
 
 #### Optional next steps
 

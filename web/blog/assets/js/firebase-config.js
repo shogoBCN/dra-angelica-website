@@ -3,10 +3,10 @@
  * (These values are intended to live in client code; access is gated by Auth + Firestore rules.)
  */
 window.__firebaseConfig__ = {
-  apiKey: "REPLACE_WITH_WEB_API_KEY",
+  apiKey: "AIzaSyCoNkMY_q6lsQ8ym8oEvvPeTU786_dPzC8",
   authDomain: "dra-angelica-website.firebaseapp.com",
   projectId: "dra-angelica-website",
-  storageBucket: "dra-angelica-website.appspot.com",
-  messagingSenderId: "REPLACE_WITH_SENDER_ID",
-  appId: "REPLACE_WITH_APP_ID",
+  storageBucket: "dra-angelica-website.firebasestorage.app",
+  messagingSenderId: "956637195188",
+  appId: "1:956637195188:web:654f3636836cf9736160e1",
 };

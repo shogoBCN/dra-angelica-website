@@ -47,10 +47,20 @@ function makeBuildId() {
 }
 
 function applyAssetCacheBust(html, buildId) {
-  return html.replace(
-    /\b(href|src)="((?:\.\.\/)*assets\/[^"?#]+)"/g,
-    (_m, attr, assetPath) => `${attr}="${assetPath}?v=${buildId}"`
-  );
+  /** Blog bundle must stay under `/blog/assets/` so it never collides with site `/assets/`. */
+  return html
+    .replace(
+      /\b(href|src)="(\/blog\/assets\/[^"?#]+)"/g,
+      (_m, attr, assetPath) => `${attr}="${assetPath}?v=${buildId}"`
+    )
+    .replace(
+      /\b(href|src)="(\/assets\/[^"?#]+)"/g,
+      (_m, attr, assetPath) => `${attr}="${assetPath}?v=${buildId}"`
+    )
+    .replace(
+      /\b(href|src)="((?:\.\.\/)*assets\/[^"?#]+)"/g,
+      (_m, attr, assetPath) => `${attr}="${assetPath}?v=${buildId}"`
+    );
 }
 
 async function injectInlineJsonLd(html) {
