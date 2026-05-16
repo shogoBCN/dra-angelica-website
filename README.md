@@ -7,7 +7,7 @@ Static **frontend** (visitor-facing copy in **Colombian Spanish**) and **Firebas
 
 | Path            | Purpose                                                        |
 | --------------- | -------------------------------------------------------------- |
-| `web/`          | Site **source**: `index.html`, `assets/css/`, `assets/js/`     |
+| `web/`          | Source pages (home, secondary article), **`blog/`** subtree, shared **`assets/`** |
 | `dist/`         | **Build output** (generated; do not edit). Deploy this folder. |
 | `scripts/`      | Build tooling (`build-site.mjs`)                               |
 | `firebase/`     | `firestore.rules`, `firestore.indexes.json`                    |
@@ -18,7 +18,7 @@ Static **frontend** (visitor-facing copy in **Colombian Spanish**) and **Firebas
 
 - **Secrets:** do not commit `.env`, service account JSON, or private keys. `.gitignore` lists common patterns; use `firebase functions:config:set` or Secret Manager for real secrets later.
 - **Firestore:** rules live in `firebase/firestore.rules` (default deny outside `posts/`).
-- **Hosting:** `firebase.json` sets security headers (HSTS, `X-Frame-Options`, `Referrer-Policy`, etc.). **Content-Security-Policy** for HTML pages is defined in `web/index.html` / `web/medicina-familiar-colombia.html` via `<meta http-equiv="Content-Security-Policy">`. (`frame-ancestors` belongs in a **response header**, not meta; use `X-Frame-Options` / a header CSP in `firebase.json` if you extend framing rules.) If you add third-party scripts or Firebase SDK hosts, update CSP accordingly.
+- **Hosting:** `firebase.json` sets security headers (HSTS, `X-Frame-Options`, `Referrer-Policy`, etc.). **Content-Security-Policy** lives in **`web/index.html`**, **`web/medicina-familiar-colombia.html`**, and per-page on **`web/blog/**/*.html`** (Firebase SDK CDN, and jsDelivr for Quill on `/blog/admin`). (`frame-ancestors` belongs in a **response header**, not meta.)
 
 ## Conda environment (Node + Firebase CLI)
 
@@ -152,25 +152,37 @@ Add or keep records **exactly** as **Firebase Hosting** shows for each connected
 
 - Prefer a **Domain** property for `medicina-familiar.co` (covers `www` and apex). Submit **`sitemap.xml`** after deploy.
 
-### 5. Blog posts (Firestore)
+### 5. Blog (Firestore + `/blog` pages)
 
-Firebase fits a small blog: **Firestore** for `posts`, **Authentication** for publishers, **rules** in `firebase/firestore.rules`.
+Static pages under **`web/blog/`** deploy to **`/blog/`**. The **admin UI** (`/blog/admin/`, tagged `noindex`) writes to Firestore so Angélica can compose and publish **without deploying**.
 
+#### First-time setup
 
-| Piece              | Role                                                                                    |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| **Firestore**      | `posts` documents (`title`, `body`, `published`, `publishedAt`, `slug`, …).             |
-| **Authentication** | Publisher accounts; **writes** restricted in rules.                                     |
-| **Security rules** | Public **read** when `published == true`; list queries must filter `published == true`. |
-| **Hosting**        | `npm run deploy` or `npm run deploy:hosting`.                                           |
+1. In Firebase Console → **Project settings** → **Your apps** → existing or new **Web app** → copy **`firebaseConfig`** into **`web/blog/assets/js/firebase-config.js`** (replace every `REPLACE_*` placeholder).
+2. **Authentication** → enable **Email/Password** → create the publisher account(s).
+3. Copy each user's **Authentication UID** into the **`isPublisher()`** allow-list in **`firebase/firestore.rules`**. Then run **`npm run deploy:firestore`** (deploys rules **and** the composite indexes from `firebase/firestore.indexes.json`).
+4. Build and ship hosting (**`npm run build`** then **`npm run deploy:hosting`** — or **`npm run deploy`**). After that, new posts appear **immediately** from the DB; ordinary article edits do **not** require redeploy.
 
+#### `posts` document shape
 
-Optional later: **Cloud Functions** for admin claims or validation.
+| Field | Purpose |
+| ----- | ------- |
+| `title` | Headline shown on the article and listings |
+| `slug` | Must match the **document ID** (stable public URL slug) |
+| `excerpt` | Optional teaser on the `/blog/` list |
+| `bodyHtml` | Rich-text body (HTML stored as entered by authenticated publishers; only trusted editors have write access) |
+| `published` | **`true`** = visible anonymously on the website |
+| `publishedAt` | Set the **first time** `published` becomes true |
+| `createdAt`, `updatedAt` | Metadata; admin list sorts by **`updatedAt` desc** |
 
-Deploy rules after editing:
+Public queries only **`where('published','==', true)`**, which aligns with Firestore security rules.
+
+#### Optional next steps
+
+Add **Cloud Storage** for image uploads, **Cloud Functions** for validation, or an **`admin`** custom claim instead of UID lists in rules.
+
+Deploy rules/indexes after changing them:
 
 ```bash
 npm run deploy:firestore
 ```
-
-(Or `npm run deploy` for hosting + Firestore config.)

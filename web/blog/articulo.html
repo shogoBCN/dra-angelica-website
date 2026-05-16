@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://firebaseinstallations.googleapis.com;"
+    />
+    <meta id="blog-meta-desc" name="description" content="Artículo del blog · Dra. Angélica Granados Silva · medicina familiar en La Mesa, Cundinamarca." />
+    <title>Artículo | Blog · Dra. Angélica Granados Silva</title>
+    <link rel="canonical" href="https://medicina-familiar.co/blog/articulo" />
+    <link rel="icon" href="/assets/images/logo-teal-transparent.png" type="image/png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="es_CO" />
+    <meta id="og-title" property="og:title" content="Blog · Dra. Angélica Granados Silva" />
+    <meta
+      id="og-description"
+      property="og:description"
+      content="Medicina familiar y comunitaria en La Mesa, Cundinamarca."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/blog.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#blog-article-shell">Ir al contenido</a>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <div class="page-gradient" aria-hidden="true"></div>
+
+    <header class="header header--simple" data-header>
+      <div class="header__row">
+        <a class="header__brand" href="/">
+          <img
+            class="header__logo"
+            src="/assets/images/logo-teal-transparent.png"
+            width="136"
+            height="136"
+            alt=""
+          />
+          <span class="header__brand-text">
+            Dra. Angélica Granados Silva<br />
+            <span class="header__brand-tagline">Medicina familiar · Blog</span>
+          </span>
+        </a>
+        <nav class="header__nav" aria-label="Principal">
+          <ul class="header__links">
+            <li><a class="header__link" href="/">Sitio principal</a></li>
+            <li><a class="header__link" href="/#contacto">Contacto</a></li>
+            <li><a class="header__link" href="./">Blog</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main blog-main">
+      <p id="blog-articulo-state" class="blog-state" hidden aria-live="polite"></p>
+
+      <article id="blog-article-shell" class="section blog-layout blog-article-wrap" hidden>
+        <p class="blog-article__breadcrumb">
+          <a href="/">Inicio</a>
+          <span aria-hidden="true"> · </span>
+          <a href="./">Blog</a>
+        </p>
+        <p id="blog-article-meta" class="blog-article__date"></p>
+        <h1 id="blog-article-title">Artículo</h1>
+        <div id="blog-article-body" class="blog-body"></div>
+        <p style="margin-top: 2rem; font-size: 0.95rem; color: var(--color-text-muted)">
+          Para agendar una consulta, visite la
+          <a class="contact__link" href="/#contacto">sección de contacto</a> en el sitio principal.
+        </p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner footer__wrap">
+        <p class="footer__copy">
+          <span class="footer__rule" aria-hidden="true"></span>
+          Medicina familiar y comunitaria · La Mesa, Cundinamarca · Blog
+        </p>
+      </div>
+    </footer>
+
+    <script
+      defer
+      src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"
+      crossorigin="anonymous"
+    ></script>
+    <script defer src="assets/js/firebase-config.js"></script>
+    <script defer src="assets/js/blog-init.js"></script>
+    <script defer src="assets/js/blog-articulo.js"></script>
+    <script src="/assets/js/main.js" defer></script>
+  </body>
+</html>

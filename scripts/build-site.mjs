@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, rm, readFile, writeFile, readdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -17,7 +17,24 @@ const SITEMAP_URLS = [
     priority: "0.75",
     changefreq: "monthly",
   },
+  { loc: "https://medicina-familiar.co/blog/", priority: "0.7", changefreq: "weekly" },
 ];
+
+/** Walk subtree and collect *.html paths. */
+async function walkHtmlFiles(dir, acc = []) {
+  let ents;
+  try {
+    ents = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return acc;
+  }
+  for (const ent of ents) {
+    const p = join(dir, ent.name);
+    if (ent.isDirectory()) await walkHtmlFiles(p, acc);
+    else if (ent.name.endsWith(".html")) acc.push(p);
+  }
+  return acc;
+}
 
 /** Unique per deploy so asset URLs change and browsers fetch fresh CSS/JS/images. */
 function makeBuildId() {
@@ -30,9 +47,10 @@ function makeBuildId() {
 }
 
 function applyAssetCacheBust(html, buildId) {
-  return html.replace(/\b(href|src)="(assets\/[^"?#]+)"/g, (_m, attr, assetPath) => {
-    return `${attr}="${assetPath}?v=${buildId}"`;
-  });
+  return html.replace(
+    /\b(href|src)="((?:\.\.\/)*assets\/[^"?#]+)"/g,
+    (_m, attr, assetPath) => `${attr}="${assetPath}?v=${buildId}"`
+  );
 }
 
 async function injectInlineJsonLd(html) {
@@ -66,6 +84,13 @@ for (const page of HTML_PAGES) {
 await cp(join(src, "robots.txt"), join(dist, "robots.txt"));
 await cp(join(src, "assets"), join(dist, "assets"), { recursive: true });
 
+await cp(join(src, "blog"), join(dist, "blog"), { recursive: true });
+for (const htmlPath of await walkHtmlFiles(join(dist, "blog"))) {
+  let html = await readFile(htmlPath, "utf8");
+  html = applyAssetCacheBust(html, buildId);
+  await writeFile(htmlPath, html, "utf8");
+}
+
 const lastmod = new Date().toISOString().slice(0, 10);
 const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -81,4 +106,6 @@ ${SITEMAP_URLS.map(
 `;
 await writeFile(join(dist, "sitemap.xml"), sitemapXml, "utf8");
 
-console.info(`build-site: wrote dist/ (cache-bust v=${buildId}, pages=${HTML_PAGES.join(", ")})`);
+console.info(
+  `build-site: wrote dist/ (cache-bust v=${buildId}, pages=${HTML_PAGES.join(", ")}, blog/)`
+);
