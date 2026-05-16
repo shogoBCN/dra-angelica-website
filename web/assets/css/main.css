@@ -379,8 +379,8 @@ body.nav-open {
   }
 
   .header__link {
-    font-size: 0.875rem;
-    padding: 0.32rem 0.55rem;
+    font-size: 0.8125rem;
+    padding: 0.32rem 0.5rem;
     white-space: nowrap;
   }
 }
@@ -420,8 +420,8 @@ body.nav-open {
   }
 
   .header.header--simple .header__link {
-    font-size: 0.92rem;
-    padding: 0.45rem 0.65rem;
+    font-size: 0.8125rem;
+    padding: 0.45rem 0.6rem;
   }
 }
 
@@ -448,7 +448,7 @@ body.nav-open {
   border-radius: var(--radius-md);
   text-decoration: none;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 0.9375rem;
   color: var(--color-text-muted);
   transition: color 0.15s ease, background 0.15s ease;
 }
