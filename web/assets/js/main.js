@@ -12,7 +12,7 @@
  *  - Inline “infotip” panels beside long-form copy (positioning on mobile/desktop)
  *  - Mis servicios: tarjetas interactivas con volteo (título ↔ detalle)
  *  - FAQ: acordeón (solo un `<details>` abierto a la vez)
- *  - Optional GA4 (gtag) when `google-analytics-measurement-id` meta is set
+ *  - Optional GA4 + Google Ads (gtag) when corresponding meta tags are set
  */
 
 /* -------------------------------------------------------------------------- */
@@ -39,15 +39,23 @@ const INFOTIP_MOBILE_MEDIA_QUERY = "(max-width: 639px)";
 const CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES =
   "No se pudo enviar el mensaje. Comprueba tu conexión e inténtalo de nuevo.";
 
+/** Google Ads conversion label (contact form submission). */
+const GOOGLE_ADS_CONTACT_CONVERSION_SEND_TO = "AW-18163846421/UgqsCN7-1bIcEJWamdVD";
+
 /**
- * Loads GA4 (gtag.js) when each page includes
- * `<meta name="google-analytics-measurement-id" content="G-xxxxxxxxxx">`.
+ * Loads gtag.js when a page includes GA4 and/or Google Ads meta tags:
+ * `<meta name="google-analytics-measurement-id" content="G-xxxxxxxxxx">`
+ * `<meta name="google-ads-tag-id" content="AW-xxxxxxxxxx">`
  * Implemented here (not inline) so Content-Security-Policy can avoid 'unsafe-inline'.
  */
-function initGoogleAnalyticsIfConfigured() {
-  const meta = document.querySelector('meta[name="google-analytics-measurement-id"]');
-  const measurementId = meta?.getAttribute("content")?.trim();
-  if (!measurementId || !/^G-[A-Z0-9]+$/i.test(measurementId)) return;
+function initGoogleTagIfConfigured() {
+  const gaMeta = document.querySelector('meta[name="google-analytics-measurement-id"]');
+  const adsMeta = document.querySelector('meta[name="google-ads-tag-id"]');
+  const measurementId = gaMeta?.getAttribute("content")?.trim() || "";
+  const adsTagId = adsMeta?.getAttribute("content")?.trim() || "";
+  const hasGa = /^G-[A-Z0-9]+$/i.test(measurementId);
+  const hasAds = /^AW-[0-9]+$/i.test(adsTagId);
+  if (!hasGa && !hasAds) return;
 
   window.dataLayer = window.dataLayer || [];
   function gtag() {
@@ -55,12 +63,18 @@ function initGoogleAnalyticsIfConfigured() {
   }
   window.gtag = gtag;
   gtag("js", new Date());
-  gtag("config", measurementId);
+  if (hasGa) gtag("config", measurementId);
+  if (hasAds) gtag("config", adsTagId);
 
   const script = document.createElement("script");
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(hasGa ? measurementId : adsTagId)}`;
   document.head.appendChild(script);
+}
+
+function trackGoogleAdsContactConversionIfAvailable() {
+  if (typeof window.gtag !== "function") return;
+  window.gtag("event", "conversion", { send_to: GOOGLE_ADS_CONTACT_CONVERSION_SEND_TO });
 }
 
 /** FormSubmit AJAX path segment after the domain (email id or token string). */
@@ -172,6 +186,7 @@ function attachContactFormHandler(contactForm) {
           if (confirmationParagraph) {
             confirmationParagraph.hidden = false;
           }
+          trackGoogleAdsContactConversionIfAvailable();
           contactForm.reset();
           const contactSection = document.getElementById("contacto");
           if (contactSection) {
@@ -552,5 +567,5 @@ function init() {
   createInfotipController();
 }
 
-initGoogleAnalyticsIfConfigured();
+initGoogleTagIfConfigured();
 init();
