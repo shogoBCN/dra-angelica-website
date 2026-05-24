@@ -1,37 +1,63 @@
 /**
- * Frontend analytics for medicina-familiar.co.
+ * Site analytics entry point (medicina-familiar.co).
  *
- * Sends GA4 / Google Ads events via gtag when meta tags are present:
- *   google-analytics-measurement-id, google-ads-tag-id
+ * Loaded as an ES module before main.js on public pages:
+ *   <script type="module" src="/assets/analytics/index.js"></script>
  *
- * Tracks: traffic source (UTM + referrer), clicks, scroll depth, section time,
- * active engagement, and page exit duration.
+ * Module layout:
+ *   config.js       — meta tag IDs, constants
+ *   gtag-loader.js  — gtag.js bootstrap (GA4 + Google Ads)
+ *   transport.js    — trackEvent / conversion helpers
+ *   attribution.js  — UTM + referrer (sessionStorage)
+ *   clicks.js       — element_click
+ *   engagement.js   — scroll, sections, time on page
+ *
+ * Public API (for main.js and custom hooks):
+ *   window.SiteAnalytics.trackEvent(name, params)
+ *   window.SiteAnalytics.trackContactFormConversion()
+ *   window.SiteAnalytics.getSessionAttribution()
  */
-import { captureAttribution, getAttributionParams, reportSessionStart } from "./attribution.js";
+import {
+  captureSessionAttribution,
+  getSessionAttributionParams,
+  reportSessionStart,
+} from "./attribution.js";
 import { initClickTracking } from "./clicks.js";
-import { GOOGLE_ADS_CONTACT_CONVERSION, readConfig } from "./config.js";
+import {
+  GOOGLE_ADS_CONTACT_FORM_CONVERSION,
+  readSiteAnalyticsConfig,
+} from "./config.js";
 import { initEngagementTracking } from "./engagement.js";
 import { initGtag } from "./gtag-loader.js";
 import { markGtagReady, trackEvent, trackGoogleAdsConversion } from "./transport.js";
 
-function initSiteAnalytics() {
-  const config = readConfig();
-  if (!config.enabled) return;
+function bootstrapSiteAnalytics() {
+  const siteConfig = readSiteAnalyticsConfig();
+  if (!siteConfig.enabled) return;
 
-  initGtag(config);
+  initGtag(siteConfig);
   markGtagReady();
 
-  const attribution = captureAttribution();
-  reportSessionStart(attribution);
+  const attributionSnapshot = captureSessionAttribution();
+  reportSessionStart(attributionSnapshot);
 
   initClickTracking();
   initEngagementTracking();
 }
 
-initSiteAnalytics();
+bootstrapSiteAnalytics();
 
+/** @type {import("./index.js").SiteAnalyticsApi} */
 window.SiteAnalytics = {
   trackEvent,
-  trackGoogleAdsConversion: () => trackGoogleAdsConversion(GOOGLE_ADS_CONTACT_CONVERSION),
-  getAttribution: getAttributionParams,
+  trackContactFormConversion: () =>
+    trackGoogleAdsConversion(GOOGLE_ADS_CONTACT_FORM_CONVERSION),
+  getSessionAttribution: getSessionAttributionParams,
 };
+
+/**
+ * @typedef {Object} SiteAnalyticsApi
+ * @property {(eventName: string, eventParams?: Record<string, unknown>) => void} trackEvent
+ * @property {() => void} trackContactFormConversion
+ * @property {() => Record<string, string>} getSessionAttribution
+ */

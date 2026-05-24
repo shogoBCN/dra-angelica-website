@@ -148,7 +148,7 @@ function attachContactFormHandler(contactForm) {
           if (confirmationParagraph) {
             confirmationParagraph.hidden = false;
           }
-          window.SiteAnalytics?.trackGoogleAdsConversion?.();
+          window.SiteAnalytics?.trackContactFormConversion?.();
           window.SiteAnalytics?.trackEvent?.("form_submit", {
             form_name: "contact",
             form_result: "success",

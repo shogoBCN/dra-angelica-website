@@ -1,119 +1,150 @@
-import { ENGAGEMENT_HEARTBEAT_MS, SCROLL_MILESTONES } from "./config.js";
-import { getAttributionParams } from "./attribution.js";
+/**
+ * Scroll depth, section visibility time, and active engagement duration.
+ *
+ * Events:
+ *   scroll_depth          — once per milestone (25/50/75/90/100 %)
+ *   section_view          — when a section[id] leaves the viewport
+ *   engagement_heartbeat  — every 30 s while tab is visible
+ *   page_engagement       — on pagehide with total active visible time
+ */
+
+import {
+  ACTIVE_TIME_HEARTBEAT_INTERVAL_MS,
+  SCROLL_DEPTH_MILESTONES_PERCENT,
+  SECTION_VISIBILITY_THRESHOLD,
+} from "./config.js";
+import { getSessionAttributionParams } from "./attribution.js";
 import { trackEvent } from "./transport.js";
 
+export const ENGAGEMENT_EVENT_NAMES = Object.freeze({
+  scrollDepth: "scroll_depth",
+  sectionView: "section_view",
+  heartbeat: "engagement_heartbeat",
+  pageEngagement: "page_engagement",
+});
+
+/** Registers scroll, section, visibility, and exit tracking. */
 export function initEngagementTracking() {
-  const pageLoadMs = Date.now();
-  const reachedScroll = new Set();
-  let visibleMs = 0;
-  let lastVisibleAt = document.visibilityState === "visible" ? Date.now() : null;
+  const pageLoadTimestampMs = Date.now();
+  const reachedScrollMilestones = new Set();
+  let totalActiveVisibleMs = 0;
+  let lastVisibleTimestampMs =
+    document.visibilityState === "visible" ? Date.now() : null;
 
-  /** @type {Map<string, { enteredAt: number | null; totalMs: number }>} */
-  const sectionTimers = new Map();
+  /** @type {Map<string, { sectionEnteredAtMs: number | null; totalVisibleMs: number }>} */
+  const sectionVisibilityTimers = new Map();
 
-  function flushVisibility() {
-    if (lastVisibleAt === null) return;
-    visibleMs += Date.now() - lastVisibleAt;
-    lastVisibleAt = document.visibilityState === "visible" ? Date.now() : null;
+  function accumulateVisibleTime() {
+    if (lastVisibleTimestampMs === null) return;
+    totalActiveVisibleMs += Date.now() - lastVisibleTimestampMs;
+    lastVisibleTimestampMs =
+      document.visibilityState === "visible" ? Date.now() : null;
   }
 
   /**
-   * @param {string} reason
+   * @param {string} exitReason
    */
-  function sendEngagement(reason) {
-    flushVisibility();
-    trackEvent("page_engagement", {
-      ...getAttributionParams(),
-      engagement_reason: reason,
-      engagement_seconds: Math.round(visibleMs / 1000),
-      engagement_ms: visibleMs,
-      time_on_page_seconds: Math.round((Date.now() - pageLoadMs) / 1000),
+  function reportPageEngagement(exitReason) {
+    accumulateVisibleTime();
+    trackEvent(ENGAGEMENT_EVENT_NAMES.pageEngagement, {
+      ...getSessionAttributionParams(),
+      engagement_reason: exitReason,
+      engagement_seconds: Math.round(totalActiveVisibleMs / 1000),
+      engagement_ms: totalActiveVisibleMs,
+      time_on_page_seconds: Math.round((Date.now() - pageLoadTimestampMs) / 1000),
     });
   }
 
-  function onScroll() {
-    const doc = document.documentElement;
-    const scrollTop = window.scrollY || doc.scrollTop;
-    const scrollHeight = doc.scrollHeight - doc.clientHeight;
-    if (scrollHeight <= 0) return;
+  function trackScrollDepthMilestones() {
+    const documentElement = document.documentElement;
+    const scrollOffsetPx = window.scrollY || documentElement.scrollTop;
+    const scrollableHeightPx = documentElement.scrollHeight - documentElement.clientHeight;
+    if (scrollableHeightPx <= 0) return;
 
-    const percent = Math.min(100, Math.round((scrollTop / scrollHeight) * 100));
-    for (const milestone of SCROLL_MILESTONES) {
-      if (percent >= milestone && !reachedScroll.has(milestone)) {
-        reachedScroll.add(milestone);
-        trackEvent("scroll_depth", {
-          ...getAttributionParams(),
-          scroll_percent: milestone,
+    const scrollPercent = Math.min(
+      100,
+      Math.round((scrollOffsetPx / scrollableHeightPx) * 100)
+    );
+
+    for (const milestonePercent of SCROLL_DEPTH_MILESTONES_PERCENT) {
+      if (scrollPercent >= milestonePercent && !reachedScrollMilestones.has(milestonePercent)) {
+        reachedScrollMilestones.add(milestonePercent);
+        trackEvent(ENGAGEMENT_EVENT_NAMES.scrollDepth, {
+          ...getSessionAttributionParams(),
+          scroll_percent: milestonePercent,
         });
       }
     }
   }
 
-  const sections = document.querySelectorAll("section[id]");
-  if (sections.length > 0 && "IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
+  const pageSections = document.querySelectorAll("section[id]");
+  if (pageSections.length > 0 && "IntersectionObserver" in window) {
+    const sectionObserver = new IntersectionObserver(
+      (intersectionEntries) => {
+        for (const entry of intersectionEntries) {
           const sectionId = entry.target.id;
           if (!sectionId) continue;
 
-          const timer = sectionTimers.get(sectionId) || { enteredAt: null, totalMs: 0 };
+          const sectionTimer = sectionVisibilityTimers.get(sectionId) || {
+            sectionEnteredAtMs: null,
+            totalVisibleMs: 0,
+          };
 
           if (entry.isIntersecting) {
-            timer.enteredAt = Date.now();
-          } else if (timer.enteredAt !== null) {
-            timer.totalMs += Date.now() - timer.enteredAt;
-            timer.enteredAt = null;
-            trackEvent("section_view", {
-              ...getAttributionParams(),
+            sectionTimer.sectionEnteredAtMs = Date.now();
+          } else if (sectionTimer.sectionEnteredAtMs !== null) {
+            sectionTimer.totalVisibleMs += Date.now() - sectionTimer.sectionEnteredAtMs;
+            sectionTimer.sectionEnteredAtMs = null;
+            trackEvent(ENGAGEMENT_EVENT_NAMES.sectionView, {
+              ...getSessionAttributionParams(),
               section_id: sectionId,
-              section_visible_seconds: Math.round(timer.totalMs / 1000),
+              section_visible_seconds: Math.round(sectionTimer.totalVisibleMs / 1000),
             });
           }
 
-          sectionTimers.set(sectionId, timer);
+          sectionVisibilityTimers.set(sectionId, sectionTimer);
         }
       },
-      { threshold: 0.35 }
+      { threshold: SECTION_VISIBILITY_THRESHOLD }
     );
 
-    sections.forEach((section) => observer.observe(section));
+    pageSections.forEach((sectionElement) => sectionObserver.observe(sectionElement));
   }
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-      lastVisibleAt = Date.now();
+      lastVisibleTimestampMs = Date.now();
       return;
     }
-    flushVisibility();
+    accumulateVisibleTime();
   });
 
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
+  window.addEventListener("scroll", trackScrollDepthMilestones, { passive: true });
+  trackScrollDepthMilestones();
 
-  const heartbeatId = window.setInterval(() => {
+  const heartbeatTimerId = window.setInterval(() => {
     if (document.visibilityState !== "visible") return;
-    flushVisibility();
-    lastVisibleAt = Date.now();
-    trackEvent("engagement_heartbeat", {
-      ...getAttributionParams(),
-      engagement_seconds: Math.round(visibleMs / 1000),
+    accumulateVisibleTime();
+    lastVisibleTimestampMs = Date.now();
+    trackEvent(ENGAGEMENT_EVENT_NAMES.heartbeat, {
+      ...getSessionAttributionParams(),
+      engagement_seconds: Math.round(totalActiveVisibleMs / 1000),
     });
-  }, ENGAGEMENT_HEARTBEAT_MS);
+  }, ACTIVE_TIME_HEARTBEAT_INTERVAL_MS);
 
   window.addEventListener("pagehide", () => {
-    window.clearInterval(heartbeatId);
+    window.clearInterval(heartbeatTimerId);
 
-    for (const [sectionId, timer] of sectionTimers.entries()) {
-      if (timer.enteredAt === null) continue;
-      timer.totalMs += Date.now() - timer.enteredAt;
-      trackEvent("section_view", {
-        ...getAttributionParams(),
+    for (const [sectionId, sectionTimer] of sectionVisibilityTimers.entries()) {
+      if (sectionTimer.sectionEnteredAtMs === null) continue;
+      sectionTimer.totalVisibleMs += Date.now() - sectionTimer.sectionEnteredAtMs;
+      trackEvent(ENGAGEMENT_EVENT_NAMES.sectionView, {
+        ...getSessionAttributionParams(),
         section_id: sectionId,
-        section_visible_seconds: Math.round(timer.totalMs / 1000),
+        section_visible_seconds: Math.round(sectionTimer.totalVisibleMs / 1000),
       });
     }
 
-    sendEngagement("page_exit");
+    reportPageEngagement("page_exit");
   });
 }

@@ -1,7 +1,16 @@
-import { STORAGE_KEYS } from "./config.js";
+/**
+ * First-touch traffic attribution for the browser tab session.
+ *
+ * Captures UTM parameters, document.referrer, and landing page once per session
+ * (sessionStorage). Subsequent page views in the same tab reuse the snapshot and
+ * attach it to click / engagement events.
+ */
+
+import { SESSION_STORAGE_KEYS } from "./config.js";
 import { trackEvent } from "./transport.js";
 
-const UTM_PARAMS = Object.freeze([
+/** Standard UTM query parameters read from the landing URL. */
+const UTM_QUERY_PARAM_NAMES = Object.freeze([
   "utm_source",
   "utm_medium",
   "utm_campaign",
@@ -9,103 +18,136 @@ const UTM_PARAMS = Object.freeze([
   "utm_content",
 ]);
 
+/** Values for the referrer_type event parameter. */
+export const REFERRER_TYPES = Object.freeze({
+  direct: "direct",
+  internal: "internal",
+  search: "search",
+  social: "social",
+  referral: "referral",
+  unknown: "unknown",
+});
+
 /** @returns {Record<string, string>} */
-function parseUtmFromUrl() {
-  const params = new URLSearchParams(window.location.search);
+function parseUtmParamsFromCurrentUrl() {
+  const urlSearchParams = new URLSearchParams(window.location.search);
   /** @type {Record<string, string>} */
-  const utm = {};
-  for (const key of UTM_PARAMS) {
-    const value = params.get(key);
-    if (value) utm[key] = value;
+  const utmParams = {};
+  for (const paramName of UTM_QUERY_PARAM_NAMES) {
+    const paramValue = urlSearchParams.get(paramName);
+    if (paramValue) utmParams[paramName] = paramValue;
   }
-  return utm;
+  return utmParams;
 }
 
 /**
- * @param {string} referrer
- * @returns {{ type: string; host: string }}
+ * Classifies document.referrer for reporting.
+ * @param {string} referrerUrl
+ * @returns {{ referrerType: string; referrerHost: string }}
  */
-function classifyReferrer(referrer) {
-  if (!referrer) return { type: "direct", host: "" };
+function classifyReferrerUrl(referrerUrl) {
+  if (!referrerUrl) {
+    return { referrerType: REFERRER_TYPES.direct, referrerHost: "" };
+  }
+
   try {
-    const url = new URL(referrer);
-    if (url.hostname === window.location.hostname) {
-      return { type: "internal", host: url.hostname };
+    const parsedReferrer = new URL(referrerUrl);
+    if (parsedReferrer.hostname === window.location.hostname) {
+      return { referrerType: REFERRER_TYPES.internal, referrerHost: parsedReferrer.hostname };
     }
-    const host = url.hostname.replace(/^www\./, "");
-    if (/google\./.test(host)) return { type: "search", host };
-    if (/facebook|instagram|twitter|x\.com|linkedin|tiktok/.test(host)) {
-      return { type: "social", host };
+
+    const normalizedHost = parsedReferrer.hostname.replace(/^www\./, "");
+    if (/google\./.test(normalizedHost)) {
+      return { referrerType: REFERRER_TYPES.search, referrerHost: normalizedHost };
     }
-    return { type: "referral", host };
+    if (/facebook|instagram|twitter|x\.com|linkedin|tiktok/.test(normalizedHost)) {
+      return { referrerType: REFERRER_TYPES.social, referrerHost: normalizedHost };
+    }
+    return { referrerType: REFERRER_TYPES.referral, referrerHost: normalizedHost };
   } catch {
-    return { type: "unknown", host: "" };
+    return { referrerType: REFERRER_TYPES.unknown, referrerHost: "" };
   }
 }
 
-/** @returns {Record<string, string>} */
-export function captureAttribution() {
-  const stored = sessionStorage.getItem(STORAGE_KEYS.attribution);
-  if (stored) {
+/**
+ * Captures or restores the session attribution snapshot.
+ * @returns {Record<string, string>}
+ */
+export function captureSessionAttribution() {
+  const storedSnapshotJson = sessionStorage.getItem(SESSION_STORAGE_KEYS.attributionSnapshot);
+  if (storedSnapshotJson) {
     try {
-      return JSON.parse(stored);
+      return JSON.parse(storedSnapshotJson);
     } catch {
-      // Re-capture below when stored JSON is invalid.
+      // Fall through and re-capture when stored JSON is corrupt.
     }
   }
 
-  const utm = parseUtmFromUrl();
-  const referrer = document.referrer || "";
-  const referrerInfo = classifyReferrer(referrer);
-  const landingPage = `${window.location.pathname}${window.location.search}`;
+  const utmParams = parseUtmParamsFromCurrentUrl();
+  const referrerUrl = document.referrer || "";
+  const { referrerType, referrerHost } = classifyReferrerUrl(referrerUrl);
+  const landingPagePath = `${window.location.pathname}${window.location.search}`;
 
   /** @type {Record<string, string>} */
-  const attribution = {
-    landing_page: landingPage,
-    page_referrer: referrer,
-    referrer_type: referrerInfo.type,
-    referrer_host: referrerInfo.host,
-    utm_source: utm.utm_source || "",
-    utm_medium: utm.utm_medium || "",
-    utm_campaign: utm.utm_campaign || "",
-    utm_term: utm.utm_term || "",
-    utm_content: utm.utm_content || "",
+  const attributionSnapshot = {
+    landing_page: landingPagePath,
+    page_referrer: referrerUrl,
+    referrer_type: referrerType,
+    referrer_host: referrerHost,
+    utm_source: utmParams.utm_source || "",
+    utm_medium: utmParams.utm_medium || "",
+    utm_campaign: utmParams.utm_campaign || "",
+    utm_term: utmParams.utm_term || "",
+    utm_content: utmParams.utm_content || "",
     captured_at: new Date().toISOString(),
   };
 
-  sessionStorage.setItem(STORAGE_KEYS.attribution, JSON.stringify(attribution));
-  if (!sessionStorage.getItem(STORAGE_KEYS.sessionStart)) {
-    sessionStorage.setItem(STORAGE_KEYS.sessionStart, String(Date.now()));
+  sessionStorage.setItem(
+    SESSION_STORAGE_KEYS.attributionSnapshot,
+    JSON.stringify(attributionSnapshot)
+  );
+
+  if (!sessionStorage.getItem(SESSION_STORAGE_KEYS.sessionStartedAtMs)) {
+    sessionStorage.setItem(SESSION_STORAGE_KEYS.sessionStartedAtMs, String(Date.now()));
   }
-  return attribution;
+
+  return attributionSnapshot;
 }
 
-/** @returns {Record<string, string>} */
-export function getAttributionParams() {
-  const stored = sessionStorage.getItem(STORAGE_KEYS.attribution);
-  if (!stored) return {};
+/**
+ * Returns attribution fields suitable for spreading into event params.
+ * Omits internal fields like captured_at.
+ * @returns {Record<string, string>}
+ */
+export function getSessionAttributionParams() {
+  const storedSnapshotJson = sessionStorage.getItem(SESSION_STORAGE_KEYS.attributionSnapshot);
+  if (!storedSnapshotJson) return {};
+
   try {
-    const attribution = JSON.parse(stored);
+    const snapshot = JSON.parse(storedSnapshotJson);
     return {
-      landing_page: attribution.landing_page || "",
-      page_referrer: attribution.page_referrer || "",
-      referrer_type: attribution.referrer_type || "",
-      referrer_host: attribution.referrer_host || "",
-      utm_source: attribution.utm_source || "",
-      utm_medium: attribution.utm_medium || "",
-      utm_campaign: attribution.utm_campaign || "",
-      utm_term: attribution.utm_term || "",
-      utm_content: attribution.utm_content || "",
+      landing_page: snapshot.landing_page || "",
+      page_referrer: snapshot.page_referrer || "",
+      referrer_type: snapshot.referrer_type || "",
+      referrer_host: snapshot.referrer_host || "",
+      utm_source: snapshot.utm_source || "",
+      utm_medium: snapshot.utm_medium || "",
+      utm_campaign: snapshot.utm_campaign || "",
+      utm_term: snapshot.utm_term || "",
+      utm_content: snapshot.utm_content || "",
     };
   } catch {
     return {};
   }
 }
 
-/** @param {Record<string, string>} attribution */
-export function reportSessionStart(attribution) {
+/**
+ * Fires session_start with full attribution on each tracked page load.
+ * @param {Record<string, string>} attributionSnapshot
+ */
+export function reportSessionStart(attributionSnapshot) {
   trackEvent("session_start", {
-    ...attribution,
+    ...attributionSnapshot,
     page_location: window.location.href,
   });
 }
