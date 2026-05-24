@@ -63,6 +63,7 @@ function initGoogleTagIfConfigured() {
   }
   window.gtag = gtag;
   gtag("js", new Date());
+  gtag("set", "allow_ad_personalization_signals", false);
   if (hasGa) gtag("config", measurementId);
   if (hasAds) gtag("config", adsTagId);
 
