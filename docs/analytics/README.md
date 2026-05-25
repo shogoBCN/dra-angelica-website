@@ -21,7 +21,8 @@ Implementation lives in:
 web/assets/analytics/
   index.js           Entry point; exposes window.SiteAnalytics
   config.js          Meta tag IDs and constants
-  gtag-loader.js     gtag.js bootstrap
+  gtag-init.js         Google tag bootstrap in <head>
+  gtag-loader.js       Fallback gtag bootstrap
   transport.js       trackEvent / conversion dispatch
   attribution.js     UTM + referrer (sessionStorage)
   clicks.js          element_click
@@ -37,7 +38,14 @@ web/assets/analytics/
 | `/blog/articulo` | Yes | G-NET9DFP6TW | AW-18163846421 |
 | `/blog/admin/` | No | — | — |
 
-Each tracked page includes:
+Each tracked page includes in `<head>`:
+
+```html
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18163846421"></script>
+<script src="/assets/analytics/gtag-init.js"></script>
+```
+
+And before `</body>`:
 
 ```html
 <script type="module" src="/assets/analytics/index.js"></script>

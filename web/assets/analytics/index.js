@@ -6,7 +6,8 @@
  *
  * Module layout:
  *   config.js       — meta tag IDs, constants
- *   gtag-loader.js  — gtag.js bootstrap (GA4 + Google Ads)
+ *   gtag-init.js     — Google tag in <head> (Google Ads verification)
+ *   gtag-loader.js   — fallback bootstrap if gtag-init.js absent
  *   transport.js    — trackEvent / conversion helpers
  *   attribution.js  — UTM + referrer (sessionStorage)
  *   clicks.js       — element_click

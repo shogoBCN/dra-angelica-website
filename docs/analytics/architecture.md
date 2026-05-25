@@ -5,10 +5,12 @@
 ```
 HTML meta tags (GA4 + Google Ads IDs)
         │
+        ├──► <head> gtag-init.js + async gtag/js?id=AW-…  (Google tag)
+        │
         ▼
 index.js ──► readSiteAnalyticsConfig()
         │
-        ├──► gtag-loader.js ──► loads gtag.js, config GA4 + Ads
+        ├──► gtag-loader.js ──► fallback only if gtag-init.js missing
         │
         ├──► attribution.js ──► sessionStorage snapshot + session_start
         │
@@ -34,9 +36,13 @@ main.js (contact form success)
 
 Reads `<meta>` tags and exports constants (scroll milestones, heartbeat interval, Google Ads conversion ID).
 
+### `gtag-init.js`
+
+Loaded from `<head>` on every tracked page. Matches Google’s recommended placement so Google Ads Tag diagnostics detect `AW-18163846421` in page source. Configures GA4, Google Ads, and `allow_ad_personalization_signals: false`.
+
 ### `gtag-loader.js`
 
-Creates `window.dataLayer` and `window.gtag`, sets `allow_ad_personalization_signals` to `false`, calls `gtag('config', …)` for GA4 and Google Ads, and appends the async `gtag.js` script.
+Fallback bootstrap if `gtag-init.js` is not present (e.g. local experiments). Skipped when `window.__siteAnalyticsGtagReady` is already set.
 
 ### `transport.js`
 

@@ -30,16 +30,24 @@ Used for campaign conversion tracking alongside GA4.
 
 Accepted values: `disabled`, `off` (case-insensitive). Overrides tag IDs on that page.
 
-## Script tag
+## Script tags
 
-Public pages load the module before `main.js`:
+Google tag in `<head>` (required for Google Ads verification):
+
+```html
+<!-- After meta tags -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18163846421"></script>
+<script src="/assets/analytics/gtag-init.js"></script>
+```
+
+`gtag-init.js` reads the meta tags and calls `gtag('config', …)` for GA4 and Google Ads. Init logic is in an external file (not inline) to satisfy Content-Security-Policy.
+
+Custom event tracking loads at the end of `<body>`:
 
 ```html
 <script type="module" src="/assets/analytics/index.js"></script>
 <script src="/assets/js/main.js" defer></script>
 ```
-
-Use root-relative paths on blog pages (`/assets/analytics/index.js`); relative paths on the homepage (`assets/analytics/index.js`) also work.
 
 ## Content Security Policy (CSP)
 
