@@ -3,7 +3,8 @@
  * Normal pages include gtag-init.js + async gtag/js in <head> for Google Ads verification.
  *
  * Privacy: allow_ad_personalization_signals is set to false before any config.
- * CSP: pages must allow script-src and connect-src for googletagmanager.com.
+ * CSP: pages must allow script-src and connect-src for googletagmanager.com,
+ * www.google.com (Ads ccm/collect), and googleadservices.com.
  */
 
 /**
