@@ -11,6 +11,7 @@
  *  - Gentle “reveal on scroll” for section blocks (respects reduced-motion via CSS)
  *  - Inline “infotip” panels beside long-form copy (positioning on mobile/desktop)
  *  - Mis servicios: tarjetas interactivas con volteo (título ↔ detalle)
+ *  - Landing carousel (#inicio): avance automático lento
  *  - FAQ: acordeón (solo un `<details>` abierto a la vez)
  *  - Analytics hooks via window.SiteAnalytics (loaded from assets/analytics/)
  */
@@ -34,6 +35,9 @@ const COLLAPSED_NAV_MEDIA_QUERY = "(max-width: 1099px)";
 
 /** Below this width infotips use fixed positioning and viewport clamping. */
 const INFOTIP_MOBILE_MEDIA_QUERY = "(max-width: 639px)";
+
+/** Interval between promo carousel slides (ms). */
+const PROMO_CAROUSEL_AUTO_ADVANCE_MS = 8000;
 
 /** Shown inline when AJAX returns non-success JSON without a usable `message` from the provider. */
 const CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES =
@@ -248,6 +252,125 @@ function initServiceFlipCards() {
       );
     });
   });
+}
+
+/**
+ * Landing carousel (#inicio). Auto-advances slowly; pauses on hover/focus
+ * and when the tab is hidden. Respects prefers-reduced-motion (manual controls only).
+ */
+function initPromoCarousel() {
+  const carouselRoot = document.querySelector("[data-carousel]");
+  if (!carouselRoot) return;
+
+  const slideElements = [...carouselRoot.querySelectorAll(".promo-carousel__slide")];
+  const dotButtons = [...carouselRoot.querySelectorAll("[data-carousel-dot]")];
+  const previousButton = carouselRoot.querySelector("[data-carousel-prev]");
+  const nextButton = carouselRoot.querySelector("[data-carousel-next]");
+  if (slideElements.length <= 1) return;
+
+  let activeIndex = slideElements.findIndex((slide) =>
+    slide.classList.contains("is-active"),
+  );
+  if (activeIndex < 0) activeIndex = 0;
+
+  let advanceTimerId = null;
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function goToSlide(nextIndex) {
+    const normalizedIndex =
+      ((nextIndex % slideElements.length) + slideElements.length) %
+      slideElements.length;
+
+    slideElements.forEach((slide, slideIndex) => {
+      const isActive = slideIndex === normalizedIndex;
+      slide.classList.toggle("is-active", isActive);
+      slide.setAttribute("aria-hidden", isActive ? "false" : "true");
+      slide.setAttribute(
+        "aria-label",
+        `${slideIndex + 1} de ${slideElements.length}`,
+      );
+    });
+
+    dotButtons.forEach((dot, dotIndex) => {
+      const isActive = dotIndex === normalizedIndex;
+      dot.classList.toggle("is-active", isActive);
+      dot.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+
+    activeIndex = normalizedIndex;
+  }
+
+  function advanceToNextSlide() {
+    goToSlide(activeIndex + 1);
+  }
+
+  function advanceToPreviousSlide() {
+    goToSlide(activeIndex - 1);
+  }
+
+  function startAutoplay() {
+    if (reducedMotionQuery.matches) return;
+    stopAutoplay();
+    advanceTimerId = window.setInterval(
+      advanceToNextSlide,
+      PROMO_CAROUSEL_AUTO_ADVANCE_MS,
+    );
+  }
+
+  function stopAutoplay() {
+    if (advanceTimerId !== null) {
+      window.clearInterval(advanceTimerId);
+      advanceTimerId = null;
+    }
+  }
+
+  dotButtons.forEach((dot, dotIndex) => {
+    dot.addEventListener("click", () => {
+      goToSlide(dotIndex);
+      startAutoplay();
+    });
+  });
+
+  if (previousButton instanceof HTMLButtonElement) {
+    previousButton.addEventListener("click", () => {
+      advanceToPreviousSlide();
+      startAutoplay();
+    });
+  }
+
+  if (nextButton instanceof HTMLButtonElement) {
+    nextButton.addEventListener("click", () => {
+      advanceToNextSlide();
+      startAutoplay();
+    });
+  }
+
+  carouselRoot.addEventListener("mouseenter", stopAutoplay);
+  carouselRoot.addEventListener("mouseleave", startAutoplay);
+  carouselRoot.addEventListener("focusin", stopAutoplay);
+  carouselRoot.addEventListener("focusout", (focusEvent) => {
+    if (!carouselRoot.contains(focusEvent.relatedTarget)) {
+      startAutoplay();
+    }
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopAutoplay();
+    } else {
+      startAutoplay();
+    }
+  });
+
+  reducedMotionQuery.addEventListener("change", () => {
+    if (reducedMotionQuery.matches) {
+      stopAutoplay();
+    } else {
+      startAutoplay();
+    }
+  });
+
+  startAutoplay();
 }
 
 /**
@@ -528,6 +651,7 @@ function init() {
   }
 
   initServiceFlipCards();
+  initPromoCarousel();
   initFaqAccordion();
 
   createInfotipController();
