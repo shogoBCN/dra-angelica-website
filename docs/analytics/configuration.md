@@ -68,7 +68,9 @@ Edit in `web/assets/analytics/config.js` if needed:
 
 | Constant | Default | Purpose |
 |----------|---------|---------|
-| `GOOGLE_ADS_CONTACT_FORM_CONVERSION` | `AW-18163846421/UgqsCN7-1bIcEJWamdVD` | Ads conversion label for contact form |
+| `GOOGLE_ADS_CONVERSIONS.*` | empty until configured | Ads conversion labels — see [google-ads-conversions.md](./google-ads-conversions.md) |
+| `CONTENT_ENGAGED_MIN_SCROLL_PERCENT` | 90 | Scroll threshold for content-engaged conversion |
+| `CONTENT_ENGAGED_MIN_ACTIVE_SECONDS` | 90 | Active reading time for content-engaged conversion |
 | `SCROLL_DEPTH_MILESTONES_PERCENT` | 25, 50, 75, 90, 100 | Scroll event thresholds |
 | `ACTIVE_TIME_HEARTBEAT_INTERVAL_MS` | 30000 | Heartbeat interval (ms) |
 | `SECTION_VISIBILITY_THRESHOLD` | 0.35 | Fraction of section visible before timing |
@@ -79,8 +81,8 @@ Edit in `web/assets/analytics/config.js` if needed:
 2. Register custom dimensions again in the **new** GA4 property (see [GA4 access guide](./ga4-access-guide.md)).
 3. Deploy and verify in **Realtime**.
 
-## Changing the Google Ads conversion
+## Changing Google Ads conversion labels
 
-1. Update `google-ads-tag-id` in HTML if the account ID changes.
-2. Update `GOOGLE_ADS_CONTACT_FORM_CONVERSION` in `config.js` with the new `AW-…/label` from Google Ads.
-3. Verify in Google Ads → **Goals** → **Conversions** → **Tag diagnostics**.
+1. Create conversion actions in Google Ads (one per goal — see [google-ads-conversions.md](./google-ads-conversions.md)).
+2. Paste each `AW-…/label` into `GOOGLE_ADS_CONVERSIONS` in `config.js`.
+3. Deploy and verify in **Goals** → **Conversions** → **Tag diagnostics**.

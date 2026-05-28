@@ -9,6 +9,7 @@
  *   gtag-init.js     — Google tag in <head> (Google Ads verification)
  *   gtag-loader.js   — fallback bootstrap if gtag-init.js absent
  *   transport.js    — trackEvent / conversion helpers
+ *   conversions.js  — Google Ads conversion dispatch
  *   attribution.js  — UTM + referrer (sessionStorage)
  *   clicks.js       — element_click
  *   engagement.js   — scroll, sections, time on page
@@ -25,12 +26,12 @@ import {
 } from "./attribution.js";
 import { initClickTracking } from "./clicks.js";
 import {
-  GOOGLE_ADS_CONTACT_FORM_CONVERSION,
-  readSiteAnalyticsConfig,
-} from "./config.js";
+  trackContactFormConversion,
+} from "./conversions.js";
+import { readSiteAnalyticsConfig } from "./config.js";
 import { initEngagementTracking } from "./engagement.js";
 import { initGtag } from "./gtag-loader.js";
-import { markGtagReady, trackEvent, trackGoogleAdsConversion } from "./transport.js";
+import { markGtagReady, trackEvent } from "./transport.js";
 
 function bootstrapSiteAnalytics() {
   const siteConfig = readSiteAnalyticsConfig();
@@ -51,8 +52,7 @@ bootstrapSiteAnalytics();
 /** @type {import("./index.js").SiteAnalyticsApi} */
 window.SiteAnalytics = {
   trackEvent,
-  trackContactFormConversion: () =>
-    trackGoogleAdsConversion(GOOGLE_ADS_CONTACT_FORM_CONVERSION),
+  trackContactFormConversion,
   getSessionAttribution: getSessionAttributionParams,
 };
 

@@ -1,43 +1,79 @@
 # Google Ads conversions
 
-Contact form submissions are tracked as a **Google Ads conversion** in addition to the GA4 `form_submit` event.
+Five conversion actions map to real user intent on medicina-familiar.co. Each needs its **own label** in Google Ads — do not reuse the auto-created “Page view” label (`UgqsCN7-1bIcEJWamdVD`); set that action to **Secondary** or remove it from campaign goals.
 
-## Configuration
+## Conversion goals
 
-| Setting | Value |
-|---------|-------|
-| Google Ads tag ID | `AW-18163846421` (meta: `google-ads-tag-id`) |
-| Conversion action | `AW-18163846421/UgqsCN7-1bIcEJWamdVD` |
-| Code constant | `GOOGLE_ADS_CONTACT_FORM_CONVERSION` in `web/assets/analytics/config.js` |
+| Goal | When it fires | GA4 event | Code key (`config.js`) | Suggested Ads setting |
+|------|---------------|-----------|------------------------|------------------------|
+| **Contact form** | FormSubmit AJAX success | `form_submit` | `contactForm` | Primary, Count: One |
+| **WhatsApp click** | Click `wa.me` or `tel:` link | `element_click` | `whatsappClick` | Primary, Count: Every |
+| **Email click** | Click `mailto:` link | `element_click` | `emailClick` | Primary, Count: Every |
+| **Maps open** | Click Google Maps link | `element_click` | `mapsOpen` | Primary, Count: Every |
+| **Content engaged** | Scroll ≥ 90 % **and** ≥ 90 s active reading | `content_engaged` | `contentEngaged` | Primary, Count: One, higher value |
 
-## When it fires
+**Content engaged** means the visitor scrolled through most of the page and kept the tab in the foreground for at least 90 seconds — a signal they read the educational content, not just landed and left.
 
-After the contact form AJAX call to FormSubmit returns success (`main.js`):
+Adjust thresholds in `config.js`:
 
-1. `SiteAnalytics.trackContactFormConversion()` — Google Ads conversion
-2. `SiteAnalytics.trackEvent('form_submit', …)` — GA4 custom event
+- `CONTENT_ENGAGED_MIN_SCROLL_PERCENT` (default `90`)
+- `CONTENT_ENGAGED_MIN_ACTIVE_SECONDS` (default `90`)
 
-There is no separate “thank you” page; the inline confirmation message triggers the conversion.
+## Setup in Google Ads
 
-## Verify in Google Ads
+1. [Google Ads](https://ads.google.com/) → **Goals** → **Conversions** → **New conversion action**
+2. Category: **Submit lead form** (form, WhatsApp, email, maps) or **Other** (content engaged)
+3. Source: **Website**
+4. Goal: event snippet — you only need the **Conversion label** (`AW-18163846421/xxxxxxxx`)
+5. Create **five separate actions** (one per row in the table above)
+6. Paste each label into `web/assets/analytics/config.js`:
 
-1. Sign in to [Google Ads](https://ads.google.com/).
-2. **Goals** → **Conversions** → **Summary**
-3. Open the contact / lead conversion action
-4. **Tag setup** → **Tag diagnostics**
+```javascript
+export const GOOGLE_ADS_CONVERSIONS = Object.freeze({
+  contactForm: "AW-18163846421/YOUR_CONTACT_LABEL",
+  whatsappClick: "AW-18163846421/YOUR_WHATSAPP_LABEL",
+  emailClick: "AW-18163846421/YOUR_EMAIL_LABEL",
+  mapsOpen: "AW-18163846421/YOUR_MAPS_LABEL",
+  contentEngaged: "AW-18163846421/YOUR_CONTENT_LABEL",
+});
+```
 
-After deploy, submit a test form (use a real-looking but test message). Status should move to “Recording conversions” within a few hours.
+7. Deploy, then verify each action with [Tag Assistant](https://tagassistant.google.com/) from **Goals → Conversions → Tag diagnostics**
+8. Set **Page view** (old misconfigured action) to **Secondary** — it is not used by this site
+
+## Campaign bidding suggestions
+
+| Conversion | Role in PMax / Search |
+|------------|------------------------|
+| Contact form, WhatsApp, email, maps | **Primary** — direct lead intent |
+| Content engaged | **Primary** with **higher conversion value** (code sends `value: 2.0`) — rewards education funnels |
+| Page view | **Secondary** or excluded |
+
+In Google Ads you can assign different values per conversion action (e.g. form = 5, content engaged = 2, click = 1) to reflect business priority.
+
+## Verify
+
+| Action | How to test |
+|--------|-------------|
+| Contact form | Submit test message on homepage |
+| WhatsApp | Click footer or contact WhatsApp link |
+| Email | Click `doc.angelica@…` mailto link |
+| Maps | Click “Abrir en Google Maps” |
+| Content engaged | Scroll to bottom, stay on page ≥ 90 s with tab visible |
+
+Status should move from **Unverified** to **Recording conversions** within a few hours ([Google help](https://support.google.com/google-ads/answer/10029065)).
 
 ## GA4 vs Google Ads
 
 | | GA4 | Google Ads |
 |---|-----|------------|
-| Event | `form_submit` | `conversion` (gtag) |
+| Lead clicks | `element_click` + parameters | `conversion` (gtag) |
+| Form | `form_submit` | `conversion` |
+| Deep read | `content_engaged` | `conversion` |
 | Where to view | GA4 → Events / Explore | Ads → Conversions |
-| Used for | Site behaviour analysis | Campaign bidding & ROI |
 
-Both tags load from the same gtag snippet; they run in parallel and do not conflict.
+Both use the same gtag snippet in `<head>`; they do not conflict.
 
 ## Privacy
 
-Same as GA4 setup: `allow_ad_personalization_signals` is set to `false` in `gtag-loader.js`.
+`allow_ad_personalization_signals` is set to `false` in `gtag-init.js` / `gtag-loader.js`.

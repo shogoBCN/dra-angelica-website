@@ -14,13 +14,15 @@ index.js ──► readSiteAnalyticsConfig()
         │
         ├──► attribution.js ──► sessionStorage snapshot + session_start
         │
-        ├──► clicks.js ──► document click listener → element_click
+        ├──► clicks.js ──► document click listener → element_click + Ads lead conversions
         │
-        └──► engagement.js ──► scroll / sections / time → engagement events
+        ├──► engagement.js ──► scroll / sections / time → engagement events + content_engaged
+        │
+        └──► conversions.js ──► gtag conversion hits (when labels configured in config.js)
 
 main.js (contact form success)
         │
-        └──► window.SiteAnalytics.trackContactFormConversion()
+        └──► window.SiteAnalytics.trackContactFormConversion()  → conversions.js
         └──► window.SiteAnalytics.trackEvent('form_submit', …)
 ```
 

@@ -141,20 +141,40 @@ Captured once per browser tab session and attached to most events:
 
 ---
 
-## Google Ads conversion (not a GA4 custom event name)
+## Google Ads conversions
 
-**When:** Contact form succeeds.  
-**Module:** `main.js` → `SiteAnalytics.trackContactFormConversion()`
+See [Google Ads conversions](./google-ads-conversions.md) for setup. Summary:
 
-Sends:
+| Trigger | GA4 | Ads `send_to` key |
+|---------|-----|-------------------|
+| Contact form success | `form_submit` | `contactForm` |
+| WhatsApp / `tel:` click | `element_click` | `whatsappClick` |
+| Email click | `element_click` | `emailClick` |
+| Google Maps click | `element_click` | `mapsOpen` |
+| Scroll ≥ 90 % + 90 s active | `content_engaged` | `contentEngaged` |
 
-```javascript
-gtag('event', 'conversion', { send_to: 'AW-18163846421/UgqsCN7-1bIcEJWamdVD' });
-```
+Each sends `gtag('event', 'conversion', { send_to: 'AW-…/label' })` when the label is configured in `config.js`.
 
-Reported in **Google Ads**, not as a named row in GA4 Events (unless GA4 is linked to Ads).
+---
 
-See [Google Ads conversions](./google-ads-conversions.md).
+### `content_engaged`
+
+**When:** Once per session when scroll depth ≥ 90 % **and** active visible time ≥ 90 s.  
+**Module:** `engagement.js` → `conversions.js`
+
+| Parameter | Description |
+|-----------|-------------|
+| `scroll_percent` | Max scroll reached when threshold met |
+| `engagement_seconds` | Active visible time (seconds) |
+| + attribution fields | |
+
+**Use for:** Visitors who read most of the educational content — track in GA4; pair with Ads `contentEngaged` conversion for bidding.
+
+---
+
+## Google Ads conversion (gtag, not a GA4 event name)
+
+Legacy note: the old single label `UgqsCN7-1bIcEJWamdVD` was tied to a misnamed **Page view** action in Ads. Replace with per-action labels documented in [google-ads-conversions.md](./google-ads-conversions.md).
 
 ---
 

@@ -63,6 +63,30 @@ function applyAssetCacheBust(html, buildId) {
     );
 }
 
+/** ES module relative imports must carry the same ?v= as entry scripts (immutable JS caching). */
+function applyJsModuleCacheBust(jsSource, buildId) {
+  return jsSource.replace(
+    /(from\s+["'])(\.\/[^"'?#]+\.js)(["'])/g,
+    (_m, prefix, modulePath, suffix) => `${prefix}${modulePath}?v=${buildId}${suffix}`
+  );
+}
+
+async function processAnalyticsModuleImports(distAssetsDir, buildId) {
+  const analyticsDir = join(distAssetsDir, "analytics");
+  let entries;
+  try {
+    entries = await readdir(analyticsDir);
+  } catch {
+    return;
+  }
+  for (const entryName of entries) {
+    if (!entryName.endsWith(".js")) continue;
+    const filePath = join(analyticsDir, entryName);
+    const source = await readFile(filePath, "utf8");
+    await writeFile(filePath, applyJsModuleCacheBust(source, buildId), "utf8");
+  }
+}
+
 async function injectInlineJsonLd(html) {
   const schemaRaw = await readFile(join(src, "assets/seo/schema.json"), "utf8");
   const schemaInline = JSON.stringify(JSON.parse(schemaRaw)).replace(/</g, "\\u003c");
@@ -93,6 +117,7 @@ for (const page of HTML_PAGES) {
 
 await cp(join(src, "robots.txt"), join(dist, "robots.txt"));
 await cp(join(src, "assets"), join(dist, "assets"), { recursive: true });
+await processAnalyticsModuleImports(join(dist, "assets"), buildId);
 
 await cp(join(src, "blog"), join(dist, "blog"), { recursive: true });
 for (const htmlPath of await walkHtmlFiles(join(dist, "blog"))) {

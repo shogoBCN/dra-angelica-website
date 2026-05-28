@@ -15,10 +15,30 @@
 export const SESSION_STORAGE_KEYS = Object.freeze({
   attributionSnapshot: "site_analytics_attribution",
   sessionStartedAtMs: "site_analytics_session_start",
+  adsConversionsFired: "site_analytics_ads_conversions_fired",
 });
 
-/** Google Ads conversion action for successful contact form submission. */
-export const GOOGLE_ADS_CONTACT_FORM_CONVERSION = "AW-18163846421/UgqsCN7-1bIcEJWamdVD";
+/**
+ * Google Ads conversion labels (AW-ACCOUNT_ID/LABEL).
+ * Create each action in Google Ads → Goals → Conversions, then paste the label here.
+ * Leave empty until configured — empty labels are skipped safely.
+ */
+export const GOOGLE_ADS_CONVERSIONS = Object.freeze({
+  contactForm: "AW-18163846421/uMjmCIX_kLUcEJWamdVD",
+  whatsappClick: "AW-18163846421/MbyaCIj_kLUcEJWamdVD",
+  emailClick: "AW-18163846421/V50SCIv_kLUcEJWamdVD",
+  mapsOpen: "AW-18163846421/HdyJCI7_kLUcEJWamdVD",
+  contentEngaged: "AW-18163846421/BJ2PCImAkbUcEJWamdVD",
+});
+
+/** @deprecated Use GOOGLE_ADS_CONVERSIONS.contactForm */
+export const GOOGLE_ADS_CONTACT_FORM_CONVERSION = GOOGLE_ADS_CONVERSIONS.contactForm;
+
+/** Minimum scroll depth before counting a visitor as content-engaged. */
+export const CONTENT_ENGAGED_MIN_SCROLL_PERCENT = 50;
+
+/** Minimum active visible seconds before counting content-engaged (tab in foreground). */
+export const CONTENT_ENGAGED_MIN_ACTIVE_SECONDS = 50;
 
 /** Scroll-depth milestones (percent of page height) fired once per page view. */
 export const SCROLL_DEPTH_MILESTONES_PERCENT = Object.freeze([25, 50, 75, 90, 100]);

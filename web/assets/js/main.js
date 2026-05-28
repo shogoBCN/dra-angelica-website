@@ -214,6 +214,86 @@ function updateActiveNavigationState(sectionId, sectionAnchorLinks) {
   });
 }
 
+/** Matches `scroll-padding-top` on `<html>` (fixed header clearance for hash targets). */
+function getNavAnchorOffsetPx() {
+  const scrollPaddingTop = parseFloat(
+    getComputedStyle(document.documentElement).scrollPaddingTop,
+  );
+  return Number.isFinite(scrollPaddingTop) && scrollPaddingTop > 0
+    ? scrollPaddingTop
+    : 80;
+}
+
+/**
+ * Picks the last nav section whose top has crossed the anchor line (below the header).
+ * At the page bottom, always selects the final section so short footers still highlight Contacto.
+ *
+ * @returns {string}
+ */
+function resolveActiveNavSectionId() {
+  const anchorY = getNavAnchorOffsetPx();
+  let activeSectionId = MAIN_NAV_SECTION_IDS[0];
+
+  for (const sectionId of MAIN_NAV_SECTION_IDS) {
+    const sectionElement = document.getElementById(sectionId);
+    if (!sectionElement) continue;
+    if (sectionElement.getBoundingClientRect().top <= anchorY + 4) {
+      activeSectionId = sectionId;
+    }
+  }
+
+  const scrollingRoot = document.documentElement;
+  const atPageBottom =
+    window.innerHeight + scrollingRoot.scrollTop >= scrollingRoot.scrollHeight - 2;
+  if (atPageBottom) {
+    activeSectionId = MAIN_NAV_SECTION_IDS[MAIN_NAV_SECTION_IDS.length - 1];
+  }
+
+  return activeSectionId;
+}
+
+/**
+ * @param {NodeListOf<HTMLAnchorElement> | HTMLAnchorElement[]} sectionAnchorLinks
+ */
+function syncActiveNavigationFromScroll(sectionAnchorLinks) {
+  updateActiveNavigationState(
+    resolveActiveNavSectionId(),
+    sectionAnchorLinks,
+  );
+}
+
+/**
+ * Scroll-spy + hash navigation for `[data-section-link]` anchors.
+ *
+ * @param {NodeListOf<HTMLAnchorElement> | HTMLAnchorElement[]} sectionAnchorLinks
+ */
+function initNavigationScrollSpy(sectionAnchorLinks) {
+  if (sectionAnchorLinks.length === 0) return;
+
+  let scrollSpyAnimationFrame = 0;
+  const scheduleScrollSpySync = () => {
+    if (scrollSpyAnimationFrame) return;
+    scrollSpyAnimationFrame = window.requestAnimationFrame(() => {
+      scrollSpyAnimationFrame = 0;
+      syncActiveNavigationFromScroll(sectionAnchorLinks);
+    });
+  };
+
+  sectionAnchorLinks.forEach((anchorLink) => {
+    anchorLink.addEventListener("click", () => {
+      const targetSectionId = (anchorLink.getAttribute("href") || "").replace(/^#/, "");
+      if (targetSectionId) {
+        updateActiveNavigationState(targetSectionId, sectionAnchorLinks);
+      }
+      scheduleScrollSpySync();
+    });
+  });
+
+  window.addEventListener("hashchange", scheduleScrollSpySync);
+  window.addEventListener("scroll", scheduleScrollSpySync, { passive: true });
+  scheduleScrollSpySync();
+}
+
 /**
  * Tracks reading progress across the entire document (`html` scroll height minus viewport).
  *
@@ -599,30 +679,7 @@ function init() {
     });
   }
 
-  if (supportsIntersectionObserver) {
-    const sectionIntersectionObserver = new IntersectionObserver(
-      (observerEntries) => {
-        observerEntries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0) {
-            updateActiveNavigationState(entry.target.id, sectionAnchorLinks);
-          }
-        });
-      },
-      {
-        root: null,
-        /** Biases spy state toward whichever block crosses the geometric “reading line”. */
-        rootMargin: "-42% 0px -48% 0px",
-        threshold: [0, 0.08, 0.2],
-      },
-    );
-
-    MAIN_NAV_SECTION_IDS.forEach((sectionDomId) => {
-      const sectionElement = document.getElementById(sectionDomId);
-      if (sectionElement) {
-        sectionIntersectionObserver.observe(sectionElement);
-      }
-    });
-  }
+  initNavigationScrollSpy(sectionAnchorLinks);
 
   if (supportsIntersectionObserver && revealTargets.length > 0) {
     const revealObserver = new IntersectionObserver(
@@ -644,10 +701,6 @@ function init() {
     revealTargets.forEach((revealEl) => {
       revealEl.classList.add("is-visible");
     });
-  }
-
-  if (!supportsIntersectionObserver && MAIN_NAV_SECTION_IDS.length > 0) {
-    updateActiveNavigationState("inicio", sectionAnchorLinks);
   }
 
   initServiceFlipCards();

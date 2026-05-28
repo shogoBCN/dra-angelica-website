@@ -53,8 +53,15 @@ export function trackEvent(eventName, eventParams = {}) {
 /**
  * Fires a Google Ads conversion (separate from GA4 custom events).
  * @param {string} conversionSendTo Format AW-XXXXXXXX/label
+ * @param {{ value?: number; currency?: string }} [options]
  */
-export function trackGoogleAdsConversion(conversionSendTo) {
+export function trackGoogleAdsConversion(conversionSendTo, options = {}) {
   if (typeof window.gtag !== "function") return;
-  window.gtag("event", "conversion", { send_to: conversionSendTo });
+  const payload = {
+    send_to: conversionSendTo,
+    transport_type: "beacon",
+  };
+  if (typeof options.value === "number") payload.value = options.value;
+  if (options.currency) payload.currency = options.currency;
+  window.gtag("event", "conversion", payload);
 }

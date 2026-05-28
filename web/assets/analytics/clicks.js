@@ -6,6 +6,10 @@
  */
 
 import { getSessionAttributionParams } from "./attribution.js";
+import {
+  classifyLeadClickConversion,
+  fireGoogleAdsConversion,
+} from "./conversions.js";
 import { trackEvent } from "./transport.js";
 
 /** GA4 event name for link/button clicks. */
@@ -112,6 +116,11 @@ export function initClickTracking() {
         click_section: findNearestSectionId(clickedInteractive),
         click_classes: String(clickedInteractive.className || "").slice(0, MAX_CLASSES_LENGTH),
       });
+
+      const leadConversionKey = classifyLeadClickConversion(linkHref);
+      if (leadConversionKey) {
+        fireGoogleAdsConversion(leadConversionKey, { value: 1.0, currency: "COP" });
+      }
     },
     { capture: true }
   );

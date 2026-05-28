@@ -10,10 +10,12 @@
 
 import {
   ACTIVE_TIME_HEARTBEAT_INTERVAL_MS,
+  CONTENT_ENGAGED_MIN_SCROLL_PERCENT,
   SCROLL_DEPTH_MILESTONES_PERCENT,
   SECTION_VISIBILITY_THRESHOLD,
 } from "./config.js";
 import { getSessionAttributionParams } from "./attribution.js";
+import { maybeTrackContentEngagedConversion } from "./conversions.js";
 import { trackEvent } from "./transport.js";
 
 export const ENGAGEMENT_EVENT_NAMES = Object.freeze({
@@ -26,7 +28,9 @@ export const ENGAGEMENT_EVENT_NAMES = Object.freeze({
 /** Registers scroll, section, visibility, and exit tracking. */
 export function initEngagementTracking() {
   const pageLoadTimestampMs = Date.now();
+  /** @type {Set<number>} */
   const reachedScrollMilestones = new Set();
+  let maxScrollPercentReached = 0;
   let totalActiveVisibleMs = 0;
   let lastVisibleTimestampMs =
     document.visibilityState === "visible" ? Date.now() : null;
@@ -55,6 +59,13 @@ export function initEngagementTracking() {
     });
   }
 
+  function reportContentEngagementIfQualified() {
+    maybeTrackContentEngagedConversion({
+      scrollPercent: maxScrollPercentReached,
+      activeVisibleSeconds: Math.round(totalActiveVisibleMs / 1000),
+    });
+  }
+
   function trackScrollDepthMilestones() {
     const documentElement = document.documentElement;
     const scrollOffsetPx = window.scrollY || documentElement.scrollTop;
@@ -65,6 +76,7 @@ export function initEngagementTracking() {
       100,
       Math.round((scrollOffsetPx / scrollableHeightPx) * 100)
     );
+    maxScrollPercentReached = Math.max(maxScrollPercentReached, scrollPercent);
 
     for (const milestonePercent of SCROLL_DEPTH_MILESTONES_PERCENT) {
       if (scrollPercent >= milestonePercent && !reachedScrollMilestones.has(milestonePercent)) {
@@ -73,6 +85,9 @@ export function initEngagementTracking() {
           ...getSessionAttributionParams(),
           scroll_percent: milestonePercent,
         });
+        if (milestonePercent >= CONTENT_ENGAGED_MIN_SCROLL_PERCENT) {
+          reportContentEngagementIfQualified();
+        }
       }
     }
   }
@@ -130,6 +145,7 @@ export function initEngagementTracking() {
       ...getSessionAttributionParams(),
       engagement_seconds: Math.round(totalActiveVisibleMs / 1000),
     });
+    reportContentEngagementIfQualified();
   }, ACTIVE_TIME_HEARTBEAT_INTERVAL_MS);
 
   window.addEventListener("pagehide", () => {
