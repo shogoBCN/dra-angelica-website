@@ -7,6 +7,9 @@
     "firebase": "firebase",
     "deploy": "npm run build && firebase deploy",
     "deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "functions:install": "npm install --prefix firebase/functions",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:contact": "npm run build && firebase deploy --only functions,hosting",
     "deploy:firestore": "firebase deploy --only firestore"
   },
   "engines": {

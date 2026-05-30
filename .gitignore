@@ -3,6 +3,7 @@ dist/
 
 # Dependencies
 node_modules/
+firebase/functions/node_modules/
 .venv-favicon/
 .venv-ads/
 
@@ -21,3 +22,6 @@ node_modules/
 
 # ads folder
 ads/
+
+# social folder
+social/

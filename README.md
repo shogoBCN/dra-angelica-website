@@ -10,13 +10,13 @@ Static **frontend** (visitor-facing copy in **Colombian Spanish**) and **Firebas
 | `web/`          | Site **source**: `index.html`, **`blog/`** subtree, shared **`assets/`** |
 | `dist/`         | **Build output** (generated; do not edit). Deploy this folder. |
 | `scripts/`      | Build tooling (`build-site.mjs`)                               |
-| `firebase/`     | `firestore.rules`, `firestore.indexes.json`                    |
+| `firebase/`     | `firestore.rules`, `firestore.indexes.json`, `functions/` (contact email) |
 | `firebase.json` | Firebase Hosting + Firestore paths, security **headers**       |
 
 
 ## Security notes
 
-- **Secrets:** do not commit `.env`, service account JSON, or private keys. `.gitignore` lists common patterns; use `firebase functions:config:set` or Secret Manager for real secrets later.
+- **Secrets:** do not commit `.env`, service account JSON, or private keys. Contact form uses **Firebase Secret Manager** (`RESEND_API_KEY`, etc.) — see **`docs/contact-form.md`**.
 - **Firestore:** rules live in `firebase/firestore.rules` (default deny outside `posts/`).
 - **Hosting:** `firebase.json` sets security headers (HSTS, `X-Frame-Options`, `Referrer-Policy`, etc.). **Content-Security-Policy** lives in **`web/index.html`** and per-page on **`web/blog/**/*.html`** (Firebase SDK CDN, and jsDelivr for Quill on `/blog/admin`). (`frame-ancestors` belongs in a **response header**, not meta.)
 
@@ -37,7 +37,10 @@ npm run firebase -- login
 npm run firebase -- use --add
 npm run deploy:firestore
 npm run deploy:hosting
+npm run deploy:contact   # functions + hosting (contact form)
 ```
+
+Contact form setup (Resend DNS, secrets, first deploy): **`docs/contact-form.md`**.
 
 ## Run locally
 
@@ -250,7 +253,7 @@ Public queries only **`where('published','==', true)`**, which aligns with Fires
 
 #### Optional next steps
 
-Add **Cloud Storage** for image uploads, **Cloud Functions** for validation, or an **`admin`** custom claim instead of UID lists in rules.
+Add **Cloud Storage** for image uploads, or an **`admin`** custom claim instead of UID lists in rules. **Contact form** already uses a Cloud Function — see **`docs/contact-form.md`**.
 
 Deploy rules/indexes after changing them:
 

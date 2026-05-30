@@ -20,7 +20,7 @@ index.js ──► readSiteAnalyticsConfig()
         │
         └──► conversions.js ──► gtag conversion hits (when labels configured in config.js)
 
-main.js (contact form success)
+main.js → POST /api/contact (Firebase + Resend) → success
         │
         └──► window.SiteAnalytics.trackContactFormConversion()  → conversions.js
         └──► window.SiteAnalytics.trackEvent('form_submit', …)

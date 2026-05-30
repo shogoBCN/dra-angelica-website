@@ -1,0 +1,17 @@
+{
+  "name": "dra-angelica-contact-functions",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "lint": "node --check index.js && node --check contact.js && node --check cors.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.2",
+    "firebase-functions": "^6.3.0",
+    "resend": "^4.1.2"
+  }
+}

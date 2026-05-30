@@ -3,8 +3,7 @@
  *
  * Responsibilities:
  *  - Footer year stamp
- *  - Contact form: progressive enhancement via FormSubmit JSON API when possible;
- *    falls back to a classic POST navigation when fetch or parsing fails
+ *  - Contact form: POST JSON to /api/contact (Firebase Function + Resend)
  *  - Mobile navigation (ARIA / body scroll lock)
  *  - Scroll progress indicator
  *  - Scroll-spy highlighting for primary nav anchors
@@ -39,16 +38,15 @@ const INFOTIP_MOBILE_MEDIA_QUERY = "(max-width: 639px)";
 /** Interval between promo carousel slides (ms). */
 const PROMO_CAROUSEL_AUTO_ADVANCE_MS = 8000;
 
-/** Shown inline when AJAX returns non-success JSON without a usable `message` from the provider. */
+/** Same-origin Hosting rewrite → Cloud Function `submitContact`. */
+const CONTACT_FORM_ENDPOINT = "/api/contact";
+
+/** Shown inline when the API returns non-success JSON without a usable `message`. */
 const CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES =
   "No se pudo enviar el mensaje. Comprueba tu conexión e inténtalo de nuevo.";
 
-/** FormSubmit AJAX path segment after the domain (email id or token string). */
-function formsubmitAjaxPathFromAction(formActionAttribute) {
-  if (!formActionAttribute) return "";
-  const slug = formActionAttribute.split("formsubmit.co/").pop();
-  return slug && slug !== formActionAttribute ? slug.trim() : "";
-}
+const CONTACT_FORM_OFFLINE_HINT_VISIBLE_ES =
+  "Si el problema continúa, escríbenos por WhatsApp o al correo del consultorio.";
 
 function setFooterYearCurrent() {
   const yearTarget = document.querySelector("[data-year]");
@@ -58,18 +56,6 @@ function setFooterYearCurrent() {
 }
 
 /**
- * @param {HTMLFormElement} formElement
- */
-function navigateWithNativeFormPost(formElement) {
-  HTMLFormElement.prototype.submit.call(formElement);
-}
-
-/**
- * Submits via FormSubmit’s JSON endpoint to avoid redirecting visitors to formsubmit.co.
- * CSP must include `connect-src https://formsubmit.co` (already set in index.html).
- *
- * Falls back to a normal navigational POST when the environment cannot reliably use fetch.
- *
  * @param {HTMLFormElement} contactForm
  */
 function attachContactFormHandler(contactForm) {
@@ -93,26 +79,18 @@ function attachContactFormHandler(contactForm) {
       return;
     }
 
-    const formAttributesAction = contactForm.getAttribute("action") || "";
-
-    /** JSON payload keys mirror POST field names exactly for FormSubmit. */
     const formFieldPayload = {};
     new FormData(contactForm).forEach((value, key) => {
       formFieldPayload[key] = value;
     });
 
     if (!globalThis.fetch) {
-      navigateWithNativeFormPost(contactForm);
+      if (errorMessageParagraph) {
+        errorMessageParagraph.textContent = CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES;
+        errorMessageParagraph.hidden = false;
+      }
       return;
     }
-
-    const ajaxPathSegment = formsubmitAjaxPathFromAction(formAttributesAction);
-    if (!ajaxPathSegment) {
-      navigateWithNativeFormPost(contactForm);
-      return;
-    }
-
-    const formSubmitAjaxUrl = `https://formsubmit.co/ajax/${ajaxPathSegment}`;
 
     const setSubmitBusy = (isBusy) => {
       if (submitButton instanceof HTMLButtonElement) {
@@ -122,7 +100,7 @@ function attachContactFormHandler(contactForm) {
 
     setSubmitBusy(true);
 
-    fetch(formSubmitAjaxUrl, {
+    fetch(CONTACT_FORM_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -131,7 +109,6 @@ function attachContactFormHandler(contactForm) {
       body: JSON.stringify(formFieldPayload),
     })
       .then(async (fetchResponse) => {
-        /** FormSubmit replies with JSON bodies; malformed responses degrade gracefully. */
         let parsedJson = {};
         try {
           parsedJson = await fetchResponse.json();
@@ -178,7 +155,10 @@ function attachContactFormHandler(contactForm) {
         }
       })
       .catch(() => {
-        navigateWithNativeFormPost(contactForm);
+        if (errorMessageParagraph) {
+          errorMessageParagraph.textContent = `${CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES} ${CONTACT_FORM_OFFLINE_HINT_VISIBLE_ES}`;
+          errorMessageParagraph.hidden = false;
+        }
       })
       .finally(() => {
         setSubmitBusy(false);

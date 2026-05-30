@@ -6,7 +6,7 @@ Five conversion actions map to real user intent on medicina-familiar.co. Each ne
 
 | Goal | When it fires | GA4 event | Code key (`config.js`) | Suggested Ads setting |
 |------|---------------|-----------|------------------------|------------------------|
-| **Contact form** | FormSubmit AJAX success | `form_submit` | `contactForm` | Primary, Count: One |
+| **Contact form** | `/api/contact` success (Resend) | `form_submit` | `contactForm` | Primary, Count: One |
 | **WhatsApp click** | Click `wa.me` or `tel:` link | `element_click` | `whatsappClick` | Primary, Count: Every |
 | **Email click** | Click `mailto:` link | `element_click` | `emailClick` | Primary, Count: Every |
 | **Maps open** | Click Google Maps link | `element_click` | `mapsOpen` | Primary, Count: Every |
