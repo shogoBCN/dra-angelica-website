@@ -38,6 +38,9 @@ const INFOTIP_MOBILE_MEDIA_QUERY = "(max-width: 639px)";
 /** Interval between promo carousel slides (ms). */
 const PROMO_CAROUSEL_AUTO_ADVANCE_MS = 8000;
 
+/** Landing carousel uses mobile-only slides below this width. */
+const MOBILE_CAROUSEL_MEDIA_QUERY = "(max-width: 719px)";
+
 /** Same-origin Hosting rewrite → Cloud Function `submitContact`. */
 const CONTACT_FORM_ENDPOINT = "/api/contact";
 
@@ -326,9 +329,21 @@ function initPromoCarousel() {
   const dotButtons = [...carouselRoot.querySelectorAll("[data-carousel-dot]")];
   const previousButton = carouselRoot.querySelector("[data-carousel-prev]");
   const nextButton = carouselRoot.querySelector("[data-carousel-next]");
-  if (slideElements.length <= 1) return;
+  const mobileCarouselQuery = window.matchMedia(MOBILE_CAROUSEL_MEDIA_QUERY);
 
-  let activeIndex = slideElements.findIndex((slide) =>
+  function getCarouselSlides() {
+    if (mobileCarouselQuery.matches) {
+      return slideElements.filter(
+        (slide) => !slide.classList.contains("promo-carousel__slide--desktop-only"),
+      );
+    }
+    return slideElements;
+  }
+
+  const carouselSlides = getCarouselSlides();
+  if (carouselSlides.length <= 1) return;
+
+  let activeIndex = carouselSlides.findIndex((slide) =>
     slide.classList.contains("is-active"),
   );
   if (activeIndex < 0) activeIndex = 0;
@@ -337,27 +352,43 @@ function initPromoCarousel() {
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   function goToSlide(nextIndex) {
-    const normalizedIndex =
-      ((nextIndex % slideElements.length) + slideElements.length) %
-      slideElements.length;
+    const slides = getCarouselSlides();
+    if (slides.length === 0) return;
 
-    slideElements.forEach((slide, slideIndex) => {
-      const isActive = slideIndex === normalizedIndex;
+    const normalizedIndex =
+      ((nextIndex % slides.length) + slides.length) % slides.length;
+    const activeSlide = slides[normalizedIndex];
+    const activeFullIndex = slideElements.indexOf(activeSlide);
+
+    slideElements.forEach((slide) => {
+      const slidePosition = slides.indexOf(slide);
+      const isActive = slide === activeSlide;
       slide.classList.toggle("is-active", isActive);
       slide.setAttribute("aria-hidden", isActive ? "false" : "true");
-      slide.setAttribute(
-        "aria-label",
-        `${slideIndex + 1} de ${slideElements.length}`,
-      );
+      if (slidePosition >= 0) {
+        slide.setAttribute("aria-label", `${slidePosition + 1} de ${slides.length}`);
+      }
     });
 
     dotButtons.forEach((dot, dotIndex) => {
-      const isActive = dotIndex === normalizedIndex;
+      const isActive = dotIndex === activeFullIndex;
       dot.classList.toggle("is-active", isActive);
       dot.setAttribute("aria-selected", isActive ? "true" : "false");
     });
 
     activeIndex = normalizedIndex;
+  }
+
+  function syncCarouselForViewport() {
+    const slides = getCarouselSlides();
+    const currentActive = slideElements.find((slide) =>
+      slide.classList.contains("is-active"),
+    );
+    if (!currentActive || !slides.includes(currentActive)) {
+      goToSlide(0);
+      return;
+    }
+    goToSlide(slides.indexOf(currentActive));
   }
 
   function advanceToNextSlide() {
@@ -430,6 +461,19 @@ function initPromoCarousel() {
     }
   });
 
+  if (typeof mobileCarouselQuery.addEventListener === "function") {
+    mobileCarouselQuery.addEventListener("change", () => {
+      syncCarouselForViewport();
+      startAutoplay();
+    });
+  } else if (typeof mobileCarouselQuery.addListener === "function") {
+    mobileCarouselQuery.addListener(() => {
+      syncCarouselForViewport();
+      startAutoplay();
+    });
+  }
+
+  syncCarouselForViewport();
   startAutoplay();
 }
 
@@ -609,10 +653,72 @@ function createInfotipController() {
 }
 
 /**
+ * Keeps mobile landing height aligned with real header/footer chrome (CSS tokens can drift).
+ */
+function syncViewportChromeHeights() {
+  const headerElement = document.querySelector("[data-header]");
+  const footerElement = document.querySelector(".site-footer");
+  const rootStyles = document.documentElement.style;
+
+  if (headerElement instanceof HTMLElement) {
+    rootStyles.setProperty("--header-h-measured", `${headerElement.offsetHeight}px`);
+  }
+
+  if (footerElement instanceof HTMLElement) {
+    rootStyles.setProperty("--footer-h-measured", `${footerElement.offsetHeight}px`);
+  }
+}
+
+let lastLayoutViewportWidth = window.innerWidth;
+
+/** Ignore mobile URL-bar resize events; only relayout when width/orientation changes. */
+function syncViewportChromeHeightsOnLayoutChange() {
+  const nextWidth = window.innerWidth;
+  if (nextWidth === lastLayoutViewportWidth) return;
+  lastLayoutViewportWidth = nextWidth;
+  syncViewportChromeHeights();
+}
+
+/** Prevents a tiny initial scroll offset on mobile landing (toolbar / subpixel drift). */
+function ensureInitialScrollAtTop() {
+  if (window.location.hash) return;
+  if (window.scrollY === 0) return;
+  window.scrollTo(0, 0);
+}
+
+/**
  * Boots every interactive behaviour needed after the markup exists.
  * Loads with `defer`, so DOM querySelector calls are safe immediately.
  */
 function init() {
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+
+  syncViewportChromeHeights();
+  ensureInitialScrollAtTop();
+  window.requestAnimationFrame(() => {
+    syncViewportChromeHeights();
+    ensureInitialScrollAtTop();
+  });
+  window.addEventListener("load", () => {
+    syncViewportChromeHeights();
+    ensureInitialScrollAtTop();
+  });
+  window.addEventListener(
+    "resize",
+    syncViewportChromeHeightsOnLayoutChange,
+    { passive: true },
+  );
+  window.addEventListener(
+    "orientationchange",
+    () => {
+      lastLayoutViewportWidth = window.innerWidth;
+      syncViewportChromeHeights();
+    },
+    { passive: true },
+  );
+
   setFooterYearCurrent();
 
   const contactForm = document.querySelector(".contact-form");
