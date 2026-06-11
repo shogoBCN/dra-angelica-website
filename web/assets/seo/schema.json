@@ -5,10 +5,13 @@
       "@type": "MedicalClinic",
       "@id": "https://medicina-familiar.co/#clinic",
       "name": "Consultorio · Dra. Angélica Granados Silva · Medicina familiar",
+      "description": "Consultorio de medicina familiar particular en La Mesa, Cundinamarca. Atención presencial, videoconsultas y visitas domiciliarias.",
       "url": "https://medicina-familiar.co/",
       "telephone": "+57-310-770-0625",
       "email": "doc.angelica@medicina-familiar.co",
       "image": "https://medicina-familiar.co/assets/images/logo-teal-transparent.png",
+      "priceRange": "$$",
+      "paymentAccepted": ["Efectivo", "Transferencia bancaria"],
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Calle 8 # 24-12, Centro Comercial Andaki, Consultorio 7",
@@ -16,7 +19,64 @@
         "addressRegion": "Cundinamarca",
         "addressCountry": "CO"
       },
-      "hasMap": "https://www.google.com/maps/place/Dra+Ang%C3%A9lica+Granados+Silva/@4.6295574,-74.4663571,17z"
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 4.6295574,
+        "longitude": -74.4663571
+      },
+      "areaServed": [
+        {
+          "@type": "City",
+          "name": "La Mesa",
+          "containedInPlace": {
+            "@type": "AdministrativeArea",
+            "name": "Cundinamarca"
+          }
+        },
+        {
+          "@type": "Place",
+          "name": "Región del Tequendama"
+        }
+      ],
+      "hasMap": "https://www.google.com/maps/place/Dra+Ang%C3%A9lica+Granados+Silva/@4.6295574,-74.4663571,17z",
+      "availableService": [
+        {
+          "@type": "MedicalProcedure",
+          "name": "Consulta de medicina familiar"
+        },
+        {
+          "@type": "MedicalProcedure",
+          "name": "Seguimiento de enfermedades crónicas"
+        },
+        {
+          "@type": "MedicalProcedure",
+          "name": "Control de diabetes e hipertensión"
+        },
+        {
+          "@type": "MedicalProcedure",
+          "name": "Medicina preventiva y chequeos"
+        },
+        {
+          "@type": "MedicalProcedure",
+          "name": "Certificado médico de salud general"
+        },
+        {
+          "@type": "MedicalProcedure",
+          "name": "Certificado médico de aptitud psicológica"
+        },
+        {
+          "@type": "MedicalProcedure",
+          "name": "Videoconsulta de medicina familiar"
+        },
+        {
+          "@type": "MedicalProcedure",
+          "name": "Atención al adulto mayor"
+        },
+        {
+          "@type": "MedicalProcedure",
+          "name": "Atención domiciliaria"
+        }
+      ]
     },
     {
       "@type": "Physician",
@@ -30,6 +90,16 @@
         "@type": "MedicalSpecialty",
         "name": "Medicina familiar y comunitaria"
       },
+      "knowsAbout": [
+        "Medicina familiar",
+        "Enfermedades crónicas",
+        "Diabetes mellitus",
+        "Hipertensión arterial",
+        "Medicina preventiva",
+        "Adulto mayor",
+        "Certificados médicos",
+        "Aptitud psicológica"
+      ],
       "knowsLanguage": ["es-CO", "fr", "en", "ca"],
       "worksFor": { "@id": "https://medicina-familiar.co/#clinic" },
       "sameAs": "https://www.linkedin.com/in/maryi-ang%C3%A9lica-granados-silva-2976b969/"
