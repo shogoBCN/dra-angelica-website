@@ -29,16 +29,48 @@ export const GOOGLE_ADS_CONVERSIONS = Object.freeze({
   emailClick: "AW-18163846421/V50SCIv_kLUcEJWamdVD",
   mapsOpen: "AW-18163846421/HdyJCI7_kLUcEJWamdVD",
   contentEngaged: "AW-18163846421/BJ2PCImAkbUcEJWamdVD",
+  moreInfoClick: "AW-18163846421/r_jbCJy7or4cEJWamdVD"
 });
 
 /** @deprecated Use GOOGLE_ADS_CONVERSIONS.contactForm */
 export const GOOGLE_ADS_CONTACT_FORM_CONVERSION = GOOGLE_ADS_CONVERSIONS.contactForm;
 
-/** Minimum scroll depth before counting a visitor as content-engaged. */
-export const CONTENT_ENGAGED_MIN_SCROLL_PERCENT = 50;
+/** Default content-engaged thresholds (main site and pages without overrides). */
+export const CONTENT_ENGAGED_DEFAULTS = Object.freeze({
+  scrollPercent: 50,
+  activeSeconds: 50,
+});
 
-/** Minimum active visible seconds before counting content-engaged (tab in foreground). */
-export const CONTENT_ENGAGED_MIN_ACTIVE_SECONDS = 50;
+/** @deprecated Use readContentEngagedThresholds() */
+export const CONTENT_ENGAGED_MIN_SCROLL_PERCENT = CONTENT_ENGAGED_DEFAULTS.scrollPercent;
+
+/** @deprecated Use readContentEngagedThresholds() */
+export const CONTENT_ENGAGED_MIN_ACTIVE_SECONDS = CONTENT_ENGAGED_DEFAULTS.activeSeconds;
+
+/**
+ * Per-page content-engaged thresholds from optional meta tags:
+ *   analytics-content-engaged-scroll  (1–100)
+ *   analytics-content-engaged-seconds (positive integer)
+ * @returns {{ scrollPercent: number; activeSeconds: number }}
+ */
+export function readContentEngagedThresholds() {
+  const scrollMeta = document.querySelector('meta[name="analytics-content-engaged-scroll"]');
+  const secondsMeta = document.querySelector('meta[name="analytics-content-engaged-seconds"]');
+
+  const scrollRaw = Number.parseInt(scrollMeta?.getAttribute("content")?.trim() || "", 10);
+  const secondsRaw = Number.parseInt(secondsMeta?.getAttribute("content")?.trim() || "", 10);
+
+  return {
+    scrollPercent:
+      Number.isFinite(scrollRaw) && scrollRaw > 0 && scrollRaw <= 100
+        ? scrollRaw
+        : CONTENT_ENGAGED_DEFAULTS.scrollPercent,
+    activeSeconds:
+      Number.isFinite(secondsRaw) && secondsRaw > 0
+        ? secondsRaw
+        : CONTENT_ENGAGED_DEFAULTS.activeSeconds,
+  };
+}
 
 /** Scroll-depth milestones (percent of page height) fired once per page view. */
 export const SCROLL_DEPTH_MILESTONES_PERCENT = Object.freeze([25, 50, 75, 90, 100]);

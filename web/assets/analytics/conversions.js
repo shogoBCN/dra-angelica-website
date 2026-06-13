@@ -7,9 +7,8 @@
  */
 
 import {
-  CONTENT_ENGAGED_MIN_ACTIVE_SECONDS,
-  CONTENT_ENGAGED_MIN_SCROLL_PERCENT,
   GOOGLE_ADS_CONVERSIONS,
+  readContentEngagedThresholds,
   SESSION_STORAGE_KEYS,
 } from "./config.js";
 import { trackEvent, trackGoogleAdsConversion } from "./transport.js";
@@ -103,6 +102,20 @@ export function classifyLeadClickConversion(href) {
 }
 
 /**
+ * Resolves an Ads conversion from an explicit HTML hook or lead click type.
+ * @param {Element} clickedElement
+ * @param {string} href
+ * @returns {GoogleAdsConversionKey | null}
+ */
+export function resolveClickConversion(clickedElement, href) {
+  const explicitKey = clickedElement.getAttribute("data-analytics-conversion");
+  if (explicitKey && explicitKey in GOOGLE_ADS_CONVERSIONS) {
+    return /** @type {GoogleAdsConversionKey} */ (explicitKey);
+  }
+  return classifyLeadClickConversion(href);
+}
+
+/**
  * @param {string} href
  * @returns {boolean}
  */
@@ -119,16 +132,16 @@ export function isGoogleMapsLink(href) {
 
 /**
  * Fires the content-engaged Ads conversion (once per session) plus a GA4 event.
- * Criteria: scroll ≥ CONTENT_ENGAGED_MIN_SCROLL_PERCENT and active visible time
- * ≥ CONTENT_ENGAGED_MIN_ACTIVE_SECONDS.
+ * Criteria: scroll and active time from readContentEngagedThresholds() (page overrides via meta).
  *
  * @param {{ scrollPercent: number; activeVisibleSeconds: number }} engagementState
  * @returns {boolean}
  */
 export function maybeTrackContentEngagedConversion(engagementState) {
   const { scrollPercent, activeVisibleSeconds } = engagementState;
-  if (scrollPercent < CONTENT_ENGAGED_MIN_SCROLL_PERCENT) return false;
-  if (activeVisibleSeconds < CONTENT_ENGAGED_MIN_ACTIVE_SECONDS) return false;
+  const thresholds = readContentEngagedThresholds();
+  if (scrollPercent < thresholds.scrollPercent) return false;
+  if (activeVisibleSeconds < thresholds.activeSeconds) return false;
   if (hasConversionFiredThisSession("contentEngaged")) return false;
 
   trackEvent("content_engaged", {

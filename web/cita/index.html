@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-analytics-measurement-id" content="G-NET9DFP6TW" />
     <meta name="google-ads-tag-id" content="AW-18163846421" />
+    <meta name="analytics-content-engaged-scroll" content="100" />
+    <meta name="analytics-content-engaged-seconds" content="60" />
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18163846421"></script>
     <script src="/assets/analytics/gtag-init.js"></script>
     <meta
@@ -66,7 +68,16 @@
         </a>
         <nav class="header__nav" id="nav-cita" aria-label="Principal">
           <ul class="header__links">
-            <li><a class="header__link" href="/">Más información</a></li>
+            <li>
+              <a
+                class="header__link"
+                href="/"
+                data-analytics-label="Mas informacion header cita"
+                data-analytics-conversion="moreInfoClick"
+              >
+                Más información
+              </a>
+            </li>
           </ul>
         </nav>
       </div>
@@ -123,6 +134,7 @@
                 class="cita-cta__site-link"
                 href="/"
                 data-analytics-label="Mas informacion hero cita"
+                data-analytics-conversion="moreInfoClick"
               >
                 Ver más información
               </a>
@@ -252,6 +264,7 @@
               style="--reveal-delay: 0.24s"
               href="/"
               data-analytics-label="Mas informacion discover cita"
+              data-analytics-conversion="moreInfoClick"
             >
               <span class="cita-discover__cta-text">Ver más información</span>
               <span class="cita-discover__cta-icon" aria-hidden="true">→</span>

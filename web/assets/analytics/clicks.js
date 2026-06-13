@@ -7,8 +7,8 @@
 
 import { getSessionAttributionParams } from "./attribution.js";
 import {
-  classifyLeadClickConversion,
   fireGoogleAdsConversion,
+  resolveClickConversion,
 } from "./conversions.js";
 import { trackEvent } from "./transport.js";
 
@@ -117,9 +117,9 @@ export function initClickTracking() {
         click_classes: String(clickedInteractive.className || "").slice(0, MAX_CLASSES_LENGTH),
       });
 
-      const leadConversionKey = classifyLeadClickConversion(linkHref);
-      if (leadConversionKey) {
-        fireGoogleAdsConversion(leadConversionKey, { value: 1.0, currency: "COP" });
+      const conversionKey = resolveClickConversion(clickedInteractive, linkHref);
+      if (conversionKey) {
+        fireGoogleAdsConversion(conversionKey, { value: 1.0, currency: "COP" });
       }
     },
     { capture: true }

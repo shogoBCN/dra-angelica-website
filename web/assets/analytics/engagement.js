@@ -10,7 +10,7 @@
 
 import {
   ACTIVE_TIME_HEARTBEAT_INTERVAL_MS,
-  CONTENT_ENGAGED_MIN_SCROLL_PERCENT,
+  readContentEngagedThresholds,
   SCROLL_DEPTH_MILESTONES_PERCENT,
   SECTION_VISIBILITY_THRESHOLD,
 } from "./config.js";
@@ -27,6 +27,7 @@ export const ENGAGEMENT_EVENT_NAMES = Object.freeze({
 
 /** Registers scroll, section, visibility, and exit tracking. */
 export function initEngagementTracking() {
+  const contentEngagedThresholds = readContentEngagedThresholds();
   const pageLoadTimestampMs = Date.now();
   /** @type {Set<number>} */
   const reachedScrollMilestones = new Set();
@@ -85,7 +86,7 @@ export function initEngagementTracking() {
           ...getSessionAttributionParams(),
           scroll_percent: milestonePercent,
         });
-        if (milestonePercent >= CONTENT_ENGAGED_MIN_SCROLL_PERCENT) {
+        if (milestonePercent >= contentEngagedThresholds.scrollPercent) {
           reportContentEngagementIfQualified();
         }
       }
