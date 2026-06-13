@@ -18,7 +18,11 @@
     />
     <title>Blog | Dra. Angélica Granados Silva</title>
     <link rel="canonical" href="https://medicina-familiar.co/blog/" />
-    <link rel="icon" href="/assets/images/logo-teal-transparent.png" type="image/png" />
+    <link rel="icon" href="/assets/images/brand/logo-teal-transparent.png" type="image/png" />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://firestore.googleapis.com" />
+    <link rel="preload" href="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js" as="script" crossorigin />
+    <link rel="preload" href="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js" as="script" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -33,32 +37,52 @@
     <div class="scroll-progress" aria-hidden="true"></div>
     <div class="page-gradient" aria-hidden="true"></div>
 
-    <header class="header header--simple" data-header>
+    <header class="header" data-header>
       <div class="header__row">
         <a class="header__brand" href="/">
           <img
             class="header__logo"
-            src="/assets/images/logo-teal-transparent.png"
+            src="/assets/images/brand/logo-teal-transparent.png"
             width="136"
             height="136"
-            alt=""
+            alt="Dra. Angélica Granados Silva — medicina familiar en La Mesa, Cundinamarca"
           />
           <span class="header__brand-text">
             Dra. Angélica Granados Silva<br />
-            <span class="header__brand-tagline">Medicina familiar · Blog</span>
+            <span class="header__brand-tagline">
+              <span class="header__brand-tagline--long">Especialista en medicina familiar y comunitaria</span>
+              <span class="header__brand-tagline--short">Medicina familiar y comunitaria</span>
+            </span>
           </span>
         </a>
-        <nav class="header__nav" id="nav-blog" aria-label="Principal">
+        <button
+          type="button"
+          class="header__toggle"
+          aria-expanded="false"
+          aria-controls="nav-main"
+          aria-label="Menú"
+          data-menu-toggle
+        >
+          <span class="header__toggle-box" aria-hidden="true">
+            <span class="header__toggle-line"></span>
+            <span class="header__toggle-line"></span>
+            <span class="header__toggle-line"></span>
+          </span>
+          <span class="header__toggle-label">Menú</span>
+        </button>
+        <nav class="header__nav" id="nav-main" aria-label="Principal" data-nav>
           <ul class="header__links">
+            <li><a class="header__link" href="/#inicio">Inicio</a></li>
+            <li><a class="header__link" href="/#sobre-mi">Sobre mí</a></li>
             <li>
-              <a class="header__link" href="/">Sitio principal</a>
+              <a class="header__link" href="/#medicina-familiar">Medicina familiar</a>
             </li>
+            <li><a class="header__link" href="/#servicios">Servicios</a></li>
             <li>
-              <a class="header__link" href="/#contacto">Contacto</a>
+              <a class="header__link" href="/#preguntas-frecuentes">Preguntas frecuentes</a>
             </li>
-            <li>
-              <span class="header__link" aria-current="page">Blog</span>
-            </li>
+            <li><a class="header__link" href="/#contacto">Contacto</a></li>
+            <li><a class="header__link is-active" href="/blog/" aria-current="page">Blog</a></li>
           </ul>
         </nav>
       </div>
@@ -68,39 +92,108 @@
       <div class="blog-layout">
         <div class="blog-intro section__inner reveal" data-reveal>
           <p class="eyebrow">Medicina familiar y comunitaria · La Mesa, Cundinamarca</p>
-          <h1 class="section__title" style="margin-bottom: 0.5rem">Blog</h1>
-          <p class="section__lead">
-            Lecturas breves sobre salud cercana para su familia. El contenido informativo no sustituye
-            una consulta médica.
-          </p>
-          <div class="blog-actions">
-            <a class="btn btn--ghost" href="/">« Volver al sitio</a>
-          </div>
+          <h1 class="section__title">Blog</h1>
         </div>
 
-        <p id="blog-state" class="blog-state" hidden aria-live="polite"></p>
+        <p id="blog-state" class="blog-muted blog-state" aria-live="polite">Cargando artículos…</p>
 
         <div id="blog-list-root" class="blog-list"></div>
       </div>
     </main>
 
-    <footer class="footer">
-      <div class="footer__inner footer__wrap">
-        <p class="footer__copy">
-          <span class="footer__rule" aria-hidden="true"></span>
-          Medicina familiar y comunitaria · La Mesa, Cundinamarca · Blog
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p class="site-footer__copy">
+          © <span data-year></span>
+          <span class="site-footer__copy-long"> Dra. Angélica. Medicina familiar · La Mesa, Cundinamarca.</span>
+          <span class="site-footer__copy-short"> Dra.&nbsp;Angélica</span>
         </p>
+        <a
+          class="footer-wa"
+          href="https://wa.me/573107700625"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Escribir por WhatsApp al 310 770 0625"
+          data-analytics-label="WhatsApp footer"
+        >
+          <span class="footer-wa__icon" aria-hidden="true">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 1024 1024"
+              fill="none"
+            >
+              <rect width="1024" height="1024" rx="265" />
+              <path
+                d="M522 141C320.419 141 157 304.419 157 506C157 572.322 174.689 634.507 205.606 688.101L157 871L346.617 826.173C398.664 854.744 458.429 871 522 871C723.581 871 887 707.581 887 506C887 304.419 723.581 141 522 141ZM522 805.624C460.998 805.624 404.254 787.388 356.919 756.079L244.891 784.61L276.314 677.536C242.322 628.944 222.376 569.801 222.376 506C222.376 340.52 356.52 206.376 522 206.376C687.48 206.376 821.624 340.52 821.624 506C821.624 671.48 687.48 805.624 522 805.624Z"
+              />
+              <path
+                d="M607.527 554.187L695.836 595.825C699.892 597.737 702.488 601.847 702.123 606.315C701.163 617.934 696.506 641.226 675.626 662.099C616.692 721.033 510.876 654.36 506.577 651.778C480.554 637.799 455.815 619.09 432.374 595.642C408.933 572.201 390.217 547.462 376.238 521.439C373.656 517.14 306.983 411.317 365.917 352.39C386.796 331.51 410.082 326.853 421.701 325.893C426.169 325.528 430.279 328.124 432.192 332.18L473.829 420.489C475.802 424.667 474.937 429.635 471.666 432.899L440.627 463.938C433.915 470.65 431.942 481.1 436.565 489.393C447.887 509.705 463.115 529.259 480.764 547.252C498.757 564.894 518.318 580.129 538.623 591.451C546.917 596.075 557.366 594.108 564.078 587.389L595.117 556.35C598.381 553.086 603.35 552.221 607.527 554.187Z"
+              />
+            </svg>
+          </span>
+          <span class="footer-wa__text">
+            <span class="footer-wa__label">WhatsApp</span>
+            <span class="footer-wa__number">310 770 0625</span>
+          </span>
+        </a>
+        <div class="site-footer__social">
+          <a
+            class="site-footer__icon"
+            href="mailto:doc.angelica@medicina-familiar.co"
+            aria-label="Enviar correo electrónico"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <path
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m22 6-10 7L2 6"
+              />
+            </svg>
+          </a>
+          <a
+            class="site-footer__icon"
+            href="https://www.facebook.com/doctora.angelica.lamesa"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Página en Facebook"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+              />
+            </svg>
+          </a>
+          <a
+            class="site-footer__icon"
+            href="https://www.linkedin.com/in/maryi-ang%C3%A9lica-granados-silva-2976b969/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Perfil en LinkedIn"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </footer>
 
     <script
       defer
       src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      defer
-      src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"
       crossorigin="anonymous"
     ></script>
     <script

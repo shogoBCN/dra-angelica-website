@@ -9,9 +9,11 @@
     return;
   }
   firebase.initializeApp(cfg);
-  firebase
-    .auth()
-    .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .catch(() => {});
+  if (firebase.auth) {
+    firebase
+      .auth()
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch(() => {});
+  }
   window.__blogFirebaseConfigured = true;
 })();

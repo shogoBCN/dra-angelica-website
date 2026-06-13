@@ -1,0 +1,4 @@
+# Local blog drafts — published to Firestore only, never static hosting.
+blogs/
+ads/
+.venv*/

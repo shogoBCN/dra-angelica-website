@@ -1,0 +1,8 @@
+{
+  "slug": "medico-familiar-que-hace-en-consulta",
+  "title": "Título del artículo",
+  "excerpt": "Resumen corto para la lista del blog y meta description (máx. ~155 caracteres).",
+  "coverImageUrl": "/assets/images/blog/ejemplo.jpg",
+  "coverImageAlt": "Descripción breve de la imagen (opcional; si falta, se toma del primer <img> en body.html)",
+  "published": false
+}

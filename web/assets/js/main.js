@@ -51,10 +51,40 @@ const CONTACT_FORM_GENERIC_ERROR_VISIBLE_ES =
 const CONTACT_FORM_OFFLINE_HINT_VISIBLE_ES =
   "Si el problema continúa, escríbenos por WhatsApp o al correo del consultorio.";
 
+/** Same-origin shared consultorio data (also used on /cita/). */
+const BUSINESS_JSON_URL = "/assets/data/business.json";
+
 function setFooterYearCurrent() {
   const yearTarget = document.querySelector("[data-year]");
   if (yearTarget) {
     yearTarget.textContent = String(new Date().getFullYear());
+  }
+}
+
+async function loadContactOpeningHours() {
+  const hoursList = document.querySelector("#contacto [data-hours-list]");
+  const hoursNote = document.querySelector("#contacto [data-hours-note]");
+  if (!hoursList && !hoursNote) return;
+
+  try {
+    const res = await fetch(BUSINESS_JSON_URL);
+    if (!res.ok) return;
+    const business = await res.json();
+
+    if (hoursList && business.openingHours?.display?.length) {
+      hoursList.innerHTML = business.openingHours.display
+        .map(
+          (row) =>
+            `<li class="contact-hours__row"><span class="contact-hours__days">${row.days}</span><span class="contact-hours__time">${row.hours}</span></li>`,
+        )
+        .join("");
+    }
+
+    if (hoursNote && business.openingHours?.note) {
+      hoursNote.textContent = business.openingHours.note;
+    }
+  } catch {
+    /* static HTML fallback remains visible */
   }
 }
 
@@ -720,6 +750,7 @@ function init() {
   );
 
   setFooterYearCurrent();
+  loadContactOpeningHours();
 
   const contactForm = document.querySelector(".contact-form");
   if (contactForm instanceof HTMLFormElement) {

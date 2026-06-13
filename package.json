@@ -10,7 +10,8 @@
     "functions:install": "npm install --prefix firebase/functions",
     "deploy:functions": "firebase deploy --only functions",
     "deploy:contact": "npm run build && firebase deploy --only functions,hosting",
-    "deploy:firestore": "firebase deploy --only firestore"
+    "deploy:firestore": "firebase deploy --only firestore",
+    "publish:blog": "node scripts/publish-blog-post.mjs"
   },
   "engines": {
     "node": ">=18"

@@ -9,7 +9,7 @@
       "url": "https://medicina-familiar.co/",
       "telephone": "+57-310-770-0625",
       "email": "doc.angelica@medicina-familiar.co",
-      "image": "https://medicina-familiar.co/assets/images/angelica.jpg",
+      "image": "https://medicina-familiar.co/assets/images/about/angelica.jpg",
       "priceRange": "$$",
       "paymentAccepted": ["Efectivo", "Transferencia bancaria"],
       "address": {
@@ -83,7 +83,7 @@
       "@id": "https://medicina-familiar.co/#physician",
       "name": "Dra. Angélica Granados Silva",
       "url": "https://medicina-familiar.co/",
-      "image": "https://medicina-familiar.co/assets/images/angelica.jpg",
+      "image": "https://medicina-familiar.co/assets/images/about/angelica.jpg",
       "email": "doc.angelica@medicina-familiar.co",
       "telephone": "+57-310-770-0625",
       "medicalSpecialty": {
@@ -124,7 +124,7 @@
       "about": { "@id": "https://medicina-familiar.co/#clinic" },
       "primaryImageOfPage": {
         "@type": "ImageObject",
-        "url": "https://medicina-familiar.co/assets/images/angelica.jpg",
+        "url": "https://medicina-familiar.co/assets/images/about/angelica.jpg",
         "width": 960,
         "height": 1280,
         "caption": "Dra. Angélica Granados Silva, especialista en medicina familiar y comunitaria en La Mesa, Cundinamarca."

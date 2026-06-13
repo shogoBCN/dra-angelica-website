@@ -39,6 +39,11 @@
         "source": "/medicina-familiar-colombia",
         "destination": "/blog/articulo?slug=medicina-familiar-en-colombia",
         "type": 301
+      },
+      {
+        "source": "/articulo",
+        "destination": "/blog/articulo",
+        "type": 301
       }
     ],
     "headers": [

@@ -25,3 +25,6 @@ ads/
 
 # social folder
 social/
+
+# Local blog drafts (published to Firestore via scripts/publish-blog-post.mjs)
+blogs/
