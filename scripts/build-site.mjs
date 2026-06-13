@@ -12,6 +12,7 @@ const HTML_PAGES = ["index.html"];
 
 const SITEMAP_URLS = [
   { loc: "https://medicina-familiar.co/", priority: "1.0", changefreq: "monthly" },
+  { loc: "https://medicina-familiar.co/cita/", priority: "0.85", changefreq: "monthly" },
   {
     loc: "https://medicina-familiar.co/blog/articulo?slug=medicina-familiar-en-colombia",
     priority: "0.75",
@@ -126,6 +127,13 @@ for (const htmlPath of await walkHtmlFiles(join(dist, "blog"))) {
   await writeFile(htmlPath, html, "utf8");
 }
 
+await cp(join(src, "cita"), join(dist, "cita"), { recursive: true });
+for (const htmlPath of await walkHtmlFiles(join(dist, "cita"))) {
+  let html = await readFile(htmlPath, "utf8");
+  html = applyAssetCacheBust(html, buildId);
+  await writeFile(htmlPath, html, "utf8");
+}
+
 const lastmod = new Date().toISOString().slice(0, 10);
 const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -142,5 +150,5 @@ ${SITEMAP_URLS.map(
 await writeFile(join(dist, "sitemap.xml"), sitemapXml, "utf8");
 
 console.info(
-  `build-site: wrote dist/ (cache-bust v=${buildId}, pages=${HTML_PAGES.join(", ")}, blog/)`
+  `build-site: wrote dist/ (cache-bust v=${buildId}, pages=${HTML_PAGES.join(", ")}, blog/, cita/)`
 );

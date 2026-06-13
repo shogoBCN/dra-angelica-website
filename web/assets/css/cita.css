@@ -1,0 +1,793 @@
+/**
+ * Ads landing (/cita/) — mobile-first experiential layout.
+ */
+
+/* -------------------------------------------------------------------------- */
+/* Atmosphere                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.cita-page .page-gradient {
+  background:
+    radial-gradient(120% 80% at 50% -20%, rgba(118, 209, 193, 0.35), transparent 58%),
+    radial-gradient(90% 55% at 100% 30%, rgba(86, 193, 201, 0.16), transparent 52%),
+    radial-gradient(80% 50% at 0% 80%, rgba(134, 210, 201, 0.14), transparent 55%);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Compact header                                                             */
+/* -------------------------------------------------------------------------- */
+
+.cita-page .header.header--cita .header__row {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 0;
+  padding: 0.4rem 0.75rem;
+}
+
+.cita-page .header.header--cita .header__brand {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  line-height: 1.15;
+}
+
+.cita-page .header.header--cita .header__logo {
+  height: 2.1rem;
+  max-width: 2.1rem;
+}
+
+.cita-page .header.header--cita .header__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.cita-header__name--full {
+  display: none;
+}
+
+.cita-header__name--short {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.cita-page .header.header--cita .header__brand-tagline {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.2;
+}
+
+.cita-page .header.header--cita .header__nav {
+  width: auto;
+  flex-shrink: 0;
+}
+
+.cita-page .header.header--cita .header__links {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 0.1rem;
+}
+
+.cita-page .header.header--cita .header__link {
+  font-size: 0.72rem;
+  padding: 0.28rem 0.42rem;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .cita-page .header.header--cita .header__row {
+    padding: calc(0.55rem - 1px) 1rem;
+    min-height: var(--header-h);
+    gap: 1rem;
+  }
+
+  .cita-page .header.header--cita .header__brand {
+    gap: 0.65rem;
+    font-size: 1.05rem;
+  }
+
+  .cita-page .header.header--cita .header__logo {
+    height: calc(3.88rem - 2px);
+    max-width: calc(5.9rem - 2px);
+  }
+
+  .cita-header__name--short {
+    display: none;
+  }
+
+  .cita-header__name--full {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .cita-page .header.header--cita .header__brand-tagline {
+    font-size: 0.72rem;
+  }
+
+  .cita-page .header.header--cita .header__link {
+    font-size: 0.8125rem;
+    padding: 0.45rem 0.6rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Page flow — scroll moments, not stacked cards                              */
+/* -------------------------------------------------------------------------- */
+
+.cita-main {
+  padding: 0 0 calc(var(--footer-h) + 1.25rem);
+}
+
+.cita-moment {
+  position: relative;
+}
+
+.cita-moment__inner {
+  max-width: var(--max-wide);
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.cita-moment + .cita-moment {
+  margin-top: clamp(2.5rem, 8vw, 4rem);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Hero — immersive opening                                                   */
+/* -------------------------------------------------------------------------- */
+
+.cita-moment--hero {
+  padding-top: 1.5rem;
+}
+
+.cita-hero__figure {
+  margin: 0 0 1.25rem;
+  width: 100%;
+  max-width: 22rem;
+  margin-inline: auto;
+}
+
+.cita-hero__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: clamp(1rem, 4vw, 1.35rem);
+  box-shadow:
+    0 24px 48px rgba(26, 111, 120, 0.18),
+    0 4px 16px rgba(26, 34, 40, 0.08);
+}
+
+.cita-hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.cita-hero__kicker {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.cita-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  margin: 0 0 0.35rem;
+}
+
+.cita-hero__tagline {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 3.5vw, 1.25rem);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--color-accent);
+  opacity: 0.92;
+}
+
+.cita-hero__lead {
+  margin: 0 0 1.35rem;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.cita-cta {
+  width: 100%;
+  max-width: 20rem;
+}
+
+.cita-cta__btn,
+.cita-cta .contact-wa {
+  width: 100%;
+  justify-content: center;
+  background: var(--btn-primary-gradient);
+  border-color: transparent;
+  color: #fff;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 16px 40px rgba(26, 111, 120, 0.32);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.cita-cta__btn:hover,
+.cita-cta__btn:focus-visible,
+.cita-cta .contact-wa:hover,
+.cita-cta .contact-wa:focus-visible {
+  background: var(--btn-primary-gradient);
+  filter: brightness(1.05);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 48px rgba(26, 111, 120, 0.38);
+}
+
+.cita-cta .contact-wa__title,
+.cita-cta .contact-wa__number {
+  color: #fff;
+}
+
+.cita-cta .contact-wa__title {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+}
+
+.cita-cta .contact-wa__icon svg rect {
+  fill: rgba(255, 255, 255, 0.2);
+}
+
+.cita-cta .contact-wa__icon svg path {
+  fill: #fff;
+}
+
+.cita-cta__alt {
+  margin: 0.85rem 0 0;
+  text-align: center;
+}
+
+.cita-cta__site-link {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(26, 111, 120, 0.25);
+  transition: border-color 0.15s ease;
+}
+
+.cita-cta__site-link:hover,
+.cita-cta__site-link:focus-visible {
+  border-bottom-color: currentColor;
+}
+
+@media (min-width: 768px) {
+  .cita-moment--hero {
+    padding-top: 2.25rem;
+    display: grid;
+    grid-template-columns: 17.5rem minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: stretch;
+    max-width: var(--max-wide);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  .cita-hero__figure {
+    margin: 0;
+    max-width: none;
+    width: 17.5rem;
+    align-self: stretch;
+    display: flex;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 28px 56px rgba(26, 111, 120, 0.2),
+      0 4px 16px rgba(26, 34, 40, 0.08);
+  }
+
+  .cita-hero__photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 18%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .cita-hero__copy {
+    align-items: flex-start;
+    text-align: left;
+    max-width: none;
+    margin: 0;
+    justify-content: flex-start;
+    height: 100%;
+    padding-inline: 0;
+  }
+
+  .cita-hero__lead {
+    flex: 1 1 auto;
+    font-size: 1.05rem;
+    max-width: 30rem;
+  }
+
+  .cita-cta {
+    margin-top: auto;
+    max-width: 22rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Promise — vertical story, not flyer cards                                  */
+/* -------------------------------------------------------------------------- */
+
+.cita-moment--promise {
+  padding-block: clamp(1.5rem, 5vw, 2.5rem);
+  background: linear-gradient(
+    180deg,
+    rgba(227, 245, 243, 0.55) 0%,
+    rgba(227, 245, 243, 0.15) 55%,
+    transparent 100%
+  );
+}
+
+.cita-promise__intro {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 3.5vw, 1.45rem);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-text);
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+.cita-props {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cita-prop {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid rgba(26, 111, 120, 0.12);
+}
+
+.cita-prop:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cita-prop.reveal {
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+.cita-prop__body {
+  min-width: 0;
+}
+
+.cita-prop__index {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(26, 111, 120, 0.28);
+  letter-spacing: -0.04em;
+}
+
+.cita-prop__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 3vw, 1.25rem);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 0.25rem;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.cita-prop__text {
+  margin: 0;
+  color: var(--color-accent);
+  line-height: 1.35;
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .cita-promise__intro {
+    text-align: left;
+    margin-bottom: 1.75rem;
+  }
+
+  .cita-props {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .cita-prop {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .cita-prop__index {
+    font-size: 2rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Visit — soft close, not a data panel                                       */
+/* -------------------------------------------------------------------------- */
+
+.cita-moment--visit {
+  padding-bottom: 0.5rem;
+}
+
+.cita-visit__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 4vw, 1.65rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+  text-align: center;
+}
+
+.cita-visit__place {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.cita-visit__grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.cita-visit__label {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.cita-hours__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.cita-hours__row {
+  display: grid;
+  grid-template-columns: minmax(6rem, 8.5rem) 1fr;
+  gap: 0.65rem;
+  align-items: baseline;
+  font-size: 0.92rem;
+}
+
+.cita-hours__days {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cita-hours__time {
+  color: var(--color-text-muted);
+}
+
+.cita-hours__note {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.cita-visit__links {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.cita-visit__link {
+  display: block;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(26, 111, 120, 0.14);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.cita-visit__link:hover,
+.cita-visit__link:focus-visible {
+  background: var(--color-accent-soft);
+  border-color: rgba(26, 111, 120, 0.3);
+  transform: translateX(3px);
+}
+
+.cita-visit__link-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 0.2rem;
+}
+
+.cita-visit__link-detail {
+  display: block;
+  font-size: 0.94rem;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .cita-visit__title,
+  .cita-visit__place {
+    text-align: left;
+  }
+
+  .cita-visit__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Discover — invitation to the main site                                     */
+/* -------------------------------------------------------------------------- */
+
+.cita-moment--discover {
+  padding-block: clamp(2rem, 7vw, 3.25rem);
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(227, 245, 243, 0.45) 42%,
+    rgba(214, 238, 235, 0.2) 100%
+  );
+  border-radius: clamp(1.25rem, 4vw, 1.75rem);
+  margin-inline: 0.65rem;
+  overflow: hidden;
+}
+
+.cita-discover {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.cita-discover__figure {
+  margin: 0;
+  width: min(11rem, 72vw);
+  margin-inline: auto;
+}
+
+.cita-discover__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 12%;
+  border-radius: clamp(1rem, 4vw, 1.35rem);
+  box-shadow:
+    0 20px 44px rgba(26, 111, 120, 0.16),
+    0 4px 14px rgba(26, 34, 40, 0.08);
+}
+
+.cita-discover__copy {
+  text-align: center;
+}
+
+.cita-discover__kicker {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.cita-discover__title {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 5vw, 2rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+}
+
+.cita-discover__paths {
+  list-style: none;
+  margin: 0 0 1.35rem;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  text-align: left;
+  max-width: 20rem;
+  margin-inline: auto;
+}
+
+.cita-discover__path {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 0.65rem;
+  align-items: baseline;
+  padding: 0.75rem 0 0.75rem 1.15rem;
+  border-bottom: 1px solid rgba(26, 111, 120, 0.1);
+}
+
+.cita-discover__path::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.05rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.55;
+  box-shadow: 0 0 0 3px rgba(26, 111, 120, 0.12);
+}
+
+.cita-discover__path:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 0.19rem;
+  top: 1.45rem;
+  bottom: -0.1rem;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(26, 111, 120, 0.22), rgba(26, 111, 120, 0.06));
+}
+
+.cita-discover__path:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cita-discover__path.reveal {
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+.cita-discover__path-label {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.cita-discover__path-tease {
+  font-size: 0.84rem;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+
+.cita-discover__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.72rem 1.35rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(26, 111, 120, 0.22);
+  color: var(--color-accent);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 10px 28px rgba(26, 111, 120, 0.1);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.cita-discover__cta.reveal {
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+.cita-discover__cta:hover,
+.cita-discover__cta:focus-visible {
+  background: var(--color-accent-soft);
+  border-color: rgba(26, 111, 120, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(26, 111, 120, 0.14);
+}
+
+.cita-discover__cta-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.cita-discover__cta:hover .cita-discover__cta-icon,
+.cita-discover__cta:focus-visible .cita-discover__cta-icon {
+  transform: translateX(3px);
+}
+
+@media (min-width: 768px) {
+  .cita-moment--discover {
+    margin-inline: 1.25rem;
+  }
+
+  .cita-discover {
+    grid-template-columns: 12.5rem minmax(0, 1fr);
+    gap: 2.25rem;
+    align-items: center;
+  }
+
+  .cita-discover__figure {
+    width: 12.5rem;
+    margin: 0;
+  }
+
+  .cita-discover__copy {
+    text-align: left;
+  }
+
+  .cita-discover__paths {
+    margin-inline: 0;
+    max-width: 24rem;
+  }
+
+  .cita-discover__path {
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: 1rem;
+    padding-left: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cita-cta__btn:hover,
+  .cita-cta__btn:focus-visible,
+  .cita-visit__link:hover,
+  .cita-visit__link:focus-visible,
+  .cita-discover__cta:hover,
+  .cita-discover__cta:focus-visible {
+    transform: none;
+  }
+
+  .cita-discover__cta:hover .cita-discover__cta-icon,
+  .cita-discover__cta:focus-visible .cita-discover__cta-icon {
+    transform: none;
+  }
+}
