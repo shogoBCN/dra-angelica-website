@@ -64,6 +64,18 @@ function applyAssetCacheBust(html, buildId) {
     );
 }
 
+/** Lets JS bust JSON fetches; pairs with assetCacheQuery() in site scripts. */
+function injectAssetVersion(html, buildId) {
+  const meta = `    <meta name="site-version" content="${buildId}" />\n`;
+  if (!html.includes('name="site-version"')) {
+    html = html.replace(/<head>\s*\n/, `<head>\n${meta}`);
+  }
+  return html.replace(/<body([^>]*)>/, (match, attrs) => {
+    if (/data-asset-version=/.test(attrs)) return match;
+    return `<body data-asset-version="${buildId}"${attrs}>`;
+  });
+}
+
 /** ES module relative imports must carry the same ?v= as entry scripts (immutable JS caching). */
 function applyJsModuleCacheBust(jsSource, buildId) {
   return jsSource.replace(
@@ -110,6 +122,7 @@ for (const page of HTML_PAGES) {
   const pagePath = join(src, page);
   let html = await readFile(pagePath, "utf8");
   html = applyAssetCacheBust(html, buildId);
+  html = injectAssetVersion(html, buildId);
   if (page === "index.html") {
     html = await injectInlineJsonLd(html);
   }
@@ -124,6 +137,7 @@ await cp(join(src, "blog"), join(dist, "blog"), { recursive: true });
 for (const htmlPath of await walkHtmlFiles(join(dist, "blog"))) {
   let html = await readFile(htmlPath, "utf8");
   html = applyAssetCacheBust(html, buildId);
+  html = injectAssetVersion(html, buildId);
   await writeFile(htmlPath, html, "utf8");
 }
 
@@ -131,6 +145,7 @@ await cp(join(src, "cita"), join(dist, "cita"), { recursive: true });
 for (const htmlPath of await walkHtmlFiles(join(dist, "cita"))) {
   let html = await readFile(htmlPath, "utf8");
   html = applyAssetCacheBust(html, buildId);
+  html = injectAssetVersion(html, buildId);
   await writeFile(htmlPath, html, "utf8");
 }
 

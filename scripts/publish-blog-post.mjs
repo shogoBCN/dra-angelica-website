@@ -15,6 +15,31 @@ import { fileURLToPath } from "node:url";
 
 const PROJECT_ID = "dra-angelica-website";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const SITE_ORIGIN = "https://medicina-familiar.co";
+
+function normalizeAssetUrl(url) {
+  let src = String(url || "").trim();
+  if (!src) return src;
+  src = src.replace(new RegExp(`^${SITE_ORIGIN.replace(/\./g, "\\.")}(?=/)`), "");
+  if (src === "/assets/images/blog-medico-familiar-consulta.jpg") {
+    return "/assets/images/blog/blog-medico-familiar-consulta.jpg";
+  }
+  return src;
+}
+
+function normalizeBodyHtml(html) {
+  return String(html || "").replace(
+    /\bsrc=(["'])([^"']+)\1/gi,
+    (_m, quote, src) => `src=${quote}${normalizeAssetUrl(src)}${quote}`,
+  );
+}
+
+function extractCoverFromHtml(html) {
+  const srcMatch = html.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i);
+  if (!srcMatch) return null;
+  const altMatch = html.match(/<img\b[^>]*\balt=["']([^"']*)["']/i);
+  return { url: normalizeAssetUrl(srcMatch[1]), alt: altMatch?.[1] || "" };
+}
 
 const slugArg = process.argv[2]?.trim();
 if (!slugArg) {
@@ -35,21 +60,14 @@ if (!existsSync(metaPath) || !existsSync(bodyPath)) {
 
 /** @type {{ slug?: string; title?: string; excerpt?: string; published?: boolean; coverImageUrl?: string; coverImageAlt?: string }} */
 const meta = JSON.parse(readFileSync(metaPath, "utf8"));
-const bodyHtml = readFileSync(bodyPath, "utf8").trim();
+const bodyHtml = normalizeBodyHtml(readFileSync(bodyPath, "utf8").trim());
 
 const slug = String(meta.slug || slugArg).trim();
 const title = String(meta.title || "").trim();
 const excerpt = String(meta.excerpt || "").trim();
 const published = meta.published !== false;
 
-function extractCoverFromHtml(html) {
-  const srcMatch = html.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i);
-  if (!srcMatch) return null;
-  const altMatch = html.match(/<img\b[^>]*\balt=["']([^"']*)["']/i);
-  return { url: srcMatch[1], alt: altMatch?.[1] || "" };
-}
-
-let coverImageUrl = String(meta.coverImageUrl || "").trim();
+let coverImageUrl = normalizeAssetUrl(meta.coverImageUrl || "");
 let coverImageAlt = String(meta.coverImageAlt || "").trim();
 if (!coverImageUrl) {
   const extracted = extractCoverFromHtml(bodyHtml);

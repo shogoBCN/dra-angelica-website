@@ -4,6 +4,17 @@
 
 const BUSINESS_JSON_URL = "/assets/data/business.json";
 
+function assetCacheQuery() {
+  const version =
+    document.body?.dataset?.assetVersion ||
+    document.querySelector('meta[name="site-version"]')?.getAttribute("content");
+  return version ? `?v=${encodeURIComponent(version)}` : "";
+}
+
+function businessJsonUrl() {
+  return `${BUSINESS_JSON_URL}${assetCacheQuery()}`;
+}
+
 function setFooterYearCurrent() {
   const yearTarget = document.querySelector("[data-year]");
   if (yearTarget) yearTarget.textContent = String(new Date().getFullYear());
@@ -48,6 +59,7 @@ function renderBusinessData(business) {
 
   if (hoursList && business.openingHours?.display?.length) {
     hoursList.innerHTML = business.openingHours.display
+      .filter((row) => !/^domingo$/i.test(String(row.days || "").trim()))
       .map(
         (row) =>
           `<li class="cita-hours__row"><span class="cita-hours__days">${row.days}</span><span class="cita-hours__time">${row.hours}</span></li>`
@@ -72,7 +84,7 @@ function renderBusinessData(business) {
 
 async function loadBusinessData() {
   try {
-    const res = await fetch(BUSINESS_JSON_URL);
+    const res = await fetch(businessJsonUrl());
     if (!res.ok) return;
     const business = await res.json();
     renderBusinessData(business);

@@ -1,7 +1,14 @@
 (() => {
   const listRoot = document.getElementById("blog-list-root");
   const stateEl = document.getElementById("blog-state");
-  const MANIFEST_URL = "/assets/data/blog-posts.json";
+  const MANIFEST_PATH = "/assets/data/blog-posts.json";
+
+  function assetCacheQuery() {
+    const version =
+      document.body?.dataset?.assetVersion ||
+      document.querySelector('meta[name="site-version"]')?.getAttribute("content");
+    return version ? `?v=${encodeURIComponent(version)}` : "";
+  }
 
   function fmtDate(value) {
     if (!value) return "";
@@ -20,10 +27,20 @@
     return span.innerHTML;
   }
 
+  function normalizeAssetUrl(url) {
+    let src = String(url || "").trim();
+    if (!src) return src;
+    src = src.replace(/^https:\/\/medicina-familiar\.co(?=\/)/i, "");
+    if (src === "/assets/images/blog-medico-familiar-consulta.jpg") {
+      return "/assets/images/blog/blog-medico-familiar-consulta.jpg";
+    }
+    return src;
+  }
+
   function coverFromPost(d) {
     if (d.coverImageUrl) {
       return {
-        src: d.coverImageUrl,
+        src: normalizeAssetUrl(d.coverImageUrl),
         alt: d.coverImageAlt || d.title || "",
       };
     }
@@ -32,7 +49,7 @@
     if (!srcMatch) return null;
     const altMatch = html.match(/<img\b[^>]*\balt=["']([^"']*)["']/i);
     return {
-      src: srcMatch[1],
+      src: normalizeAssetUrl(srcMatch[1]),
       alt: altMatch?.[1] || d.title || "",
     };
   }
@@ -49,7 +66,7 @@
         : "";
 
       const a = document.createElement("a");
-      a.href = `/blog/articulo?slug=${encodeURIComponent(slug)}`;
+      a.href = `/blog/articulo?slug=${encodeURIComponent(d.slug)}`;
       a.className = "blog-card";
       a.innerHTML =
         `${media}<div class="blog-card__body">` +
@@ -74,7 +91,7 @@
   }
 
   async function loadManifest() {
-    const res = await fetch(MANIFEST_URL);
+    const res = await fetch(`${MANIFEST_PATH}${assetCacheQuery()}`);
     if (!res.ok) return null;
     const data = await res.json();
     return Array.isArray(data?.posts) ? data.posts : null;

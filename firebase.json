@@ -44,6 +44,11 @@
         "source": "/articulo",
         "destination": "/blog/articulo",
         "type": 301
+      },
+      {
+        "source": "/assets/images/blog-medico-familiar-consulta.jpg",
+        "destination": "/assets/images/blog/blog-medico-familiar-consulta.jpg",
+        "type": 301
       }
     ],
     "headers": [
@@ -81,6 +86,15 @@
           {
             "key": "Permissions-Policy",
             "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+          }
+        ]
+      },
+      {
+        "source": "/assets/data/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, max-age=0, must-revalidate"
           }
         ]
       },

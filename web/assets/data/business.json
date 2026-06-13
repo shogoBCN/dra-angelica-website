@@ -20,8 +20,8 @@
   "openingHours": {
     "timezone": "America/Bogota",
     "display": [
-      { "days": "Lunes a viernes", "hours": "8:00 a.m. – 5:00 p.m." },
-      { "days": "Sábado", "hours": "9:00 a.m. – 1:00 p.m." }
+      { "days": "Lunes a viernes", "hours": "8:00 – 17:00" },
+      { "days": "Sábado", "hours": "9:00 – 13:00" }
     ],
     "note": "El horario puede variar en festivos. Lo más ágil para pedir cita es WhatsApp."
   },

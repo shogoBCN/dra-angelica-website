@@ -5,6 +5,23 @@
   const stateEl = document.getElementById("blog-articulo-state");
   const wrap = document.getElementById("blog-article-shell");
 
+  function normalizeAssetUrl(url) {
+    let src = String(url || "").trim();
+    if (!src) return src;
+    src = src.replace(/^https:\/\/medicina-familiar\.co(?=\/)/i, "");
+    if (src === "/assets/images/blog-medico-familiar-consulta.jpg") {
+      return "/assets/images/blog/blog-medico-familiar-consulta.jpg";
+    }
+    return src;
+  }
+
+  function normalizeBodyHtml(html) {
+    return String(html || "").replace(
+      /\bsrc=(["'])([^"']+)\1/gi,
+      (_m, quote, src) => `src=${quote}${normalizeAssetUrl(src)}${quote}`,
+    );
+  }
+
   function fmtDate(ts) {
     if (!ts || typeof ts.toDate !== "function") return "";
     const d = ts.toDate();
@@ -15,7 +32,7 @@
     }).format(d);
   }
 
-  const slugRaw = slugParam.trim();
+  const slugRaw = (slugParam || "").trim();
 
   if (
     !slugRaw ||
@@ -60,7 +77,7 @@
       h.textContent = d.title || "Sin título";
 
       const body = document.getElementById("blog-article-body");
-      body.innerHTML = d.bodyHtml || "";
+      body.innerHTML = normalizeBodyHtml(d.bodyHtml || "");
 
       const desc = document.querySelector('meta[name="description"]');
       if (desc && d.excerpt) desc.content = String(d.excerpt).slice(0, 155);
