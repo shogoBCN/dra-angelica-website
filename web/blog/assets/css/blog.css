@@ -248,10 +248,15 @@
   margin: 0 0 1rem;
 }
 
-/* Quill spacer paragraphs — avoid double gap before headings */
-.blog-body p:has(> br:only-child) {
+/* Quill spacer paragraphs — <p class="blog-body__spacer"><br></p> only */
+.blog-body p.blog-body__spacer {
   margin: 0;
   line-height: 0;
+}
+
+.blog-body p.blog-body__location {
+  margin: 0 0 1rem;
+  line-height: 1.55;
 }
 
 .blog-body h2 {

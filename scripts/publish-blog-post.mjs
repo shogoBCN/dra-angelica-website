@@ -90,14 +90,78 @@ if (slug !== slugArg) {
   process.exit(1);
 }
 
-function firebaseAccessToken() {
-  const cfgPath = join(homedir(), ".config/configstore/firebase-tools.json");
-  const cfg = JSON.parse(readFileSync(cfgPath, "utf8"));
-  const { access_token: token, expires_at: expiresAt } = cfg.tokens ?? {};
-  if (!token || Date.now() > expiresAt) {
-    throw new Error("Firebase CLI token missing or expired. Run: firebase login");
+const FIREBASE_CLI_CLIENT_ID =
+  "563584335869-fgrrgmhks46de2o44fbnke5683f9q878.apps.googleusercontent.com";
+const FIREBASE_CLI_CLIENT_SECRET = "j9PUMcr2L77Moriyu8TV";
+
+function firebaseConfigPath() {
+  return join(homedir(), ".config/configstore/firebase-tools.json");
+}
+
+/** @type {string | null} */
+let cachedAccessToken = null;
+
+async function firebaseAccessToken() {
+  if (process.env.FIREBASE_TOKEN) {
+    return process.env.FIREBASE_TOKEN;
   }
-  return token;
+
+  if (cachedAccessToken) {
+    return cachedAccessToken;
+  }
+
+  const cfgPath = firebaseConfigPath();
+  if (!existsSync(cfgPath)) {
+    throw new Error(
+      "Firebase CLI not logged in. Run: firebase login\n" +
+        "Or set FIREBASE_TOKEN from: firebase login:ci",
+    );
+  }
+
+  const cfg = JSON.parse(readFileSync(cfgPath, "utf8"));
+  const tokens = cfg.tokens ?? {};
+  const { access_token: accessToken, refresh_token: refreshToken, expires_at: expiresAt } = tokens;
+
+  const stillValid = accessToken && expiresAt && Date.now() < expiresAt - 60_000;
+  if (stillValid) {
+    cachedAccessToken = accessToken;
+    return accessToken;
+  }
+
+  if (!refreshToken) {
+    throw new Error(
+      "Firebase CLI session expired (no refresh token). Run: firebase login --reauth",
+    );
+  }
+
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: FIREBASE_CLI_CLIENT_ID,
+      client_secret: FIREBASE_CLI_CLIENT_SECRET,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token",
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Firebase CLI session expired (${res.status}). Run: firebase login --reauth`,
+    );
+  }
+
+  const data = await res.json();
+  cfg.tokens = {
+    ...tokens,
+    access_token: data.access_token,
+    expires_in: data.expires_in,
+    expires_at: Date.now() + data.expires_in * 1000,
+    ...(data.refresh_token ? { refresh_token: data.refresh_token } : {}),
+  };
+  writeFileSync(cfgPath, `${JSON.stringify(cfg, null, 2)}\n`, "utf8");
+  cachedAccessToken = data.access_token;
+  return data.access_token;
 }
 
 function fieldString(value) {
@@ -114,8 +178,9 @@ function fieldTimestamp(iso) {
 
 async function getDoc(docSlug) {
   const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/posts/${docSlug}`;
+  const token = await firebaseAccessToken();
   const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${firebaseAccessToken()}` },
+    headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`GET failed: ${res.status} ${await res.text()}`);
@@ -124,10 +189,11 @@ async function getDoc(docSlug) {
 
 async function patchDoc(docSlug, fields) {
   const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/posts/${docSlug}?updateMask.fieldPaths=${Object.keys(fields).map(encodeURIComponent).join("&updateMask.fieldPaths=")}`;
+  const token = await firebaseAccessToken();
   const res = await fetch(url, {
     method: "PATCH",
     headers: {
-      Authorization: `Bearer ${firebaseAccessToken()}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ fields }),
@@ -177,10 +243,11 @@ function firestoreValue(field) {
 
 async function listPublishedPosts() {
   const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery`;
+  const token = await firebaseAccessToken();
   const res = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${firebaseAccessToken()}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
