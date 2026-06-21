@@ -1,46 +1,6 @@
-# Cursor index exclusions — source & config only, not generated noise or binaries.
-# .gitignore rules also apply; use ! patterns below to override when needed.
+# .gitignore already excludes most noise. Only overrides here:
 
-# --- Dependencies & Python envs ---
-node_modules/
-**/node_modules/
-.venv/
-.venv-*/
-venv/
-__pycache__/
-*.pyc
-
-# --- Build & deploy output ---
-dist/
-build/
-.firebase/
-
-# --- Lockfiles (large, rarely useful for coding) ---
+# Tracked lockfile — low signal for Composer
 package-lock.json
-pnpm-lock.yaml
-yarn.lock
 
-# --- Local drafts & campaign exports (gitignored) ---
-blogs/
-social/
-billboards/
 
-# --- Secrets ---
-.env
-.env.*
-!.env.example
-*.pem
-
-# --- OS & editor noise ---
-.DS_Store
-Thumbs.db
-*.log
-.idea/
-.vscode/
-
-# --- Git internals ---
-.git/
-
-# Ad creatives (gitignored, ~300MB). Indexed for Composer when you work on ads.
-!ads/
-!ads/**
