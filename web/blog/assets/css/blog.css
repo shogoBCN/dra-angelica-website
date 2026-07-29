@@ -233,6 +233,11 @@
   box-shadow: var(--shadow-soft);
 }
 
+.blog-body .blog-article__hero--transparent img {
+  border-radius: 0;
+  box-shadow: none;
+}
+
 @media (max-width: 639px) {
   .blog-body .blog-article__hero {
     float: none;
