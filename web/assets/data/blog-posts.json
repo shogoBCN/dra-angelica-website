@@ -1,6 +1,14 @@
 {
   "posts": [
     {
+      "slug": "hipertension-arterial",
+      "title": "Hipertensión arterial: qué es, cómo se diagnostica y cuál es el tratamiento",
+      "excerpt": "La presión alta es frecuente y muchas veces no da síntomas, pero sin control aumenta el riesgo cardiovascular. Qué es, cómo prevenirla, cuándo hacen falta medicamentos y cuándo acudir al médico.",
+      "publishedAt": "2026-07-29T21:32:06.036Z",
+      "coverImageUrl": "/assets/images/blog/blog-hipertension-arterial-cover.jpg",
+      "coverImageAlt": "Ilustración de un tensiómetro con lectura 120/80 y un salero tachado, simbolizando el control de la presión arterial y la reducción de sal"
+    },
+    {
       "slug": "medico-familiar-que-hace-en-consulta",
       "title": "Qué hace un médico familiar en consulta (y por qué importa en Colombia)",
       "excerpt": "Imagina un médico que te conoce, recuerda tu historia y te dedica el tiempo necesario. Qué es la medicina familiar, por qué en Colombia aún es poco conocida y qué ofrece el consultorio en La Mesa.",
