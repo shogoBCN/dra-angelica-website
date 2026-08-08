@@ -14,6 +14,7 @@ firebase/functions/node_modules/
 .env
 .env.*
 !.env.example
+.env.local
 *.pem
 
 # OS / editor
