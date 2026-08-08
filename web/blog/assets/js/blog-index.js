@@ -3,11 +3,10 @@
   const stateEl = document.getElementById("blog-state");
   const MANIFEST_PATH = "/assets/data/blog-posts.json";
 
+  const assets = window.__blogAssets;
+
   function assetCacheQuery() {
-    const version =
-      document.body?.dataset?.assetVersion ||
-      document.querySelector('meta[name="site-version"]')?.getAttribute("content");
-    return version ? `?v=${encodeURIComponent(version)}` : "";
+    return assets.assetCacheQuery();
   }
 
   function fmtDate(value) {
@@ -28,19 +27,13 @@
   }
 
   function normalizeAssetUrl(url) {
-    let src = String(url || "").trim();
-    if (!src) return src;
-    src = src.replace(/^https:\/\/medicina-familiar\.co(?=\/)/i, "");
-    if (src === "/assets/images/blog-medico-familiar-consulta.jpg") {
-      return "/assets/images/blog/blog-medico-familiar-consulta.jpg";
-    }
-    return src;
+    return assets.normalizeAssetUrl(url);
   }
 
   function coverFromPost(d) {
     if (d.coverImageUrl) {
       return {
-        src: normalizeAssetUrl(d.coverImageUrl),
+        src: assets.bustAssetUrl(d.coverImageUrl),
         alt: d.coverImageAlt || d.title || "",
       };
     }
@@ -49,7 +42,7 @@
     if (!srcMatch) return null;
     const altMatch = html.match(/<img\b[^>]*\balt=["']([^"']*)["']/i);
     return {
-      src: normalizeAssetUrl(srcMatch[1]),
+      src: assets.bustAssetUrl(srcMatch[1]),
       alt: altMatch?.[1] || d.title || "",
     };
   }

@@ -4,21 +4,12 @@
 
   const stateEl = document.getElementById("blog-articulo-state");
   const wrap = document.getElementById("blog-article-shell");
-
-  function normalizeAssetUrl(url) {
-    let src = String(url || "").trim();
-    if (!src) return src;
-    src = src.replace(/^https:\/\/medicina-familiar\.co(?=\/)/i, "");
-    if (src === "/assets/images/blog-medico-familiar-consulta.jpg") {
-      return "/assets/images/blog/blog-medico-familiar-consulta.jpg";
-    }
-    return src;
-  }
+  const assets = window.__blogAssets;
 
   function normalizeBodyHtml(html) {
     return String(html || "").replace(
       /\bsrc=(["'])([^"']+)\1/gi,
-      (_m, quote, src) => `src=${quote}${normalizeAssetUrl(src)}${quote}`,
+      (_m, quote, src) => `src=${quote}${assets.bustAssetUrl(src)}${quote}`,
     );
   }
 
@@ -57,11 +48,18 @@
 
   const slug = slugRaw.toLowerCase();
 
-  firebase
-    .firestore()
-    .collection("posts")
-    .doc(slug)
-    .get()
+  async function loadPost() {
+    const ref = firebase.firestore().collection("posts").doc(slug);
+    try {
+      const fresh = await ref.get({ source: "server" });
+      if (fresh.exists) return fresh;
+    } catch {
+      /* offline or server unavailable — use local cache */
+    }
+    return ref.get();
+  }
+
+  loadPost()
     .then((doc) => {
       if (!doc.exists) throw new Error("missing");
       const d = doc.data();
