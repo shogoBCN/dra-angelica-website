@@ -1,0 +1,460 @@
+# =============================================================================
+# Campaign: 08-aug-26 — Google Display / PMax static ad aspect variants
+# =============================================================================
+#
+# One YAML per ad batch. For a new campaign, copy this file to e.g.
+#   configs/09-sep-26-google-ads-aspects.yaml
+# update paths under ads/<campaign>/, add jobs, then run gemini_batch.py.
+#
+# Run all jobs in this batch:
+#   python gemini_batch.py configs/08-aug-26-google-ads-aspects.yaml
+#
+# Single ad / single aspect:
+#   python gemini_batch.py configs/08-aug-26-google-ads-aspects.yaml --job 02-a-quien-le-haces-caso
+#   python gemini_batch.py configs/08-aug-26-google-ads-aspects.yaml --job 02-a-quien-le-haces-caso --aspect 16:9
+#
+# Schema: see lib/config.py module docstring.
+# =============================================================================
+
+defaults:
+  model: pro
+  references:
+    - ads/08-aug-26/video/initials/REFERENCE_patient.png
+    - web/assets/images/brand/logo-teal.png
+
+fragments:
+  # Shared prompt blocks — interpolated into per-aspect prompts via {text}, {visual}, …
+  text: |
+    TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
+    - Elegant serif, left-aligned, upper-left placement: 5% from top, 5% from left
+    - Line cap height: 4.5% of frame height for ALL three headline lines (same size every format)
+    - Line spacing: 1.15× between lines — do not shrink or enlarge headline per aspect ratio
+
+    EXACT TEXT (only allowed headline copy):
+    Line 1 — all navy #1e3a5f: Un especialista dice sí.
+    Line 2 — all navy #1e3a5f: Otro dice no.
+    Line 3 — navy "¿" + teal #4aada8 "A quién" + navy " le haces caso?"
+      UNDERLINE RULE (critical): one short teal horizontal line directly UNDER the word "A quién" only.
+      Underline width matches "A quién". NOT under "caso". NOT under the full line. NOT random placement.
+
+    FOOTER — white bar, 18% of frame height, full width, identical proportion every format:
+    Large logo-teal.png + HUGE navy serif "Dra. Angélica" + large "Medicina de Familia · La Mesa".
+
+  visual: |
+    VISUAL: Grayscale photorealistic ad. Colombian patient woman late 50s (match patient reference face) at desk, confused expression. Right hand holds white paper with green checkmark and "sí". Left hand holds white paper with red X and "NO". Desk: grey mug, open spiral notebook, pen. Office: bookshelf, potted plants. NO doctor in scene.
+
+  continuity: |
+    SCENE CONTINUITY when changing aspect ratio — extend the REAL photo, not filler:
+    - Same room, same desk wood grain, same props (mug, notebook, pen, plants, bookshelf)
+    - 16:9: widen LEFT — more desk surface, bookshelf and wall continue naturally, same lighting
+    - 9:16: extend UP (ceiling, office light) and DOWN (more desk edge, mug/notebook) — same session
+    - 4:5: modest vertical extension of same scene above/below subject
+    FORBIDDEN: empty gradient bands, generic blur smear, blank plain walls, AI pattern filler, letterboxing.
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Ad 02 — conflicting specialist advice (SÍ / NO papers)
+  # Master 1:1: ads/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png
+  # -------------------------------------------------------------------------
+  - id: 02-a-quien-le-haces-caso
+    source: ads/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png
+    output_dir: ads/08-aug-26/google-ads-assets
+    outputs:
+      # 1:1 is copied from v2 master (no API spend); other aspects are generated
+      - aspect_ratio: "1:1"
+        path: "{id}_1x1.png"
+        copy_source: true
+        prompt: "(copied from source)"
+
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          TASK: Photorealistic 4:5 portrait — same ad as 1:1 reference, adapted to 4:5.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (4:5):
+          - SAME headline size rules as 1:1 (4.5% cap height) — do not scale text up or down
+          - Patient center, waist-up, SÍ/NO papers visible
+          - Extend real office vertically (ceiling above, desk below) — same props continue
+          - Large footer bottom full width
+
+          DO NOT: resize headline differently from 1:1, generic filler, wrong underline.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        prompt: |
+          TASK: Photorealistic 9:16 vertical — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (9:16):
+          - SAME headline typography as 1:1 (4.5% cap height, upper-left 5%/5%)
+          - Patient in middle third — same pose, papers, desk props in frame
+          - Extend photograph UP: same office ceiling with light fixture visible
+          - Extend photograph DOWN: more wooden desk, mug and notebook remain visible
+          - Footer bottom 18% — same size proportion as 1:1
+
+          FORBIDDEN: huge empty blur above/below subject, gradient filler, shrinking headline, underline under "caso".
+
+      - aspect_ratio: "16:9"
+        path: "{id}_16x9.png"
+        prompt: |
+          TASK: Photorealistic 16:9 landscape — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (16:9):
+          - SAME headline typography as 1:1 (4.5% cap height) on LEFT third
+          - Patient RIGHT two-thirds — waist-up, SÍ/NO papers, desk continues right
+          - Extend photograph LEFT: more desk surface, bookshelf wall, plant — photorealistic continuation of 1:1 scene
+          - Footer full width bottom 18%
+
+          FORBIDDEN: empty left third with plain blur, generic smear, headline too small/large vs 1:1, wrong underline.
+
+  # -------------------------------------------------------------------------
+  # Ad 03 — repeating your story to every specialist (waiting room)
+  # Master 1:1: ads/08-aug-26/samples/v2/03-misma-historia.png
+  # -------------------------------------------------------------------------
+  - id: 03-misma-historia
+    source: ads/08-aug-26/samples/v2/03-misma-historia.png
+    output_dir: ads/08-aug-26/google-ads-assets
+    fragments:
+      text: |
+        TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
+        - Elegant serif, left-aligned, upper-left on the PHOTO area only (not on white footer)
+        - Placement: 5% from top of photo zone, 5% from left
+        - Line cap height: 4.5% of full frame height for ALL three headline lines
+        - Line spacing: 1.15× — same size every format
+
+        EXACT TEXT (only allowed headline copy):
+        Line 1 — all navy #1e3a5f: Con cada especialista
+        Line 2 — all navy #1e3a5f: cuentas otra vez
+        Line 3 — all teal #4aada8: toda tu historia.
+          UNDERLINE RULE (critical): one short teal horizontal line directly UNDER the words "toda tu" only.
+          Underline width matches "toda tu". NOT under "historia". NOT under the full line.
+
+        FOOTER — solid white bar, ~18% of frame height, full width, identical every format:
+        Large logo-teal.png (family in stethoscope) + HUGE navy serif "Dra. Angélica" +
+        large teal "Medicina de Familia · La Mesa".
+
+      visual: |
+        VISUAL: Split layout like 1:1 reference — grayscale photorealistic photo TOP (~82%),
+        solid white branding footer BOTTOM (~18%). Colombian patient woman late 50s–early 60s
+        (match patient reference face): curly salt-and-pepper hair, frustrated/tired expression,
+        both hands raised palms-up in exasperation. Medical waiting room: blurred row of chairs
+        behind her, soft depth of field. Optional blurred shoulder of listener at far left edge.
+        Grayscale photo only — footer stays full color (logo + navy/teal text). NO doctor face
+        prominent in scene.
+
+    outputs:
+      - aspect_ratio: "1:1"
+        path: "{id}_1x1.png"
+        copy_source: true
+        prompt: "(copied from source)"
+
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          TASK: Photorealistic 4:5 portrait — same ad as 1:1 reference, adapted to 4:5.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (4:5):
+          - SAME headline size rules as 1:1 (4.5% cap height)
+          - Patient centered in photo zone, hands visible, waiting-room chairs behind
+          - White footer bottom 18% — logo + Dra. Angélica block unchanged proportion
+          - Extend photo vertically if needed — same waiting room, not empty filler
+
+          DO NOT: full-bleed without footer, color in photo, wrong underline, shrink headline.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        prompt: |
+          TASK: Photorealistic 9:16 vertical — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (9:16):
+          - SAME headline typography as 1:1 (4.5% cap height, upper-left on photo area)
+          - Patient in middle of photo zone — same pose, hands up, chairs in background
+          - Extend photograph UP: more waiting-room ceiling / lights above chairs
+          - Extend photograph DOWN: more floor/chairs before white footer
+          - White footer bottom 18% — same branding as 1:1
+
+          FORBIDDEN: huge empty blur bands, removing footer, grayscale footer, underline under "historia".
+
+      - aspect_ratio: "16:9"
+        path: "{id}_16x9.png"
+        prompt: |
+          TASK: Photorealistic 16:9 landscape — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (16:9):
+          - SAME headline typography as 1:1 on LEFT third of photo zone
+          - Patient RIGHT two-thirds — waist-up, hands raised, waiting-room chairs continue right
+          - Extend photograph LEFT and RIGHT: more waiting-room chairs, wall, soft blur — photorealistic
+          - White footer full width bottom 18%
+
+          FORBIDDEN: empty side bands with plain blur, no footer, headline too small vs 1:1, wrong underline.
+
+  # -------------------------------------------------------------------------
+  # Ad 04 — contradictory treatment plans (three PLAN DE TRATAMIENTO slips)
+  # Master 1:1: ads/08-aug-26/samples/v2/04-planes-contradictorios.png
+  # -------------------------------------------------------------------------
+  - id: 04-planes-contradictorios
+    source: ads/08-aug-26/samples/v2/04-planes-contradictorios.png
+    output_dir: ads/08-aug-26/google-ads-assets
+    fragments:
+      text: |
+        TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
+        - Elegant serif, left-aligned, upper-left on the PHOTO area only (not on white footer)
+        - Placement: 5% from top of photo zone, 5% from left
+        - Line cap height: 4.5% of full frame height for BOTH headline lines
+        - Line spacing: 1.15× — same size every format
+
+        EXACT TEXT (only allowed headline copy):
+        Line 1 — all navy #1e3a5f: ¿Planes de tratamiento que se contradicen?
+        Line 2 — all teal #4aada8: ¿Cuál sigues?
+          UNDERLINE RULE (critical): one short teal horizontal line directly UNDER "Cuál sigues?" only.
+          Underline width matches "Cuál sigues?". NOT under line 1. NOT random placement.
+
+        FOOTER — solid white bar, ~18% of frame height, full width, identical every format:
+        Large logo-teal.png + HUGE navy serif "Dra. Angélica" +
+        large teal "Medicina de Familia · La Mesa".
+
+      visual: |
+        VISUAL: Split layout — grayscale photorealistic desk scene TOP (~82%), white footer BOTTOM (~18%).
+        Overhead/slight angle view of wooden desk. THREE filled "PLAN DE TRATAMIENTO" paper slips
+        side by side, ALL fully visible and readable (not cropped):
+
+        LEFT slip (date 10/01/24): Paciente María G., Diagnóstico Hipertensión arterial leve,
+        Indicaciones with green checkmarks — "Tomar medicamento A", "Aumentar actividad física".
+
+        CENTER slip (date 12/01/24): Paciente María G., Diagnóstico Presión normal alta por estrés,
+        large RED warning triangle, red text "NO tomar medicamento A", "Reposo absoluto".
+
+        RIGHT slip (date 15/01/24): Paciente María G., Diagnóstico Hipertensión arterial etapa 1,
+        red X marks — "Cambiar a medicamento B", "Dieta baja en sodio", "Evitar ejercicio por ahora".
+
+        Between slips: curved double-headed arrows with large "?" question marks showing confusion.
+        Adult hand from top-right pointing index finger at CENTER slip. Pen and spiral notebook
+        blurred on desk. Grayscale photo zone only — footer full color. NO patient face required.
+
+    outputs:
+      - aspect_ratio: "1:1"
+        path: "{id}_1x1.png"
+        copy_source: true
+        prompt: "(copied from source)"
+
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          TASK: Photorealistic 4:5 portrait — same ad as 1:1 reference, adapted to 4:5.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (4:5):
+          - SAME headline size rules as 1:1 (4.5% cap height)
+          - All THREE treatment-plan slips fully visible in photo zone — readable text, arrows, question marks
+          - Hand pointing at center slip; desk props continue naturally
+          - White footer bottom 18%
+
+          DO NOT: crop off a plan slip, remove red warnings, wrong underline, shrink headline.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        prompt: |
+          TASK: Photorealistic 9:16 vertical — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (9:16):
+          - SAME headline typography as 1:1 (upper-left on photo zone)
+          - Three plan slips stacked or arranged so ALL remain readable — same contradictory content
+          - Extend desk UP (hand, pen, notebook) and DOWN (more desk wood) — photorealistic, not blur filler
+          - White footer bottom 18%
+
+          FORBIDDEN: cropping plan slips, empty blur bands, removing footer, underline under line 1.
+
+      - aspect_ratio: "16:9"
+        path: "{id}_16x9.png"
+        prompt: |
+          TASK: Photorealistic 16:9 landscape — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (16:9):
+          - SAME headline typography as 1:1 on LEFT third of photo zone
+          - Three plan slips in a row RIGHT/CENTER — all fully visible with arrows and "?" between them
+          - Extend desk LEFT and RIGHT: more wood grain, pen, notebook — same session
+          - Hand from top-right pointing at center slip
+          - White footer full width bottom 18%
+
+          FORBIDDEN: only two slips, cropped text, empty side blur, wrong underline, no footer.
+
+  # -------------------------------------------------------------------------
+  # Ad 05 — Dra. Angélica coordinates care (full-color solution ad)
+  # Master 1:1: ads/08-aug-26/samples/v2/05-angelica-coordina.png
+  # -------------------------------------------------------------------------
+  - id: 05-angelica-coordina
+    source: ads/08-aug-26/samples/v2/05-angelica-coordina.png
+    output_dir: ads/08-aug-26/google-ads-assets
+    use_default_references: false
+    references:
+      - ads/08-aug-26/video/initials/scene7.png
+      - web/assets/images/brand/logo-teal.png
+    fragments:
+      text: |
+        TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
+        - Elegant serif, left-aligned in TOP WHITE headline band (above photo)
+        - Placement: 5% from top of frame, 5% from left
+        - Line cap height: 4.0% of full frame height for ALL four headline lines
+        - Line spacing: 1.15× — same size every format
+
+        EXACT TEXT (only allowed headline copy):
+        Line 1 — all navy #1e3a5f: Dra. Angélica
+        Line 2 — all navy #1e3a5f: une tu atención
+        Line 3 — all navy #1e3a5f: en un plan que
+        Line 4 — all teal #4aada8: funciona.
+          UNDERLINE RULE (critical): one short teal horizontal line directly UNDER "funciona." only.
+          Underline width matches "funciona." NOT under other lines.
+
+        FOOTER — solid white bar, ~15% of frame height, full width, identical every format:
+        Large logo-teal.png + HUGE navy serif "Dra. Angélica" +
+        large teal "Medicina de Familia · La Mesa".
+
+      visual: |
+        VISUAL: Three-zone layout like 1:1 reference (attachment #1):
+        (1) TOP ~22% — white headline band with navy/teal text (not on photo)
+        (2) MIDDLE ~63% — FULL COLOR photorealistic medical office consultation
+        (3) BOTTOM ~15% — white branding footer
+
+        DOCTOR IDENTITY LOCK (critical — same woman in attachments #1 and #2):
+        The doctor MUST be the EXACT same woman as in the approved 1:1 ad (attachment #1)
+        and storyboard scene 7 (attachment #2): warm professional Latina woman 40s–50s,
+        brown hair in neat bun, same face shape, same smile, same eyes, white coat,
+        light blue shirt, stethoscope. Coat embroidery EXACT: "Dra. Angélica" / "Medicina de Familia"
+        (accent on Angélica: é). Seated at light wood desk with black folder/clipboard and pen.
+        FORBIDDEN: substituting a different doctor, a different ethnicity, a different age,
+        or a stock/generic physician who does not match attachment #1.
+
+        REFERENCE RULE: Attachments are for Dra. Angélica's FACE and consult layout ONLY.
+        Do NOT copy headline/footer text from references — use EXACT TEXT block below.
+
+        PATIENT: Woman seen from behind/side — dark hair, facing doctor. No patient face visible.
+
+        OFFICE: Bright modern consultorio — window with natural light, green plant, bookshelf blur.
+        Entire photo zone FULL COLOR. Natural human proportions — never stretch or squash faces.
+
+      continuity: |
+        SCENE CONTINUITY when changing aspect ratio — extend the REAL office photo, FULL COLOR:
+        - Same Dra. Angélica face as attachment #1 — identical proportions, not a new person
+        - Approved 1:1 consultation scene stays SAME SIZE in frame center; widen/tallify by adding
+          office background (window, plant, wall) — NEVER scale the doctor wider or taller to fill frame
+        - 16:9: center the 1:1 scene unchanged; extra width = office wall left/right only
+        - 9:16: center the 1:1 scene unchanged; extra height = ceiling above and desk below only
+        - 4:5: modest vertical extension above/below the unchanged consultation crop
+        FORBIDDEN: horizontal face stretch, wide/fat faces, generic blur filler, wrong coat text,
+        invented doctor face, text on photo instead of white headline band, removing footer.
+
+    outputs:
+      - aspect_ratio: "1:1"
+        path: "{id}_1x1.png"
+        copy_source: true
+        prompt: "(copied from source)"
+
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          TASK: Photorealistic 4:5 portrait — same ad as 1:1 reference, adapted to 4:5.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (4:5):
+          - White headline band top, full-color consultation center, white footer bottom — same proportions as 1:1
+          - Dra. Angélica SAME FACE as attachment #1 — centered, natural proportions, patient shoulder visible
+          - SAME headline size rules as 1:1
+
+          DO NOT: different doctor face, grayscale, stretched faces, text on photo, wrong underline.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        prompt: |
+          TASK: Photorealistic 9:16 vertical — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (9:16):
+          - Headline band top, footer bottom — same branding proportion as 1:1
+          - Place the approved 1:1 consultation UNCHANGED in the center — same doctor size and face
+          - Extend office UP (window/ceiling) and DOWN (desk edge) only — photorealistic, not letterboxed mini-photo
+          - Dra. Angélica must match attachment #1 exactly — NOT a different woman
+
+          FORBIDDEN: tiny photo in middle with huge white margins, different doctor, face stretch, no footer.
+
+      - aspect_ratio: "16:9"
+        path: "{id}_16x9.png"
+        prompt: |
+          TASK: Photorealistic 16:9 landscape — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (16:9) — CRITICAL anti-stretch rules:
+          - Headline band top full width; footer bottom full width
+          - CENTER the approved 1:1 consultation scene at its ORIGINAL scale — doctor and desk do NOT get wider
+          - Angélica seated center-right at desk, patient left foreground — same proportions as 1:1
+          - Extra width LEFT and RIGHT = more office only (window, plant, bookshelf, wall) — natural continuation
+          - Human faces keep natural aspect ratio — NEVER horizontally stretch or widen the doctor's face
+          - SAME headline typography as 1:1 in top white band
+
+          FORBIDDEN: wide/fat stretched faces, scaling people to fill width, different doctor, plain blur sides, no footer.

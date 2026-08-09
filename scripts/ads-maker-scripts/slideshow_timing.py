@@ -1,7 +1,27 @@
-"""Shared slideshow scene durations and derived playback timing."""
+"""
+Shared scene durations and derived playback timing for the Aug-26 slideshow.
+
+The 8-scene narrative runs ~35.7s with 0.4s crossfades between holds.
+``generate_music.py`` uses ``music_target_seconds()`` to request a Lyria track
+long enough for all holds plus a tail buffer; ``build_slideshow.py`` uses the
+same numbers for ffmpeg ``xfade`` offsets.
+
+Timeline model
+--------------
+Each scene has a *hold* duration (how long the still is visible). Adjacent scenes
+overlap by ``FADE_SECONDS`` during crossfade, so total playback is::
+
+    sum(holds) - FADE_SECONDS * (SCENE_COUNT - 1)
+
+``scene_start_second(n)`` returns when scene *n* begins fading in on the final
+muxed timeline — useful for music prompt timestamps (hopeful shift at scene 7).
+"""
 
 from __future__ import annotations
 
+# Per-scene hold seconds (before crossfade overlap). Scene 3 is absent in the
+# slideshow (jumps 2→4 in the storyboard numbering) — only configured scenes
+# present in DEFAULT_DURATIONS are rendered.
 DEFAULT_DURATIONS: dict[int, float] = {
     1: 5.0,
     2: 3.5,
@@ -18,17 +38,22 @@ SCENE_COUNT = len(DEFAULT_DURATIONS)
 
 
 def hold_seconds() -> float:
-    """Sum of per-scene holds (before crossfade overlap)."""
+    """Sum of per-scene holds (ignores crossfade overlap)."""
     return sum(DEFAULT_DURATIONS.values())
 
 
 def playback_seconds() -> float:
-    """Final video length with crossfades between scenes."""
+    """Final video length after ``FADE_SECONDS`` crossfades between scenes."""
     return hold_seconds() - FADE_SECONDS * (SCENE_COUNT - 1)
 
 
 def scene_start_second(scene: int) -> float:
-    """When scene N (1-based) begins fading in on the final timeline."""
+    """
+    Wall-clock second when scene *scene* (1-based) starts fading in.
+
+    Used by ``generate_music.build_slideshow_prompt`` to align Lyria section
+    markers (contemplative → hopeful → finale) with on-screen story beats.
+    """
     if scene < 1 or scene > SCENE_COUNT:
         raise ValueError(f"scene must be 1–{SCENE_COUNT}, got {scene}")
     if scene == 1:
@@ -40,10 +65,16 @@ def scene_start_second(scene: int) -> float:
 
 
 def music_target_seconds(*, buffer: float = 3.0) -> int:
-    """Lyria track length: cover all holds + tail room (seconds, rounded up)."""
+    """
+    Target Lyria track length in whole seconds.
+
+    Lyria Pro often returns ~60s regardless of prompt — ``generate_music.py``
+    trims to this value. Buffer adds tail room beyond raw hold sum.
+    """
     return int(hold_seconds() + buffer + 0.999)
 
 
 def format_timestamp(seconds: float) -> str:
+    """Format seconds as ``M:SS`` for music prompt section headers (e.g. ``0:18``)."""
     whole = int(seconds)
     return f"0:{whole:02d}"

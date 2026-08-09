@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
-"""Generate slideshow background music via Gemini Lyria API."""
+"""
+Generate slideshow background music via Gemini Lyria API.
+
+Produces ``ads/08-aug-26/video/audio/slideshow_background.mp3``. Lyria Pro often
+returns ~60s regardless of prompt — this script trims to ``music_target_seconds()``
+from ``slideshow_timing.py`` and applies a short fade-out.
+
+Uses ``google-genai`` SDK (unlike image generation in ``lib/gemini.py`` which
+uses raw REST). Shares ``load_env()`` from ``lib.gemini`` for ``.env.local``.
+
+Usage::
+
+    python generate_music.py
+"""
 
 from __future__ import annotations
 
@@ -14,6 +27,18 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from lib.paths import DEFAULT_CAMPAIGN, REPO_ROOT
+from lib.gemini import load_env
+
+ROOT = REPO_ROOT
+VIDEO = DEFAULT_CAMPAIGN
+AUDIO_DIR = VIDEO / "audio"
+
+# Lyria model ids — Pro returns variable length; Flash is fixed ~30s
 from slideshow_timing import (
     format_timestamp,
     hold_seconds,
@@ -21,10 +46,6 @@ from slideshow_timing import (
     playback_seconds,
     scene_start_second,
 )
-
-ROOT = Path(__file__).resolve().parents[3]
-VIDEO = Path(__file__).resolve().parent
-AUDIO_DIR = VIDEO / "audio"
 
 CLIP_MODEL = "lyria-3-clip-preview"  # fixed 30s only
 PRO_MODEL = "lyria-3-pro-preview"  # variable length — use for full slideshow
@@ -112,18 +133,6 @@ only fade out in the last 1–2 seconds — do not drop back to somber before th
 Style: cinematic documentary healthcare score. NOT corporate jingle, NOT epic trailer.
 Clean, professional, trustworthy. Stereo, 44.1 kHz quality feel.
 """
-
-
-def load_env() -> None:
-    env_path = ROOT / ".env.local"
-    if not env_path.exists():
-        raise SystemExit(f"Missing {env_path}")
-    for line in env_path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, value = line.partition("=")
-        os.environ.setdefault(key.strip(), value.strip())
 
 
 def generate_via_rest(*, api_key: str, model: str, prompt: str) -> tuple[bytes, str | None]:

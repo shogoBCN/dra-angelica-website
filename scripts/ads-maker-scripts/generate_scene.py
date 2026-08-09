@@ -1,35 +1,70 @@
 #!/usr/bin/env python3
-"""Generate slideshow scene images via Gemini API."""
+"""
+Generate slideshow scene stills via Gemini image API.
+
+Legacy entry point for the **8-scene video slideshow** (Aug-26 campaign).
+Scene-specific prompts and copy rules live in ``SCENE_PROMPTS`` and
+``SCENE_TEXT_EXACT`` below — not yet migrated to YAML. New static Google Ads
+work should use ``gemini_batch.py`` + a campaign YAML under ``configs/`` (e.g.
+``configs/08-aug-26-google-ads-aspects.yaml``).
+
+Outputs
+-------
+Writes ``scene_<N>.png`` under ``ads/08-aug-26/video/{1x1,9x16,16x9}/`` by default.
+
+Usage
+-----
+::
+
+    cd scripts/ads-maker-scripts
+    python generate_scene.py 7 --aspects 1:1 9:16 16:9 --pro
+
+API client is ``lib.gemini.generate_image``; reference images come from
+``ads/08-aug-26/video/initials/`` (storyboard panels + patient identity).
+"""
 
 from __future__ import annotations
 
 import argparse
-import base64
-import json
 import os
 import sys
-import urllib.error
-import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
-VIDEO = Path(__file__).resolve().parent
-INITIALS = VIDEO / "initials"
-BRAND_LOGO = ROOT / "web" / "assets" / "images" / "brand" / "logo-teal.png"
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
-ASPECT_FOLDERS = {
-    "1:1": "1x1",
-    "9:16": "9x16",
-    "16:9": "16x9",
-}
+from lib.paths import (
+    ASPECT_FOLDER,
+    BRAND_LOGO,
+    DEFAULT_CAMPAIGN,
+    INITIALS_DIR,
+    REPO_ROOT,
+)
+from lib.gemini import (
+    format_usage,
+    generate_image,
+    image_size_for,
+    load_env,
+    model_cost_usd,
+    resolve_model,
+)
 
-# USD per image (estimates; override via GEMINI_COST_<model-with-dashes-as-underscores>)
-MODEL_COST_USD: dict[str, float] = {
-    "gemini-2.5-flash-image": 0.04,
-    "gemini-3.1-flash-image": 0.07,
-    "gemini-3-pro-image-preview": 0.13,
-}
+ROOT = REPO_ROOT
+VIDEO = DEFAULT_CAMPAIGN
+INITIALS = INITIALS_DIR
 
+ASPECT_FOLDERS = ASPECT_FOLDER
+
+# ---------------------------------------------------------------------------
+# SCENE_TEXT_EXACT — copy + placement rules injected into every prompt via
+# {text_exact}. Scenes without narrative text (3, 6) omit an entry; their
+# prompts rely on visual-only instructions in SCENE_PROMPTS.
+#
+# Brand colors: navy #1e3a5f, teal accent #4aada8, teal underline under
+# accent word only. Text floats ON the photo — never a header strip or split
+# layout (common Gemini failure mode).
+# ---------------------------------------------------------------------------
 SCENE_TEXT_EXACT = {
     1: """TEXT EXACT COPY — the ONLY text allowed anywhere in the output image:
 Line 1 (navy #1e3a5f serif): ¿Tres especialistas,
@@ -125,6 +160,18 @@ TEXT PLACEMENT: headline upper-left on sky/trees, must NOT cover faces. No box b
 FORBIDDEN: grayscale, scene numbers, wrong phone number, white sidebar on headline, invented "A" logo, generic monogram logo.""",
 }
 
+# ---------------------------------------------------------------------------
+# SCENE_PROMPTS — per-scene, per-aspect Gemini prompts.
+#
+# Keys: scene number → aspect ratio ("1:1", "9:16", "16:9").
+# Not every scene has every aspect — only combinations we've needed so far.
+#
+# Attachment order (see reference_images()):
+#   storyboard panel → patient ref → approved 1:1 (for non-1:1) → logo (scene 8)
+#
+# 16:9 prompts extend LEFT wall only (bookshelf, plant) — never stretch the desk.
+# 9:16 prompts forbid split-screen text banners (full-bleed photo only).
+# ---------------------------------------------------------------------------
 SCENE_PROMPTS: dict[int, dict[str, str]] = {
     1: {
         "9:16": """TASK: Photorealistic 9:16 vertical kitchen scene — scene 1, FULL-BLEED single photograph.
@@ -459,132 +506,14 @@ DO NOT: white sidebar, split layout, new faces, grayscale, wrong phone number, i
 }
 
 
-def load_env() -> None:
-    env_path = ROOT / ".env.local"
-    if not env_path.exists():
-        raise SystemExit(f"Missing {env_path}")
-    for line in env_path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, value = line.partition("=")
-        os.environ.setdefault(key.strip(), value.strip())
-
-
-def b64_image(path: Path) -> dict:
-    mime = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
-    data = base64.standard_b64encode(path.read_bytes()).decode("ascii")
-    return {"inline_data": {"mime_type": mime, "data": data}}
-
-
-def model_cost_usd(model: str) -> float | None:
-    env_key = f"GEMINI_COST_{model.replace('-', '_').replace('.', '_')}"
-    override = os.environ.get(env_key)
-    if override:
-        try:
-            return float(override)
-        except ValueError:
-            pass
-    return MODEL_COST_USD.get(model)
-
-
-def format_usage(usage: dict | None, model: str) -> str:
-    parts: list[str] = []
-    if usage:
-        prompt_tok = usage.get("promptTokenCount")
-        output_tok = usage.get("candidatesTokenCount") or usage.get(
-            "candidates_token_count"
-        )
-        total_tok = usage.get("totalTokenCount")
-        if prompt_tok is not None:
-            parts.append(f"prompt {prompt_tok:,} tok")
-        if output_tok is not None:
-            parts.append(f"output {output_tok:,} tok")
-        if total_tok is not None and not parts:
-            parts.append(f"{total_tok:,} tok total")
-
-    cost = model_cost_usd(model)
-    if cost is not None:
-        parts.append(f"est. ${cost:.2f}")
-    elif not parts:
-        parts.append("cost unknown (set GEMINI_COST_* in .env.local)")
-    return " · ".join(parts)
-
-
-def generate(
-    *,
-    api_key: str,
-    model: str,
-    prompt: str,
-    image_paths: list[Path],
-    aspect_ratio: str,
-    image_size: str | None,
-) -> tuple[bytes, dict | None]:
-    parts: list[dict] = []
-    for path in image_paths:
-        if not path.exists():
-            raise FileNotFoundError(path)
-        parts.append(b64_image(path))
-    parts.append({"text": prompt})
-
-    image_config: dict[str, str] = {"aspectRatio": aspect_ratio}
-    if image_size and "pro" in model:
-        image_config["imageSize"] = image_size
-
-    body = {
-        "contents": [{"role": "user", "parts": parts}],
-        "generationConfig": {
-            "responseModalities": ["IMAGE"],
-            "imageConfig": image_config,
-        },
-    }
-
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{model}:generateContent"
-    )
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(body).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "x-goog-api-key": api_key,
-        },
-        method="POST",
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=300) as resp:
-            payload = json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")
-        if exc.code == 429:
-            if "prepayment credits are depleted" in detail.lower():
-                raise SystemExit(
-                    "API error 429: Prepay credits depleted.\n"
-                    "Add credits: https://aistudio.google.com → Billing → add prepay balance (~$10 minimum)"
-                ) from exc
-            if "free_tier" in detail:
-                raise SystemExit(
-                    f"API error {exc.code}: Image models require billing on your Google AI project.\n"
-                    "Enable billing: https://aistudio.google.com → Dashboard → Billing\n"
-                    f"Details: {detail[:800]}"
-                ) from exc
-        raise SystemExit(f"API error {exc.code}: {detail}") from exc
-
-    usage = payload.get("usageMetadata") or payload.get("usage_metadata")
-
-    for candidate in payload.get("candidates", []):
-        for part in candidate.get("content", {}).get("parts", []):
-            inline = part.get("inlineData") or part.get("inline_data")
-            if inline and inline.get("data"):
-                return base64.standard_b64decode(inline["data"]), usage
-
-    raise SystemExit(f"No image in response:\n{json.dumps(payload, indent=2)[:2000]}")
-
-
 def reference_images(scene: int, aspect: str) -> list[Path]:
-    # Do not attach REFERENCE_text-style.png — it contains scene 1 copy and causes wrong/duplicate text.
+    """
+    Ordered reference paths sent to Gemini before the text prompt.
+
+    Do not attach REFERENCE_text-style.png — it contains scene 1 copy and
+    causes wrong/duplicate on-image text. Scene 7 (Dra. Angélica) skips patient
+    ref; scene 8 appends brand logo for bottom-right CTA block.
+    """
     paths: list[Path] = [INITIALS / f"scene{scene}.png"]
     if scene != 7:
         paths.append(INITIALS / "REFERENCE_patient.png")
@@ -596,6 +525,7 @@ def reference_images(scene: int, aspect: str) -> list[Path]:
 
 
 def build_prompt(scene: int, aspect: str) -> str:
+    """Merge SCENE_PROMPTS template with SCENE_TEXT_EXACT for *scene* / *aspect*."""
     template = SCENE_PROMPTS[scene][aspect]
     text_exact = SCENE_TEXT_EXACT.get(scene, "")
     return template.format(text_exact=text_exact)
@@ -630,14 +560,10 @@ def main() -> None:
     if args.model:
         model = args.model
     elif args.pro:
-        model = os.environ.get(
-            "GEMINI_IMAGE_MODEL_PRO", "gemini-3-pro-image-preview"
-        )
+        model = resolve_model(pro=True)
     else:
-        model = os.environ.get(
-            "GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image"
-        )
-    image_size = os.environ.get("GEMINI_IMAGE_SIZE", "2K") if "pro" in model else None
+        model = resolve_model()
+    image_size = image_size_for(model)
     prompts = SCENE_PROMPTS.get(args.scene)
     if not prompts:
         raise SystemExit(f"No prompts configured for scene {args.scene}")
@@ -655,11 +581,11 @@ def main() -> None:
         print(f"Generating scene {args.scene} {aspect} → {out}")
         print(f"  model: {model}")
         print(f"  refs: {[p.name for p in refs]}")
-        image_bytes, usage = generate(
+        image_bytes, usage = generate_image(
             api_key=api_key,
             model=model,
             prompt=prompt,
-            image_paths=refs,
+            reference_paths=refs,
             aspect_ratio=aspect,
             image_size=image_size,
         )

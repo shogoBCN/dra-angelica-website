@@ -29,3 +29,14 @@ social/
 
 # Local blog drafts (published to Firestore via scripts/publish-blog-post.mjs)
 blogs/
+
+## all python sideeffect stuff
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzwz

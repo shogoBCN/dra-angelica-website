@@ -1,5 +1,25 @@
 #!/usr/bin/env python3
-"""Build a paced ad preview: fade-in text holds + Veo scene transitions."""
+"""
+Build a paced ad preview: fade-in text holds + optional Veo transitions.
+
+Unlike ``build_slideshow.py`` (full 8-scene crossfade reel), this script stitches
+a *short* preview from 2+ scene stills with elderly-friendly pacing:
+
+1. Each scene: slow fade-in → hold so copy is readable → optional fade-out
+2. Between scenes: Veo morph (default), dissolve, or black gap fallback
+
+Veo transitions require billing confirmation (``--yes``). Consumer API often
+fails on transitions — the script falls back to fade + black gap automatically.
+
+Outputs
+-------
+``{folder}/preview/preview_{first}_{last}.mp4`` (720×720 square by default).
+
+Usage::
+
+    python build_ad_preview.py ads/08-aug-26/video/1x1 --scenes 1 2 --yes
+    python build_ad_preview.py --skip-veo --transition-style dissolve
+"""
 
 from __future__ import annotations
 
@@ -9,25 +29,35 @@ import sys
 import tempfile
 from pathlib import Path
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
 from generate_video import (
     TRANSITION_PROMPTS,
     generate_transition,
-    load_env,
 )
+from lib.gemini import load_env
+from lib.paths import DEFAULT_CAMPAIGN
 from video_motion import FPS, ken_burns_vf
 
-VIDEO = Path(__file__).resolve().parent
+VIDEO = DEFAULT_CAMPAIGN
 
-# Elderly-friendly pacing (seconds)
+# ---------------------------------------------------------------------------
+# Elderly-friendly pacing — longer than slideshow holds so on-image copy is
+# readable before any transition starts.
+# ---------------------------------------------------------------------------
 TEXT_FADE_IN = 1.2
 SCENE_READ_HOLD: dict[int, float] = {
-    1: 6.5,  # 3 lines of copy
-    2: 5.0,  # 2 lines
+    1: 6.5,  # three lines of Spanish headline
+    2: 5.0,  # two lines
 }
-TRANSITION_DURATION = 6
-OUTPUT_SIZE = 720
+TRANSITION_DURATION = 6  # Veo max for consumer tier
+OUTPUT_SIZE = 720  # square preview (letterboxed from 1:1 stills)
+
 
 def run_ffmpeg(args: list[str]) -> None:
+    """Run ffmpeg; raise ``SystemExit`` with stderr on non-zero exit."""
     proc = subprocess.run(
         ["ffmpeg", "-hide_banner", "-loglevel", "error", *args],
         capture_output=True,
@@ -174,6 +204,12 @@ def build_preview(
     skip_veo: bool,
     transition_path: Path | None,
 ) -> Path:
+    """
+    Assemble hold clips + transition into one preview MP4.
+
+    Transition priority: explicit ``transition_path`` → Veo (if allowed) →
+    dissolve or black gap depending on ``transition_style``.
+    """
     if len(scenes) < 2:
         raise SystemExit("Need at least two scene numbers")
 

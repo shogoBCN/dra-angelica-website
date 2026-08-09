@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
-"""Animate scene stills into short clips via Gemini Veo (image-to-video)."""
+"""
+Animate scene stills into short clips via Gemini Veo (image-to-video).
+
+Uses ``google-genai`` SDK. Scene motion prompts in ``SCENE_MOTION``; transitions
+between scenes use ``TRANSITION_PROMPTS``. Square 1:1 sources are letterboxed to
+9:16 before Veo because native 1:1 output is not supported.
+
+Outputs ``scene_<N>.mp4`` under campaign aspect folders. Used by
+``build_ad_preview.py`` for paced previews with optional Veo transitions.
+
+Usage::
+
+    python generate_video.py 1 --aspect 1:1
+"""
 
 from __future__ import annotations
 
@@ -12,14 +25,24 @@ import tempfile
 import time
 from pathlib import Path
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
 from google import genai
 from google.genai import types
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parents[3]
-VIDEO = Path(__file__).resolve().parent
+from lib.paths import DEFAULT_CAMPAIGN, REPO_ROOT
+from lib.gemini import load_env
 
-# Subtle motion prompts — preserve on-image copy and grayscale look.
+ROOT = REPO_ROOT
+VIDEO = DEFAULT_CAMPAIGN
+
+# ---------------------------------------------------------------------------
+# Motion prompts — subtle camera drift; preserve on-image Spanish copy and
+# grayscale look (scene 8 is full-color CTA).
+# ---------------------------------------------------------------------------
 SCENE_MOTION: dict[int, str] = {
     1: (
         "Cinematic grayscale photorealistic kitchen scene. The stressed woman breathes "
@@ -68,19 +91,8 @@ TRANSITION_PROMPTS: dict[tuple[int, int], str] = {
 }
 
 
-def load_env() -> None:
-    env_path = ROOT / ".env.local"
-    if not env_path.exists():
-        raise SystemExit(f"Missing {env_path}")
-    for line in env_path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, value = line.partition("=")
-        os.environ.setdefault(key.strip(), value.strip())
-
-
 def image_part(path: Path) -> types.Image:
+    """Wrap a local PNG/JPEG as a ``google.genai`` Image for Veo input."""
     mime = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
     return types.Image(image_bytes=path.read_bytes(), mime_type=mime)
 
@@ -144,6 +156,7 @@ def crop_video_to_square(src: Path, dst: Path) -> None:
 
 
 def wait_for_video(client: genai.Client, operation: types.GenerateVideosOperation) -> types.GenerateVideosOperation:
+    """Poll Veo long-running operation every 15s until done or error."""
     poll_seconds = 15
     while not operation.done:
         print(f"  waiting… ({poll_seconds}s)")
@@ -190,6 +203,12 @@ def generate_transition(
     duration_seconds: int,
     out_path: Path,
 ) -> None:
+    """
+    Veo first→last frame morph (used by ``build_ad_preview``).
+
+    Square 1:1 stills are letterboxed to ``veo_aspect`` before upload, then
+    center-cropped back to square on save when ``output_square`` is True.
+    """
     if output_square:
         first_bytes = pad_image_to_aspect(first_path, veo_aspect)
         last_bytes = pad_image_to_aspect(last_path, veo_aspect)
@@ -236,6 +255,7 @@ def generate_clip(
     duration_seconds: int,
     out_path: Path,
 ) -> None:
+    """Single-image Veo clip (image-to-video, no last-frame morph)."""
     if output_square:
         image_bytes = pad_image_to_aspect(image_path, veo_aspect)
         image = types.Image(image_bytes=image_bytes, mime_type="image/png")

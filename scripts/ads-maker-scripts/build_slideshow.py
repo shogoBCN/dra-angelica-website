@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
-"""Build a crossfade slideshow MP4 from scene PNGs."""
+"""
+Build crossfade slideshow MP4s from scene PNGs (ffmpeg).
+
+Reads ``scene_1.png`` … ``scene_8.png`` from each aspect folder under the
+campaign video directory, applies Ken Burns motion + crossfades, muxes background
+music from ``audio/slideshow_background.mp3``.
+
+Default (no args): builds ``slideshow.mp4`` in ``ads/08-aug-26/video/{1x1,9x16,16x9}``.
+
+Usage::
+
+    python build_slideshow.py
+    python build_slideshow.py /path/to/1x1 -o /path/to/out.mp4 --no-audio
+
+Timing: ``slideshow_timing.py``. Motion: ``video_motion.py``. Audio trim/fade:
+``slideshow_audio.py``.
+"""
 
 from __future__ import annotations
 
@@ -10,7 +26,13 @@ import sys
 import tempfile
 from pathlib import Path
 
-VIDEO = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from lib.paths import DEFAULT_CAMPAIGN
+
+VIDEO = DEFAULT_CAMPAIGN
 AUDIO_DEFAULT = VIDEO / "audio" / "slideshow_background.mp3"
 
 from slideshow_timing import DEFAULT_DURATIONS, FADE_SECONDS, playback_seconds
@@ -33,6 +55,7 @@ ASPECT_SIZES: dict[str, tuple[int, int]] = {
 
 
 def scene_paths(folder: Path) -> list[Path]:
+    """Sorted ``scene_*.png`` paths by scene number; exit if folder is empty."""
     paths = sorted(folder.glob("scene_*.png"), key=lambda p: int(p.stem.split("_")[1]))
     if not paths:
         raise SystemExit(f"No scene_*.png files in {folder}")
@@ -150,6 +173,11 @@ def build_slideshow(
     durations_override: dict[int, float] | None = None,
     audio: Path | None = None,
 ) -> float:
+    """
+    Render one aspect folder to MP4: Ken Burns clips → xfade → optional audio mux.
+
+    Returns final duration in seconds (for sanity-check against ``playback_seconds()``).
+    """
     if shutil.which("ffmpeg") is None:
         raise SystemExit("ffmpeg not found on PATH")
 
@@ -221,7 +249,7 @@ def main() -> None:
     if args.folder:
         folders = [Path(args.folder).resolve()]
     else:
-        folders = [VIDEO / name for name in ("1x1", "9x16", "16x9")]
+        folders = [DEFAULT_CAMPAIGN / name for name in ("1x1", "9x16", "16x9")]
 
     for folder in folders:
         if args.output and len(folders) > 1:
