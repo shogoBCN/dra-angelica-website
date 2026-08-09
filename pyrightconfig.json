@@ -1,0 +1,5 @@
+{
+  "venvPath": "/opt/homebrew/Caskroom/miniconda/base/envs",
+  "venv": "angelica-website",
+  "pythonVersion": "3.12"
+}
