@@ -6,6 +6,7 @@ node_modules/
 firebase/functions/node_modules/
 .venv-favicon/
 .venv-ads/
+.venv
 
 # Firebase CLI local cache (paths and hashes; do not commit)
 .firebase/
