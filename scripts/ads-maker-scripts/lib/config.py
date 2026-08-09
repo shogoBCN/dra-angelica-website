@@ -34,6 +34,9 @@ Schema overview
               {visual}
               {text}
             copy_source: false          # if true, shutil.copy source → path
+            source_only_refs: false    # if true, API uses only source ref (no extra refs)
+            pad_source: false          # if true, attach magenta-padded canvas before source
+            source: path/to/override.png  # optional — overrides job.source for this output
 
 Prompt templating uses ``str.format``. Available variables per job:
 ``id``, plus every key under ``fragments`` (global + job-level overrides).
@@ -63,6 +66,9 @@ class OutputSpec:
     path: str
     prompt: str
     copy_source: bool = False
+    source_only_refs: bool = False  # if true, API call uses only job.source as reference
+    pad_source: bool = False  # if true, prepend magenta-padded outpaint canvas ref
+    source: Path | None = None  # optional override of job.source for this output
 
 
 @dataclass
@@ -190,12 +196,17 @@ def load_batch_config(path: Path) -> BatchConfig:
                 raise SystemExit(f"Job {job_id}: output missing prompt")
             prompt = format_prompt(str(prompt_template).rstrip() + "\n", variables)
             path_template = out.get("path") or "{id}.png"
+            source_raw = out.get("source")
+            output_source = resolve(source_raw) if source_raw else None
             outputs.append(
                 OutputSpec(
                     aspect_ratio=out["aspect_ratio"],
                     path=format_prompt(path_template, variables),
                     prompt=prompt,
                     copy_source=_as_bool(out.get("copy_source")),
+                    source_only_refs=_as_bool(out.get("source_only_refs")),
+                    pad_source=_as_bool(out.get("pad_source")),
+                    source=output_source,
                 )
             )
 

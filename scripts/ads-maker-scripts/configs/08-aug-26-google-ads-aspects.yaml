@@ -339,15 +339,21 @@ jobs:
     output_dir: ads/08-aug-26/google-ads-assets
     use_default_references: false
     references:
-      - ads/08-aug-26/video/initials/scene7.png
+      # Face crop from the same v2 master — NOT scene7 (different woman)
+      - ads/08-aug-26/samples/v2/REFERENCE_angelica-ad05-face.png
       - web/assets/images/brand/logo-teal.png
     fragments:
       text: |
         TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
-        - Elegant serif, left-aligned in TOP WHITE headline band (above photo)
-        - Placement: 5% from top of frame, 5% from left
+        - Elegant serif, left-aligned, floating ON the photograph (upper-left)
+        - Placement: 5% from top of frame, 5% from left — directly on blurred office background
         - Line cap height: 4.0% of full frame height for ALL four headline lines
         - Line spacing: 1.15× — same size every format
+
+        HEADLINE PLACEMENT (critical — match 1:1 reference):
+        - Text sits ON the photo (soft office blur behind letters) — NOT on a white header bar
+        - NO white strip, band, or panel above the photograph. NO empty white margin at top.
+        - Photo is full-bleed from top edge down to the footer (only bottom has white bar)
 
         EXACT TEXT (only allowed headline copy):
         Line 1 — all navy #1e3a5f: Dra. Angélica
@@ -362,38 +368,35 @@ jobs:
         large teal "Medicina de Familia · La Mesa".
 
       visual: |
-        VISUAL: Three-zone layout like 1:1 reference (attachment #1):
-        (1) TOP ~22% — white headline band with navy/teal text (not on photo)
-        (2) MIDDLE ~63% — FULL COLOR photorealistic medical office consultation
-        (3) BOTTOM ~15% — white branding footer
+        VISUAL: Two-zone layout exactly like 1:1 reference (attachment #1):
+        (1) TOP ~85% — FULL-BLEED full-color consultation photo edge-to-edge (no white bar on top)
+            Headline text upper-left ON the photo over soft blurred office/wall
+        (2) BOTTOM ~15% — solid white branding footer ONLY
 
-        DOCTOR IDENTITY LOCK (critical — same woman in attachments #1 and #2):
-        The doctor MUST be the EXACT same woman as in the approved 1:1 ad (attachment #1)
-        and storyboard scene 7 (attachment #2): warm professional Latina woman 40s–50s,
-        brown hair in neat bun, same face shape, same smile, same eyes, white coat,
-        light blue shirt, stethoscope. Coat embroidery EXACT: "Dra. Angélica" / "Medicina de Familia"
-        (accent on Angélica: é). Seated at light wood desk with black folder/clipboard and pen.
-        FORBIDDEN: substituting a different doctor, a different ethnicity, a different age,
-        or a stock/generic physician who does not match attachment #1.
+        DOCTOR IDENTITY LOCK (critical — attachments #1 and #2 are THE SAME woman):
+        Attachment #1 = approved full 1:1 ad. Attachment #2 = face crop of that same doctor.
+        The doctor MUST be the EXACT woman from attachment #1/#2: olive/tan skin, brown hair in
+        neat low bun, warm smile, white coat, light blue shirt, stethoscope. Coat embroidery EXACT:
+        "Dra. Angélica" / "Medicina de Familia" (accent on Angélica: é). Seated at light wood desk
+        with black folder/clipboard and pen.
+        FORBIDDEN: any other doctor, fair-skinned blonde doctor, high ponytail, generic stock
+        physician, or face that does not match attachment #2.
 
-        REFERENCE RULE: Attachments are for Dra. Angélica's FACE and consult layout ONLY.
-        Do NOT copy headline/footer text from references — use EXACT TEXT block below.
+        REFERENCE RULE: #1 = layout + full scene. #2 = doctor FACE ONLY. #3 = logo for footer.
 
         PATIENT: Woman seen from behind/side — dark hair, facing doctor. No patient face visible.
 
-        OFFICE: Bright modern consultorio — window with natural light, green plant, bookshelf blur.
-        Entire photo zone FULL COLOR. Natural human proportions — never stretch or squash faces.
+        OFFICE: Bright modern consultorio — window, green plant, bookshelf. Natural proportions.
 
       continuity: |
         SCENE CONTINUITY when changing aspect ratio — extend the REAL office photo, FULL COLOR:
         - Same Dra. Angélica face as attachment #1 — identical proportions, not a new person
-        - Approved 1:1 consultation scene stays SAME SIZE in frame center; widen/tallify by adding
-          office background (window, plant, wall) — NEVER scale the doctor wider or taller to fill frame
-        - 16:9: center the 1:1 scene unchanged; extra width = office wall left/right only
-        - 9:16: center the 1:1 scene unchanged; extra height = ceiling above and desk below only
-        - 4:5: modest vertical extension above/below the unchanged consultation crop
-        FORBIDDEN: horizontal face stretch, wide/fat faces, generic blur filler, wrong coat text,
-        invented doctor face, text on photo instead of white headline band, removing footer.
+        - Headline stays on photo upper-left; footer white bar stays bottom only
+        - 16:9: widen office left/right — photo full-bleed to top edge, NO white header band
+        - 9:16: extend office up/down — still no white header band
+        - 4:5: same layout — headline on photo, footer white bar bottom
+        FORBIDDEN: white header bar, white strip above photo, empty top margin, horizontal face stretch,
+        invented doctor face, removing footer.
 
     outputs:
       - aspect_ratio: "1:1"
@@ -413,11 +416,11 @@ jobs:
           {continuity}
 
           COMPOSITION (4:5):
-          - White headline band top, full-color consultation center, white footer bottom — same proportions as 1:1
-          - Dra. Angélica SAME FACE as attachment #1 — centered, natural proportions, patient shoulder visible
-          - SAME headline size rules as 1:1
+          - Photo full-bleed top with headline ON photo; white footer bottom — same as 1:1
+          - Dra. Angélica SAME FACE as attachment #1 — centered, natural proportions
+          - NO white header bar at top
 
-          DO NOT: different doctor face, grayscale, stretched faces, text on photo, wrong underline.
+          DO NOT: white top bar, different doctor face, grayscale, stretched faces, wrong underline.
 
       - aspect_ratio: "9:16"
         path: "{id}_9x16.png"
@@ -431,17 +434,100 @@ jobs:
           {continuity}
 
           COMPOSITION (9:16):
-          - Headline band top, footer bottom — same branding proportion as 1:1
-          - Place the approved 1:1 consultation UNCHANGED in the center — same doctor size and face
-          - Extend office UP (window/ceiling) and DOWN (desk edge) only — photorealistic, not letterboxed mini-photo
-          - Dra. Angélica must match attachment #1 exactly — NOT a different woman
+          - Photo full-bleed with headline ON photo upper-left; white footer bottom only
+          - NO white header bar at top — match 1:1 reference exactly
+          - Extend office UP and DOWN; same doctor face as attachment #1
 
-          FORBIDDEN: tiny photo in middle with huge white margins, different doctor, face stretch, no footer.
+          FORBIDDEN: white top bar, tiny photo in white margins, different doctor, face stretch, no footer.
 
       - aspect_ratio: "16:9"
         path: "{id}_16x9.png"
+        source_only_refs: true
         prompt: |
-          TASK: Photorealistic 16:9 landscape — same ad as 1:1 reference.
+          TASK: Photorealistic 16:9 landscape — widen the attached 1:1 ad. NOT a new illustration.
+
+          {visual}
+
+          {text}
+
+          COMPOSITION (16:9) — CRITICAL:
+          - Match attachment #1 layout: photo FULL-BLEED from top edge; headline ON photo upper-left
+          - ONLY the bottom ~15% is a white footer bar — NO white band/bar at the top of the image
+          - Doctor center-right at desk; patient left foreground — natural proportions
+          - Widen office background left/right (window, plant, wall) — photorealistic
+          - All four headline lines on the photo (navy + teal), same as 1:1 — not split across colored bars
+
+          {continuity}
+
+          FORBIDDEN: white header bar, white strip above photo, teal banner behind headline,
+          different doctor face, stretched faces, plain blur side bars, no footer.
+
+  # -------------------------------------------------------------------------
+  # Ad 06 — too many appointments, too much stress (hallway / doorway)
+  # Master 1:1: ads/08-aug-26/samples/v2/06-demasiadas-citas.png
+  # -------------------------------------------------------------------------
+  - id: 06-demasiadas-citas
+    source: ads/08-aug-26/samples/v2/06-demasiadas-citas.png
+    output_dir: ads/08-aug-26/google-ads-assets
+    use_default_references: false
+    references:
+      - web/assets/images/brand/logo-teal.png
+    fragments:
+      text: |
+        TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
+        - Elegant serif, left-aligned, upper-left on the PHOTO area only (not on white footer)
+        - Placement: 5% from top of photo zone, 5% from left
+        - Line cap height: 4.5% of full frame height for ALL three headline lines
+        - Line spacing: 1.15× — same size every format
+
+        EXACT TEXT (only allowed headline copy):
+        Line 1 — all navy #1e3a5f: Demasiadas citas.
+        Line 2 — all navy #1e3a5f: Demasiado estrés.
+        Line 3 — all teal #4aada8: Hay otra forma.
+          UNDERLINE RULE (critical): one short teal horizontal line directly UNDER "Hay otra forma." only.
+          Underline width matches the phrase. NOT under line 1 or 2.
+
+        FOOTER — solid white bar, ~18% of frame height, full width, identical every format:
+        Large logo-teal.png + HUGE navy serif "Dra. Angélica" +
+        large teal "Medicina de Familia · La Mesa".
+
+      visual: |
+        VISUAL: Split layout like attachment #1 — photo TOP (~82%), white footer BOTTOM (~18%).
+        GRAYSCALE waiting-room scene EXCEPT Dra. Angélica in the doorway is FULL COLOR.
+
+        FOREGROUND PATIENT — EXACT same woman as attachment #1 (copy her face and pose):
+        Colombian woman late 50s–early 60s, curly salt-and-pepper hair, light gray cardigan,
+        dark shoulder bag, grey folder held to chest. GRAYSCALE only.
+        EXPRESSION (critical): calm, content, quietly hopeful — soft relaxed face, maybe gentle
+        smile, looking toward Angélica in the doorway. She has found another way.
+        FORBIDDEN: worried face, distressed, anxious, furrowed brow, crying, overwhelmed, scared.
+
+        DOORWAY DOCTOR — EXACT same woman as attachment #1 in the doorway (copy this face exactly):
+        Dra. Angélica in FULL COLOR only — brown hair in neat bun, white coat, blue shirt,
+        stethoscope, warm welcoming smile, one hand raised in a friendly wave.
+        FOCUS (critical): Angélica must be SHARP and clearly readable — face, coat, wave hand in focus.
+        NOT blurry, NOT soft bokeh, NOT out of focus. She is a key subject, not background blur.
+        FORBIDDEN: different doctor, blurry doctor, defocused doorway, generic physician.
+
+        SETTING: Clinic waiting area — only far background softly blurred; patient and doorway doctor sharp.
+        Headline on photo upper-left.
+
+      continuity: |
+        IDENTITY: attachment #1 is the approved ad — copy BOTH faces (patient + doorway doctor) exactly.
+        Do not invent new people. Selective color: patient grayscale, Angélica in doorway full color.
+        Extend scene for new aspect ratios without changing faces or expressions.
+
+    outputs:
+      - aspect_ratio: "1:1"
+        path: "{id}_1x1.png"
+        copy_source: true
+        prompt: "(copied from source)"
+
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        source_only_refs: true
+        prompt: |
+          TASK: Photorealistic 4:5 — widen attachment #1. Same people, same selective-color treatment.
 
           {visual}
 
@@ -449,12 +535,213 @@ jobs:
 
           {continuity}
 
-          COMPOSITION (16:9) — CRITICAL anti-stretch rules:
-          - Headline band top full width; footer bottom full width
-          - CENTER the approved 1:1 consultation scene at its ORIGINAL scale — doctor and desk do NOT get wider
-          - Angélica seated center-right at desk, patient left foreground — same proportions as 1:1
-          - Extra width LEFT and RIGHT = more office only (window, plant, bookshelf, wall) — natural continuation
-          - Human faces keep natural aspect ratio — NEVER horizontally stretch or widen the doctor's face
-          - SAME headline typography as 1:1 in top white band
+          COMPOSITION (4:5):
+          - Patient foreground: calm/content expression — NOT worried (match attachment #1 pose but content face)
+          - Doorway doctor: EXACT Angélica from attachment #1 — full color, waving, same face
+          - Headline on photo upper-left; white footer bottom 18%
 
-          FORBIDDEN: wide/fat stretched faces, scaling people to fill width, different doctor, plain blur sides, no footer.
+          DO NOT: worried patient, different doctor, full grayscale on Angélica, wrong underline, no footer.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        prompt: |
+          TASK: Photorealistic 9:16 vertical — same ad as 1:1 reference.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (9:16):
+          - SAME headline on photo upper-left; patient center-left, doorway with color Angélica right
+          - Extend hallway UP (ceiling/lights) and DOWN (floor/chairs) before white footer
+          - White footer bottom 18%
+
+          FORBIDDEN: all-color or all-grayscale, wrong underline, huge blur bands, no footer.
+
+      - aspect_ratio: "16:9"
+        path: "{id}_16x9.png"
+        source_only_refs: true
+        prompt: |
+          TASK: Photorealistic 16:9 — widen attachment #1. Same people, same selective-color treatment.
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (16:9) — CRITICAL:
+          - Patient left/center: calm, content, gentle hopeful smile toward doorway — NOT worried, NOT furrowed brow
+          - Doorway right: Dra. Angélica SHARP and IN FOCUS — full color, face clearly visible, waving hand crisp
+          - Do NOT blur Angélica with depth-of-field; she must be as sharp as the patient
+          - Widen waiting-room left/right; headline on photo upper-left; white footer bottom 18%
+          - Grayscale on patient and waiting room ONLY; Angélica in doorway must be FULL COLOR
+            (natural skin tones, white coat, blue shirt) — the ONLY color in the photo zone
+
+          FORBIDDEN: grayscale Angélica, blurry/defocused doctor, worried patient, anxious expression, white top bar,
+          all grayscale including doctor, wrong underline, no footer.
+
+  # -------------------------------------------------------------------------
+  # Ad 07 — CTA: lost → one plan, better life (park / family, full color)
+  # Recreated from real photo + slim doorway refs — NOT the chubby v2 master face.
+  # -------------------------------------------------------------------------
+  - id: 07-cta-vida-mejor
+    source: ads/08-aug-26/google-ads-assets/07-cta-vida-mejor_1x1.png
+    output_dir: ads/08-aug-26/google-ads-assets
+    use_default_references: false
+    references:
+      - web/assets/images/about/angelica.jpg
+      - ads/08-aug-26/google-ads-assets/06-demasiadas-citas_1x1.png
+      - ads/08-aug-26/samples/v2/05-angelica-coordina.png
+      - ads/08-aug-26/samples/v2/REFERENCE_angelica-ad05-face.png
+      - ads/08-aug-26/samples/v2/07-cta-vida-mejor.png
+      - web/assets/images/brand/logo-teal.png
+    fragments:
+      identity: |
+        DOCTOR IDENTITY — Dra. Angélica (critical, all formats):
+        Attachment #1 = approved 1:1 park ad — scene master, slim proportions, CLOSED-MOUTH smile.
+        Attachment #2 = REAL portrait photo — TRUE oval face, closed-mouth smile (lips together).
+        Attachment #3 = ad 06 doorway — same woman, slim natural build in white coat.
+        Attachment #4 = ad 05 consult — coat, stethoscope, embroidery style.
+        Attachment #5 = face crop — exact facial features from ad 05.
+        Attachment #6 = old ad 07 — NEVER copy face width or body bulk (WRONG proportions).
+
+        FACE & BODY (match #1, #2, #3, #5 — NOT #6):
+        - Oval face, defined jawline, normal healthy weight — Colombian woman ~50s
+        - Slender neck, normal shoulders — NOT round puffy cheeks, NOT wide face, NOT chubby,
+          NOT horizontally stretched
+        - NOT thin, NOT gaunt — natural professional appearance
+        - Brown hair in neat low bun, white coat, blue shirt, stethoscope
+        - EXPRESSION (critical): CLOSED-MOUTH smile — lips together, gentle upturn, NO visible teeth,
+          NO open mouth (match attachments #1 and #2)
+
+      text: |
+        TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
+        - Elegant serif, left-aligned, floating ON the photograph (upper-left)
+        - Placement: 5% from top of frame, 5% from left — on park sky/trees, NOT on white bar
+        - Line cap height: 4.0% of full frame height for ALL three headline lines
+        - NO white header strip or band at top — photo full-bleed to top edge (footer white only at bottom)
+
+        EXACT TEXT (only allowed headline copy):
+        Line 1 — all navy #1e3a5f: ¿Cansada de estar perdida?
+          UNDERLINE RULE: one short teal #4aada8 line directly UNDER "perdida?" only.
+        Line 2 — all navy #1e3a5f: Un plan.
+        Line 3 — navy "Una " + teal #4aada8 "vida mejor."
+
+        NO CTA button. NO "Llámame" button. NO phone number in image.
+
+        FOOTER — solid white bar, ~18% of frame height, full width:
+        Large logo-teal.png + HUGE navy serif "Dra. Angélica" +
+        large teal "Medicina de Familia · La Mesa".
+
+      visual: |
+        VISUAL: Two-zone layout — FULL COLOR golden-hour park photo TOP (~82%), white footer BOTTOM (~18%).
+        Warm sunlight, soft cathedral/skyline in background distance.
+
+        DRA. ANGÉLICA foreground center — {identity}
+        Closed-mouth smile only — professional, warm, lips together (no teeth showing).
+        Holds clipboard: "PLAN DE TRATAMIENTO INTEGRAL" with large green checkmark in perfect circle.
+        Coat embroidery: "Dra. Angélica" / "Medicina de Familia". SHARP, in focus.
+
+        FAMILY behind her (right): husband denim shirt, teenage boy blue shirt, woman green top —
+        all smiling, content, happy. Natural proportions (not wide faces).
+
+        Headline on photo upper-left. No invented people. Full color throughout photo zone.
+
+      continuity: |
+        ASPECT RATIO: extend ONLY park/sky/trees/grass/path — photorealistic continuation.
+        Keep Angélica + family at SAME scale and proportions as the 1:1 — never stretch or widen people.
+        Faces stay oval and natural width. Clipboard checkmark stays a perfect circle.
+        NO white top bar. Footer white only at bottom.
+
+    # For fresh 1:1 creation set source to web/assets/images/about/angelica.jpg first.
+    outputs:
+      - aspect_ratio: "1:1"
+        path: "{id}_1x1.png"
+        prompt: |
+          TASK: Refine attachment #1 — keep everything identical including CLOSED-MOUTH smile
+          (lips together, no teeth). Same park ad, proportions, family, copy, footer.
+
+          {identity}
+
+          {visual}
+
+          {text}
+
+          FORBIDDEN: visible teeth, open-mouth grin, chubby/wide face, different doctor,
+          white top bar, Llámame button.
+
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          TASK: Photorealistic 4:5 — adapt the approved 1:1 ad (attachment #1).
+
+          {identity}
+
+          {visual}
+
+          {text}
+
+          {continuity}
+
+          COMPOSITION (4:5):
+          - Same people, same faces, same scale as 1:1 — extend park UP (sky/trees) and DOWN (grass/path)
+          - Angélica oval face, normal build — NOT wide, NOT chubby; checkmark circle perfectly round
+          - Headline on photo upper-left; white footer bottom 18%
+
+          FORBIDDEN: horizontal stretch, widening faces, scaling people to fill frame, chubby doctor,
+          worried faces, white top bar, Llámame button.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        source: ads/08-aug-26/google-ads-assets/07-cta-vida-mejor_4x5.png
+        source_only_refs: true
+        prompt: |
+          TASK: Adapt attachment #1 (APPROVED PERFECT 4:5 ad) to 9:16 vertical. NOT a new illustration.
+
+          {text}
+
+          {visual}
+
+          IDENTITY LOCK — copy attachment #1 EXACTLY:
+          - SAME Dra. Angélica: brown hair in NEAT LOW BUN (not loose long hair), oval face,
+            closed-mouth smile, slim normal build — NOT chubby, NOT wide face, NOT different woman
+          - SAME family of three behind her (denim shirt dad, blue shirt boy, green top mom)
+          - SAME clipboard, headline, footer branding
+
+          COMPOSITION (9:16):
+          - Keep people at EXACT SAME scale and slim proportions as attachment #1 — extend park UP and DOWN only
+          - Angélica face OVAL and SLIM like attachment #1 — NOT round, NOT puffy cheeks, NOT wide jaw
+          - Do NOT widen, fatten, or stretch anyone to fill the taller frame
+          - Checkmark circle perfectly round; headline on photo; white footer bottom
+
+          FORBIDDEN: different doctor, loose long hair, chubby/wide faces, horizontal stretch,
+          new person, white top bar, Llámame/phone CTA.
+
+      - aspect_ratio: "16:9"
+        path: "{id}_16x9.png"
+        source: ads/08-aug-26/google-ads-assets/07-cta-vida-mejor_4x5.png
+        source_only_refs: true
+        prompt: |
+          TASK: Adapt attachment #1 (APPROVED PERFECT 4:5 ad) to 16:9 landscape. NOT a new illustration.
+
+          {text}
+
+          {visual}
+
+          IDENTITY LOCK — copy attachment #1 EXACTLY:
+          - SAME Dra. Angélica: brown hair in NEAT LOW BUN (not loose long hair), oval face,
+            closed-mouth smile, slim normal build — NOT a different woman, NOT a generic stock doctor
+          - SAME family of three, clipboard, headline copy, footer — pixel-faithful to attachment #1
+
+          COMPOSITION (16:9) — CRITICAL:
+          - Center the 4:5 scene unchanged — people do NOT get wider or fatter
+          - Extra width LEFT and RIGHT = more park, trees, grass, golden sky ONLY
+          - Angélica must be recognizable as the EXACT woman in attachment #1
+          - Photo full-bleed to top; headline upper-left; white footer bottom ONLY
+
+          FORBIDDEN: different doctor, loose long hair, invented face, chubby/wide faces,
+          horizontal stretch, scaling people to fill width, white header bar, phone CTA, no footer.
+

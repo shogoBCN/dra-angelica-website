@@ -48,6 +48,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+from lib.aspect_pad import write_padded_temp  # noqa: E402
 from lib.config import load_batch_config  # noqa: E402
 from lib.gemini import (  # noqa: E402
     format_usage,
@@ -121,7 +122,6 @@ def main() -> None:
             continue
 
         job.output_dir.mkdir(parents=True, exist_ok=True)
-        refs = reference_paths(job.source, job.references)
         model = resolve_model(model=job.model, pro=job.pro)
         image_size = image_size_for(model)
 
@@ -131,6 +131,17 @@ def main() -> None:
 
             out = job.output_dir / spec.path
             print(f"\n[{job.id}] {spec.aspect_ratio} → {out}")
+
+            effective_source = spec.source or job.source
+            call_refs = (
+                [effective_source]
+                if spec.source_only_refs and effective_source
+                else reference_paths(effective_source, job.references)
+            )
+            padded_tmp: Path | None = None
+            if spec.pad_source and effective_source:
+                padded_tmp = write_padded_temp(effective_source, spec.aspect_ratio)
+                call_refs = [padded_tmp, effective_source, *call_refs[1:]]
 
             # Fast path: 1:1 master already approved in samples/v2
             if spec.copy_source:
@@ -146,18 +157,22 @@ def main() -> None:
 
             if args.dry_run:
                 print(f"  model: {model}")
-                print(f"  refs: {[p.name for p in refs]}")
+                print(f"  refs: {[p.name for p in call_refs]}")
                 print(f"  prompt: {spec.prompt[:120].strip()}…")
                 continue
 
-            image_bytes, usage = generate_image(
-                api_key=api_key, #type: ignore
-                model=model,
-                prompt=spec.prompt,
-                reference_paths=refs,
-                aspect_ratio=spec.aspect_ratio,
-                image_size=image_size,
-            )
+            try:
+                image_bytes, usage = generate_image(
+                    api_key=api_key,  # type: ignore
+                    model=model,
+                    prompt=spec.prompt,
+                    reference_paths=call_refs,
+                    aspect_ratio=spec.aspect_ratio,
+                    image_size=image_size,
+                )
+            finally:
+                if padded_tmp is not None:
+                    padded_tmp.unlink(missing_ok=True)
             out.write_bytes(image_bytes)
             unit_cost = model_cost_usd(model)
             if unit_cost is not None:
