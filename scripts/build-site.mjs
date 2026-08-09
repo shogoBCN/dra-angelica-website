@@ -10,16 +10,29 @@ const dist = join(root, "dist");
 /** HTML entry points: all processed with asset cache-bust; only index gets inline JSON-LD. */
 const HTML_PAGES = ["index.html"];
 
-const SITEMAP_URLS = [
+const SITEMAP_STATIC_URLS = [
   { loc: "https://medicina-familiar.co/", priority: "1.0", changefreq: "monthly" },
   { loc: "https://medicina-familiar.co/cita/", priority: "0.85", changefreq: "monthly" },
-  {
-    loc: "https://medicina-familiar.co/blog/articulo?slug=medicina-familiar-en-colombia",
-    priority: "0.75",
-    changefreq: "monthly",
-  },
   { loc: "https://medicina-familiar.co/blog/", priority: "0.7", changefreq: "weekly" },
 ];
+
+async function loadBlogSitemapUrls() {
+  const manifestPath = join(src, "assets", "data", "blog-posts.json");
+  try {
+    const raw = await readFile(manifestPath, "utf8");
+    const data = JSON.parse(raw);
+    const posts = Array.isArray(data?.posts) ? data.posts : [];
+    return posts
+      .filter((post) => post?.slug)
+      .map((post) => ({
+        loc: `https://medicina-familiar.co/blog/articulo?slug=${encodeURIComponent(post.slug)}`,
+        priority: "0.75",
+        changefreq: "monthly",
+      }));
+  } catch {
+    return [];
+  }
+}
 
 /** Walk subtree and collect *.html paths. */
 async function walkHtmlFiles(dir, acc = []) {
@@ -150,9 +163,10 @@ for (const htmlPath of await walkHtmlFiles(join(dist, "cita"))) {
 }
 
 const lastmod = new Date().toISOString().slice(0, 10);
+const sitemapUrls = [...SITEMAP_STATIC_URLS, ...(await loadBlogSitemapUrls())];
 const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${SITEMAP_URLS.map(
+${sitemapUrls.map(
   (u) => `  <url>
     <loc>${u.loc}</loc>
     <lastmod>${lastmod}</lastmod>
