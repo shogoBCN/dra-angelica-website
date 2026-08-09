@@ -31,6 +31,9 @@ social/
 # Local blog drafts (published to Firestore via scripts/publish-blog-post.mjs)
 blogs/
 
+# Local infographic sources (PDFs built to web/assets/downloads/)
+infographics/
+
 ## all python sideeffect stuff
 __pycache__/
 *.pyc

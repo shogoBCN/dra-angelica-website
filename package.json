@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-site.mjs",
+    "build": "node scripts/build-infographic-pdf.mjs && node scripts/build-site.mjs",
+    "build:infographics": "node scripts/build-infographic-pdf.mjs",
     "dev": "npm run build && npx --yes serve dist -l 3000",
     "firebase": "firebase",
     "deploy": "npm run build && firebase deploy",
