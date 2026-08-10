@@ -10,9 +10,17 @@ const dist = join(root, "dist");
 /** HTML entry points: all processed with asset cache-bust; only index gets inline JSON-LD. */
 const HTML_PAGES = ["index.html"];
 
+/** Google Ads campaign landings under web/campana/<slug>/ (e.g. campana/un-solo-plan). */
+const CAMPAIGN_LANDING_DIRS = ["campana/un-solo-plan"];
+
 const SITEMAP_STATIC_URLS = [
   { loc: "https://medicina-familiar.co/", priority: "1.0", changefreq: "monthly" },
   { loc: "https://medicina-familiar.co/cita/", priority: "0.85", changefreq: "monthly" },
+  ...CAMPAIGN_LANDING_DIRS.map((slug) => ({
+    loc: `https://medicina-familiar.co/${slug}/`,
+    priority: "0.85",
+    changefreq: "monthly",
+  })),
   { loc: "https://medicina-familiar.co/blog/", priority: "0.7", changefreq: "weekly" },
 ];
 
@@ -162,6 +170,18 @@ for (const htmlPath of await walkHtmlFiles(join(dist, "cita"))) {
   await writeFile(htmlPath, html, "utf8");
 }
 
+for (const slug of CAMPAIGN_LANDING_DIRS) {
+  const srcDir = join(src, slug);
+  const distDir = join(dist, slug);
+  await cp(srcDir, distDir, { recursive: true });
+  for (const htmlPath of await walkHtmlFiles(distDir)) {
+    let html = await readFile(htmlPath, "utf8");
+    html = applyAssetCacheBust(html, buildId);
+    html = injectAssetVersion(html, buildId);
+    await writeFile(htmlPath, html, "utf8");
+  }
+}
+
 const lastmod = new Date().toISOString().slice(0, 10);
 const sitemapUrls = [...SITEMAP_STATIC_URLS, ...(await loadBlogSitemapUrls())];
 const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -179,5 +199,5 @@ ${sitemapUrls.map(
 await writeFile(join(dist, "sitemap.xml"), sitemapXml, "utf8");
 
 console.info(
-  `build-site: wrote dist/ (cache-bust v=${buildId}, pages=${HTML_PAGES.join(", ")}, blog/, cita/)`
+  `build-site: wrote dist/ (cache-bust v=${buildId}, pages=${HTML_PAGES.join(", ")}, blog/, cita/, ${CAMPAIGN_LANDING_DIRS.join(", ")}/)`
 );

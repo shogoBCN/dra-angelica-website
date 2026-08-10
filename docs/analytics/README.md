@@ -37,6 +37,8 @@ web/assets/analytics/
 | `/blog/` | Yes | G-NET9DFP6TW | AW-18163846421 |
 | `/blog/articulo` | Yes | G-NET9DFP6TW | AW-18163846421 |
 | `/blog/admin/` | No | — | — |
+| `/cita/` | Yes | G-NET9DFP6TW | AW-18163846421 |
+| `/campana/un-solo-plan/` | Yes | G-NET9DFP6TW | AW-18163846421 |
 
 Each tracked page includes in `<head>`:
 

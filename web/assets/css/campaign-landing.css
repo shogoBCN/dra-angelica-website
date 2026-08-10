@@ -1,0 +1,343 @@
+/**
+ * Google Ads campaign landing pages — shared layout (e.g. /campana/un-solo-plan/).
+ * Images are landscape (~4:3) ad crops without the footer branding bar.
+ */
+
+/* -------------------------------------------------------------------------- */
+/* Top band                                                                   */
+/* -------------------------------------------------------------------------- */
+
+.campaign-top {
+  padding-top: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.campaign-top__inner {
+  max-width: var(--max-wide);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 1.5rem);
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Shared landscape visual                                                    */
+/* -------------------------------------------------------------------------- */
+
+.campaign-visual {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: clamp(0.65rem, 1.8vw, 0.9rem);
+}
+
+.campaign-hero__visual,
+.campaign-story__visual {
+  margin: 0;
+  width: 100%;
+}
+
+.campaign-hero__visual .campaign-visual {
+  box-shadow: 0 14px 36px rgba(26, 111, 120, 0.14);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Hero                                                                       */
+/* -------------------------------------------------------------------------- */
+
+.campaign-hero {
+  display: grid;
+  gap: clamp(1.25rem, 3.5vw, 1.75rem);
+  align-items: center;
+}
+
+.campaign-hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.campaign-hero__kicker {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.campaign-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 6.5vw, 2.65rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  margin: 0 0 0.3rem;
+}
+
+.campaign-hero__tagline {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 3vw, 1.2rem);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--color-accent);
+  opacity: 0.92;
+}
+
+.campaign-hero__lead {
+  margin: 0 0 1.25rem;
+  color: var(--color-text-muted);
+  font-size: clamp(0.98rem, 2.4vw, 1.06rem);
+  line-height: 1.55;
+  max-width: 36rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Story band                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.campaign-story {
+  display: grid;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.campaign-story__visual .campaign-visual {
+  box-shadow: 0 10px 28px rgba(26, 111, 120, 0.1);
+}
+
+.campaign-story__content {
+  text-align: left;
+  padding: clamp(1rem, 3vw, 1.25rem);
+  border-radius: clamp(0.85rem, 2vw, 1.1rem);
+  background: linear-gradient(
+    160deg,
+    rgba(227, 245, 243, 0.7) 0%,
+    rgba(255, 255, 255, 0.65) 100%
+  );
+  border: 1px solid rgba(26, 111, 120, 0.1);
+}
+
+.campaign-story__title {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.8vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.campaign-story__text {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.94rem;
+  line-height: 1.5;
+  max-width: 34rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CTAs                                                                       */
+/* -------------------------------------------------------------------------- */
+
+.campaign-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.campaign-cta .cita-cta__btn,
+.campaign-cta .contact-wa {
+  width: 100%;
+  justify-content: center;
+  background: var(--btn-primary-gradient);
+  border-color: transparent;
+  color: #fff;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 16px 40px rgba(26, 111, 120, 0.32);
+}
+
+.campaign-cta .contact-wa__title,
+.campaign-cta .contact-wa__number {
+  color: #fff;
+}
+
+.campaign-cta .cita-cta__btn:hover,
+.campaign-cta .cita-cta__btn:focus-visible,
+.campaign-cta .contact-wa:hover,
+.campaign-cta .contact-wa:focus-visible {
+  background: var(--btn-primary-gradient);
+  filter: brightness(1.05);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 48px rgba(26, 111, 120, 0.38);
+}
+
+.campaign-cta .contact-wa__icon svg rect {
+  fill: rgba(255, 255, 255, 0.2);
+}
+
+.campaign-cta .contact-wa__icon svg path {
+  fill: #fff;
+}
+
+.campaign-cta__info {
+  width: 100%;
+  justify-content: center;
+  padding: 0.72rem 1.1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border-width: 2px;
+  box-shadow: 0 8px 22px rgba(26, 111, 120, 0.08);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.campaign-cta__info:hover,
+.campaign-cta__info:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(26, 111, 120, 0.12);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Desktop — landscape-friendly columns                                       */
+/* -------------------------------------------------------------------------- */
+
+@media (min-width: 768px) {
+  .campaign-hero {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(2rem, 3.5vw, 3rem);
+    align-items: center;
+  }
+
+  .campaign-story {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.25rem);
+    padding: 1.35rem 1.75rem;
+    border-radius: clamp(0.85rem, 2vw, 1.1rem);
+    background: linear-gradient(
+      160deg,
+      rgba(227, 245, 243, 0.7) 0%,
+      rgba(255, 255, 255, 0.65) 100%
+    );
+    border: 1px solid rgba(26, 111, 120, 0.1);
+  }
+
+  .campaign-story__content {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .campaign-story__text {
+    font-size: 1rem;
+  }
+
+  .campaign-cta {
+    max-width: 22rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .campaign-hero {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 3.5rem;
+  }
+
+  .campaign-story {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 2.5rem;
+    padding: 1.5rem 2rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Lower sections                                                             */
+/* -------------------------------------------------------------------------- */
+
+.campaign-page .cita-moment--promise {
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.campaign-page .cita-moment--visit .cita-visit__title,
+.campaign-page .cita-moment--visit .cita-visit__place {
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .campaign-page .cita-moment--visit .cita-visit__title,
+  .campaign-page .cita-moment--visit .cita-visit__place {
+    text-align: left;
+  }
+}
+
+.campaign-discover .cita-discover__title {
+  margin-bottom: 0.65rem;
+}
+
+.campaign-discover__lead {
+  margin: 0 0 1.1rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.campaign-discover__cta {
+  background: var(--color-accent-soft);
+  border-color: rgba(26, 111, 120, 0.35);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.campaign-discover__cta:hover,
+.campaign-discover__cta:focus-visible {
+  background: rgba(227, 245, 243, 0.95);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* Slightly larger brand in header than default /cita/ compact bar */
+.campaign-page .header.header--cita .header__logo {
+  height: 2.45rem;
+  max-width: 2.45rem;
+}
+
+.campaign-page .header.header--cita .header__brand {
+  font-size: 0.92rem;
+}
+
+.campaign-page .header.header--cita .header__brand-tagline {
+  font-size: 0.68rem;
+}
+
+@media (min-width: 768px) {
+  .campaign-page .header.header--cita .header__logo {
+    height: 4.35rem;
+    max-width: 4.35rem;
+  }
+
+  .campaign-page .header.header--cita .header__brand {
+    font-size: 1.15rem;
+  }
+
+  .campaign-page .header.header--cita .header__brand-tagline {
+    font-size: 0.78rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campaign-cta__info:hover,
+  .campaign-cta__info:focus-visible,
+  .campaign-cta .contact-wa:hover,
+  .campaign-cta .contact-wa:focus-visible {
+    transform: none;
+  }
+}

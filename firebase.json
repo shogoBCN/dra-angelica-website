@@ -36,6 +36,16 @@
     ],
     "redirects": [
       {
+        "source": "/08-aug-26",
+        "destination": "/campana/un-solo-plan",
+        "type": 301
+      },
+      {
+        "source": "/08-aug-26/**",
+        "destination": "/campana/un-solo-plan",
+        "type": 301
+      },
+      {
         "source": "/medicina-familiar-colombia",
         "destination": "/blog/articulo?slug=medicina-familiar-en-colombia",
         "type": 301

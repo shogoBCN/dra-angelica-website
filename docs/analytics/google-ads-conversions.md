@@ -11,7 +11,7 @@ Six conversion actions map to real user intent on medicina-familiar.co. Each nee
 | **Email click** | Click `mailto:` link | `element_click` | `emailClick` | Primary, Count: Every |
 | **Maps open** | Click Google Maps link | `element_click` | `mapsOpen` | Primary, Count: Every |
 | **Content engaged** | Scroll ≥ 90 % **and** ≥ 90 s active reading | `content_engaged` | `contentEngaged` | Primary, Count: One, higher value |
-| **Más información** | Click to main site from `/cita/` (`data-analytics-conversion="moreInfoClick"`) | `element_click` | `moreInfoClick` | Primary, Count: Every |
+| **Más información** | Click to main site from `/cita/` or campaign landings (`data-analytics-conversion="moreInfoClick"`) | `element_click` | `moreInfoClick` | Primary, Count: Every |
 
 **Content engaged** means the visitor scrolled through most of the page and kept the tab in the foreground for at least 90 seconds — a signal they read the educational content, not just landed and left.
 
@@ -62,7 +62,7 @@ In Google Ads you can assign different values per conversion action (e.g. form =
 | Email | Click `doc.angelica@…` mailto link |
 | Maps | Click “Abrir en Google Maps” |
 | Content engaged | Scroll to bottom, stay on page ≥ 90 s with tab visible |
-| Más información | On `/cita/`, click “Más información” or “Ver más información” |
+| Más información | On `/cita/` or a campaign landing (e.g. `/campana/un-solo-plan/`), click “Más información” or “Ir a la página principal” |
 
 Status should move from **Unverified** to **Recording conversions** within a few hours ([Google help](https://support.google.com/google-ads/answer/10029065)).
 
