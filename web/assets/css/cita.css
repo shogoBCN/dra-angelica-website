@@ -13,6 +13,31 @@
     radial-gradient(80% 50% at 0% 80%, rgba(134, 210, 201, 0.14), transparent 55%);
 }
 
+/* Staggered reveals — classes instead of inline style="" (CSP style-src). */
+.reveal-delay-0 {
+  --reveal-delay: 0s;
+}
+
+.reveal-delay-1 {
+  --reveal-delay: 0.1s;
+}
+
+.reveal-delay-2 {
+  --reveal-delay: 0.2s;
+}
+
+.reveal-delay-08 {
+  --reveal-delay: 0.08s;
+}
+
+.reveal-delay-16 {
+  --reveal-delay: 0.16s;
+}
+
+.reveal-delay-24 {
+  --reveal-delay: 0.24s;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Compact header                                                             */
 /* -------------------------------------------------------------------------- */

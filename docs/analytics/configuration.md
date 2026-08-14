@@ -56,9 +56,9 @@ Tracked pages must allow Google Tag Manager in CSP:
 | Directive | Required hosts |
 |-----------|----------------|
 | `script-src` | `'self'` `https://www.googletagmanager.com` |
-| `connect-src` | `'self'` `https://www.google-analytics.com` `https://*.google-analytics.com` `https://www.googletagmanager.com` `https://www.google.com` `https://google.com` `https://www.googleadservices.com` |
+| `connect-src` | `'self'` `https://www.google-analytics.com` `https://*.google-analytics.com` `https://analytics.google.com` `https://*.analytics.google.com` `https://www.googletagmanager.com` `https://www.google.com` `https://google.com` `https://www.googleadservices.com` `https://ad.doubleclick.net` `https://googleads.g.doubleclick.net` `https://stats.g.doubleclick.net` |
 
-Google Ads sends conversion data to `https://www.google.com/ccm/collect` (not `google-analytics.com`). Without `www.google.com` in `connect-src`, the browser blocks those requests and Google Ads reports the tag as missing or inactive.
+Google Ads sends conversion data to `https://www.google.com/ccm/collect` (not `google-analytics.com`). GA4 also posts to `https://analytics.google.com/g/collect`, and conversion pings may go to `ad.doubleclick.net` / `googleads.g.doubleclick.net`. Without those hosts in `connect-src`, the browser blocks the requests.
 
 These are already set on `index.html`, `blog/index.html`, and `blog/articulo.html`.
 
