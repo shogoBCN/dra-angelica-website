@@ -2,7 +2,7 @@
 # Campaign: 17-aug-26 — Facebook launch stills (4:5 Feed + 9:16 Stories)
 # =============================================================================
 #
-# New kit. Does not overwrite ads/FacebookAds/16-aug-26 statics or video.
+# Kit lives in ads/FacebookAds/17-aug-26/. Does not overwrite 16-aug-26.
 # Face lock: web/assets/images/about/angelica.jpg only (not the Google AI plate).
 #
 #   python gemini_batch.py configs/17-aug-26-facebook-launch.yaml --dry-run
@@ -48,9 +48,9 @@ jobs:
   # 03 — her + Medicina Familiar + WhatsApp
   # ---------------------------------------------------------------------------
   - id: 03-whatsapp
-    output_dir: ads/FacebookAds/16-aug-26/17-aug-26/statics
+    output_dir: ads/FacebookAds/17-aug-26/statics
     use_default_references: false
-    source: ads/FacebookAds/16-aug-26/17-aug-26/video/initials/REFERENCE_consultorio.png
+    source: ads/FacebookAds/17-aug-26/video/initials/REFERENCE_consultorio.png
     references:
       - web/assets/images/about/angelica.jpg
       - web/assets/images/brand/logo-teal.png
@@ -107,10 +107,10 @@ jobs:
   # 01 — promise (consult, glanceable)
   # ---------------------------------------------------------------------------
   - id: 01-completa
-    output_dir: ads/FacebookAds/16-aug-26/17-aug-26/statics
+    output_dir: ads/FacebookAds/17-aug-26/statics
     use_default_references: false
     references:
-      - ads/FacebookAds/16-aug-26/17-aug-26/video/initials/REFERENCE_consultorio.png
+      - ads/FacebookAds/17-aug-26/video/initials/REFERENCE_consultorio.png
       - web/assets/images/about/angelica.jpg
       - web/assets/images/brand/logo-teal.png
     fragments:
@@ -158,7 +158,7 @@ jobs:
 
       - aspect_ratio: "9:16"
         path: "{id}_9x16.png"
-        source: ads/FacebookAds/16-aug-26/17-aug-26/statics/01-completa_4x5.png
+        source: ads/FacebookAds/17-aug-26/statics/01-completa_4x5.png
         pad_source: true
         prompt: |
           Photorealistic Facebook Stories ad, 9:16. Recreate the attached 4:5 still
