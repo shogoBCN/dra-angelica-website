@@ -332,6 +332,15 @@ def load_build_yaml(path: Path) -> None:
         expected = holds - FADE_SECONDS * (len(scenes) - 1) if holds else None
         audio = audio_source
         audio_skip = float(raw.get("audio_skip", AUDIO_SKIP_SECONDS))
+        build_audio_raw = build.get("audio")
+        if build_audio_raw:
+            build_audio = (campaign / build_audio_raw).resolve()
+            if build_audio.exists():
+                audio = build_audio
+            else:
+                print(f"  warning: build audio not found ({build_audio})")
+        if build.get("audio_skip") is not None:
+            audio_skip = float(build["audio_skip"])
         if align_music and audio_source and expected:
             music = build.get("music") or {}
             hopeful_scene = int(music.get("hopeful_scene", 7))

@@ -1,0 +1,178 @@
+# =============================================================================
+# Campaign: 17-aug-26 — Facebook launch stills (4:5 Feed + 9:16 Stories)
+# =============================================================================
+#
+# New kit. Does not overwrite ads/FacebookAds/16-aug-26 statics or video.
+# Face lock: web/assets/images/about/angelica.jpg only (not the Google AI plate).
+#
+#   python gemini_batch.py configs/17-aug-26-facebook-launch.yaml --dry-run
+#   python gemini_batch.py configs/17-aug-26-facebook-launch.yaml
+#
+# =============================================================================
+
+defaults:
+  model: pro
+
+fragments:
+  type_rules: |
+    TYPOGRAPHY: elegant serif, left-aligned, on the photograph (not on a white header bar).
+    Navy #1e3a5f. Teal #4aada8 ONLY on the highlight phrase. Short teal underline under
+    that phrase only. No box, no banner, no scene numbers, no phone number, no digits,
+    no "Andaki", no "EPS", no "Llámame".
+
+    FOOTER: white bar at the bottom. Left: teal circular family-and-stethoscope logo
+    matching the attached logo-teal.png. Center: navy serif "Dra. Angélica". Below:
+    teal sans-serif line given in the job. Do not drop the footer.
+
+    STORIES 9:16: headline starts ~16–18% from the top (below username chrome).
+    Face (if any) in the middle third. Do not put a CTA button in the bottom 20%.
+
+  face_lock: |
+    FACE LOCK — the portrait reference is the REAL Dra. Angélica. This is the same person.
+    Match skull, eyes, brows, hairline, hair colour, age, skin, and the embroidery
+    "Dra. Angélica" / "Dra. Angelica-G" on the white coat. Under the coat: the SAME
+    light-blue crew-neck top as the portrait — not navy scrubs. Do not beautify her
+    into a younger or different woman. One face only. No sister, no double.
+
+  room_lock: |
+    ROOM LOCK — use the SAME consultorio as the approved still (light wood bookshelf
+    with books, wooden desk, grey mesh office chair, window with white blinds,
+    bright quiet family-medicine office). It is one room, reused on every doctor ad.
+    FORBIDDEN IN THE ROOM: ultrasound, ecography, sonogram, echograph, probe on a
+    holder, wheeled cart with a monitor, diagnostic imaging machine, otoscope wall
+    rack, hospital monitor. This practice does not offer ecografías. Stethoscope
+    around her neck is fine. No extra machines.
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 03 — her + Medicina Familiar + WhatsApp
+  # ---------------------------------------------------------------------------
+  - id: 03-whatsapp
+    output_dir: ads/FacebookAds/16-aug-26/17-aug-26/statics
+    use_default_references: false
+    source: ads/FacebookAds/16-aug-26/17-aug-26/video/initials/REFERENCE_consultorio.png
+    references:
+      - web/assets/images/about/angelica.jpg
+      - web/assets/images/brand/logo-teal.png
+    fragments:
+      copy: |
+        EXACT HEADLINE, left-aligned on the photo:
+        Line 1 navy: Medicina Familiar
+        Line 2 navy "en " + teal "La Mesa."
+        Short teal underline under "La Mesa." only.
+        The words "Medicina Familiar" must appear, exactly that spelling.
+        Mid-frame teal rounded chip, white sans-serif: Escríbeme por WhatsApp
+        (no phone number, no digits). On 9:16 put the chip in the MIDDLE third,
+        not in the bottom 20%.
+        FOOTER teal line: Consulta particular · La Mesa
+    outputs:
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          Photorealistic Facebook Feed ad, 4:5. Recreate the attached approved still.
+          SAME woman, SAME consultorio. REPLACE headline and footer only.
+          Keep the WhatsApp chip. Do not change her face or the room.
+
+          {room_lock}
+
+          {face_lock}
+
+          {type_rules}
+
+          {copy}
+
+          Full-color. No ultrasound. No new office.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        pad_source: true
+        prompt: |
+          Photorealistic Facebook Stories ad, 9:16. Recreate the attached 4:5 still
+          as a taller frame. SAME woman, SAME consultorio (wood bookshelf, blinds,
+          grey mesh chair). Magenta pad bands are empty canvas — outpaint MORE of
+          that same room, not a new clinic.
+
+          {room_lock}
+
+          {face_lock}
+
+          {type_rules}
+
+          {copy}
+
+          Keep the WhatsApp chip in the MIDDLE third. No ultrasound, no new furniture
+          type, no park.
+
+  # ---------------------------------------------------------------------------
+  # 01 — promise (consult, glanceable)
+  # ---------------------------------------------------------------------------
+  - id: 01-completa
+    output_dir: ads/FacebookAds/16-aug-26/17-aug-26/statics
+    use_default_references: false
+    references:
+      - ads/FacebookAds/16-aug-26/17-aug-26/video/initials/REFERENCE_consultorio.png
+      - web/assets/images/about/angelica.jpg
+      - web/assets/images/brand/logo-teal.png
+    fragments:
+      copy: |
+        EXACT HEADLINE, left-aligned on the photo:
+        Line 1 navy: Te mira completa.
+        Line 2 teal: No por partes.
+        Short teal underline under "No por partes." only.
+        The words "Medicina Familiar" must appear in the footer, exactly that spelling.
+        Mid-frame teal rounded chip, white sans-serif: Escríbeme por WhatsApp
+        (no phone number, no digits). On 9:16 put the chip in the MIDDLE third,
+        not in the bottom 20%.
+        FOOTER teal line: Medicina Familiar · La Mesa
+    outputs:
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          Photorealistic Facebook Feed ad, 4:5.
+          First attached image = ROOM only (wood bookshelf, wooden desk, grey mesh
+          chair, white blinds). Copy that room. Do NOT copy her camera-facing pose
+          or the headline on that still.
+          Second attached image = her FACE and coat. Same woman.
+          Third attached image = footer logo.
+
+          COMPOSITION — different from a solo portrait looking at camera:
+          Over-the-shoulder consult. An adult woman patient sits in the foreground
+          with her BACK to the camera (dark hair, civilian clothes, no face visible).
+          Dra. Angélica sits across the desk, looking at the patient, listening —
+          not posing at the camera. Warm, calm, one-on-one. No papers stacked as
+          the hero. No other doctors.
+
+          A stranger must understand in one second: a family doctor who looks at
+          the whole person, not at one body part. The headline says that. Do not
+          add specialist names or organ diagrams.
+
+          {room_lock}
+
+          {face_lock}
+
+          {type_rules}
+
+          {copy}
+
+          Full-color. No ultrasound. No new office. No distressed patient.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        source: ads/FacebookAds/16-aug-26/17-aug-26/statics/01-completa_4x5.png
+        pad_source: true
+        prompt: |
+          Photorealistic Facebook Stories ad, 9:16. Recreate the attached 4:5 still
+          as a taller frame. SAME woman, SAME patient from behind, SAME consultorio.
+          Magenta pad bands are empty canvas — outpaint MORE of that same room,
+          not a new clinic.
+
+          {room_lock}
+
+          {face_lock}
+
+          {type_rules}
+
+          {copy}
+
+          Keep the WhatsApp chip in the MIDDLE third. No ultrasound, no new furniture
+          type, no park, no specialist names.
