@@ -1,0 +1,148 @@
+# =============================================================================
+# Campaign: 16-aug-26 — Facebook statics (4:5 Feed + 9:16 Stories)
+# =============================================================================
+#
+# Three ads: problem / solution / CTA. Meta-safer copy. No phone on image.
+# Masters are the approved Google 4:5 / 9:16 stills — rewrite headline only.
+#
+#   python gemini_batch.py configs/16-aug-26-facebook-statics.yaml
+#
+# =============================================================================
+
+defaults:
+  model: pro
+
+fragments:
+  fb_static_rules: |
+    TASK: Recreate the attached ad with NEW headline copy only.
+    Same photograph, same people, same props, same white footer branding.
+    IGNORE the old headline in the reference — do not keep any old headline words.
+
+    FOOTER (keep identical): logo-teal.png + navy serif "Dra. Angélica" +
+    teal "Medicina de Familia · La Mesa".
+
+    TYPOGRAPHY: elegant serif, left-aligned, on the photo (not on a white header bar).
+    Navy #1e3a5f. Teal #4aada8 on the highlight line only. Short teal underline
+    under the highlight phrase only. No box, no banner, no phone number, no scene numbers.
+
+    DO NOT: stretch faces, drop the footer, add "Llámame", add 310 770 0625.
+
+jobs:
+  - id: 01-planes-contradictorios
+    source: ads/GoogleAds/08-aug-26/google-ads-assets/04-planes-contradictorios_4x5.png
+    output_dir: ads/FacebookAds/16-aug-26/statics
+    references:
+      - web/assets/images/brand/logo-teal.png
+    fragments:
+      copy: |
+        EXACT NEW HEADLINE:
+        Line 1 navy: Planes que se contradicen.
+        Line 2 teal: Hace falta un plan.
+        Underline under "un plan." only.
+        Do NOT write "Cuál sigues" or any question aimed at the viewer.
+
+    outputs:
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          {fb_static_rules}
+
+          {copy}
+
+          KEEP: three PLAN DE TRATAMIENTO slips (María G., contradictory indications,
+          red warning on center slip), pointing hand, grayscale desk, white footer.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        source: ads/GoogleAds/08-aug-26/google-ads-assets/04-planes-contradictorios_9x16.png
+        prompt: |
+          {fb_static_rules}
+
+          {copy}
+
+          KEEP: all three treatment-plan slips fully readable, arrows, question marks,
+          pointing hand, grayscale photo, white footer.
+          STORIES: headline below top ~14%; footer may stay at the bottom.
+
+  - id: 02-angelica-coordina
+    source: ads/GoogleAds/08-aug-26/google-ads-assets/05-angelica-coordina_4x5.png
+    output_dir: ads/FacebookAds/16-aug-26/statics
+    use_default_references: false
+    references:
+      - ads/GoogleAds/08-aug-26/samples/v2/REFERENCE_angelica-ad05-face.png
+      - web/assets/images/brand/logo-teal.png
+    fragments:
+      copy: |
+        EXACT NEW HEADLINE (drop "tu" — write "la atención"):
+        Line 1 navy: Dra. Angélica
+        Line 2 navy: une la atención
+        Line 3 navy: en un plan que
+        Line 4 teal: funciona.
+        Underline under "funciona." only.
+
+    outputs:
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          {fb_static_rules}
+
+          {copy}
+
+          KEEP: Dra. Angélica SAME FACE as the attached ad, white coat, stethoscope,
+          patient from behind, full-color consultorio, white footer. Photo full-bleed to top.
+
+          DO NOT: different doctor, white header bar, "une tu atención".
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        source: ads/GoogleAds/08-aug-26/google-ads-assets/05-angelica-coordina_9x16.png
+        prompt: |
+          {fb_static_rules}
+
+          {copy}
+
+          KEEP: same Dra. Angélica face, consultorio, footer. Headline on photo.
+          STORIES: headline below top ~14%.
+
+          DO NOT: different doctor, "une tu atención", white header bar.
+
+  - id: 03-vida-mejor
+    source: ads/GoogleAds/08-aug-26/google-ads-assets/07-cta-vida-mejor_4x5.png
+    output_dir: ads/FacebookAds/16-aug-26/statics
+    use_default_references: false
+    references:
+      - ads/GoogleAds/08-aug-26/samples/v2/REFERENCE_angelica-ad05-face.png
+      - web/assets/images/brand/logo-teal.png
+    fragments:
+      copy: |
+        EXACT NEW HEADLINE (do NOT write "Cansada" or "perdida"):
+        Line 1 navy: Un plan.
+        Line 2 navy "Una " + teal "vida mejor."
+        Underline under "vida mejor." only.
+        No CTA button. No phone number. No "Llámame".
+
+    outputs:
+      - aspect_ratio: "4:5"
+        path: "{id}_4x5.png"
+        prompt: |
+          {fb_static_rules}
+
+          {copy}
+
+          KEEP: Dra. Angélica in park, clipboard PLAN DE TRATAMIENTO INTEGRAL with
+          green check, family behind, full color golden hour, white footer.
+
+          DO NOT: "Cansada de estar perdida", phone number, Llámame, different faces.
+
+      - aspect_ratio: "9:16"
+        path: "{id}_9x16.png"
+        source: ads/GoogleAds/08-aug-26/google-ads-assets/07-cta-vida-mejor_9x16.png
+        prompt: |
+          {fb_static_rules}
+
+          {copy}
+
+          KEEP: same park scene, clipboard, family, footer.
+          STORIES: headline below top ~14%.
+
+          DO NOT: "Cansada de estar perdida", phone number, Llámame, different faces.

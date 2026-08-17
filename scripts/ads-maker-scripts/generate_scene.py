@@ -10,7 +10,7 @@ work should use ``gemini_batch.py`` + a campaign YAML under ``configs/`` (e.g.
 
 Outputs
 -------
-Writes ``scene_<N>.png`` under ``ads/08-aug-26/video/{1x1,9x16,16x9}/`` by default.
+Writes ``scene_<N>.png`` under ``ads/GoogleAds/08-aug-26/video/{1x1,9x16,16x9}/`` by default.
 
 Usage
 -----
@@ -20,7 +20,7 @@ Usage
     python generate_scene.py 7 --aspects 1:1 9:16 16:9 --pro
 
 API client is ``lib.gemini.generate_image``; reference images come from
-``ads/08-aug-26/video/initials/`` (storyboard panels + patient identity).
+``ads/GoogleAds/08-aug-26/video/initials/`` (storyboard panels + patient identity).
 """
 
 from __future__ import annotations

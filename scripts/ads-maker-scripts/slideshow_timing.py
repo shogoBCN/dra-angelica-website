@@ -35,6 +35,7 @@ DEFAULT_DURATIONS: dict[int, float] = {
 
 FADE_SECONDS = 0.4
 SCENE_COUNT = len(DEFAULT_DURATIONS)
+GOOGLE_SCENE_ORDER = list(range(1, SCENE_COUNT + 1))
 
 
 def hold_seconds() -> float:
@@ -42,9 +43,39 @@ def hold_seconds() -> float:
     return sum(DEFAULT_DURATIONS.values())
 
 
+def playback_length(
+    order: list[int],
+    durations: dict[int, float],
+    *,
+    fade: float = FADE_SECONDS,
+) -> float:
+    """Final length of *order* after *fade* crossfades between holds."""
+    if not order:
+        return 0.0
+    return sum(durations[n] for n in order) - fade * (len(order) - 1)
+
+
 def playback_seconds() -> float:
-    """Final video length after ``FADE_SECONDS`` crossfades between scenes."""
-    return hold_seconds() - FADE_SECONDS * (SCENE_COUNT - 1)
+    """Final Google 8-scene length after ``FADE_SECONDS`` crossfades."""
+    return playback_length(GOOGLE_SCENE_ORDER, DEFAULT_DURATIONS)
+
+
+def scene_start_on(
+    order: list[int],
+    durations: dict[int, float],
+    scene: int,
+    *,
+    fade: float = FADE_SECONDS,
+) -> float:
+    """Wall-clock second when *scene* begins fading in on *order*."""
+    if scene not in order:
+        raise ValueError(f"scene {scene} not in order {order}")
+    t = 0.0
+    for number in order:
+        if number == scene:
+            return t
+        t += durations[number] - fade
+    raise ValueError(f"scene {scene} not in order {order}")
 
 
 def scene_start_second(scene: int) -> float:
@@ -56,12 +87,7 @@ def scene_start_second(scene: int) -> float:
     """
     if scene < 1 or scene > SCENE_COUNT:
         raise ValueError(f"scene must be 1–{SCENE_COUNT}, got {scene}")
-    if scene == 1:
-        return 0.0
-    timeline = DEFAULT_DURATIONS[1]
-    for n in range(2, scene):
-        timeline += DEFAULT_DURATIONS[n] - FADE_SECONDS
-    return timeline - FADE_SECONDS
+    return scene_start_on(GOOGLE_SCENE_ORDER, DEFAULT_DURATIONS, scene)
 
 
 def music_target_seconds(*, buffer: float = 3.0) -> int:

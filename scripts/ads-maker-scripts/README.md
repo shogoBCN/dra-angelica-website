@@ -13,7 +13,9 @@ scripts/ads-maker-scripts/
 │   ├── config.py           # YAML batch config loader
 │   └── paths.py            # repo + campaign paths
 ├── configs/                # one YAML per campaign batch (prompts, paths)
-│   └── 08-aug-26-google-ads-aspects.yaml
+│   ├── 08-aug-26-google-ads-aspects.yaml
+│   ├── 16-aug-26-facebook-video.yaml
+│   └── 16-aug-26-facebook-statics.yaml
 ├── gemini_image.py         # single image CLI
 ├── gemini_batch.py         # batch from YAML
 ├── generate_scene.py       # slideshow scene images (legacy prompts in-script)
@@ -23,7 +25,10 @@ scripts/ads-maker-scripts/
 └── build_ad_preview.py     # paced preview builder
 ```
 
-Campaign assets live under `ads/08-aug-26/` (video scenes, samples, google-ads-assets).
+Campaign assets:
+
+- Google: `ads/GoogleAds/08-aug-26/` (video scenes, samples, google-ads-assets)
+- Facebook: `ads/FacebookAds/16-aug-26/` (short video 4:5/9:16 + statics)
 
 ## Gemini image — one shot
 
@@ -32,11 +37,11 @@ cd scripts/ads-maker-scripts
 
 python gemini_image.py \
   --prompt-file configs/snippets/my-prompt.txt \
-  -r ../../ads/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png \
+  -r ../../ads/GoogleAds/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png \
   -r ../../web/assets/images/brand/logo-teal.png \
   --aspect-ratio 16:9 \
   --pro \
-  -o ../../ads/08-aug-26/google-ads-assets/test_16x9.png
+  -o ../../ads/GoogleAds/08-aug-26/google-ads-assets/test_16x9.png
 ```
 
 Or inline prompt:
@@ -52,7 +57,7 @@ python gemini_image.py \
 ## Gemini image — batch (YAML)
 
 One config file per campaign under `configs/`, named `{campaign}-google-ads-aspects.yaml`
-(e.g. `08-aug-26-google-ads-aspects.yaml` → assets in `ads/08-aug-26/`). For a new
+(e.g. `08-aug-26-google-ads-aspects.yaml` → assets in `ads/GoogleAds/08-aug-26/`). For a new
 batch, copy the latest YAML, update paths and jobs.
 
 ```bash
@@ -60,6 +65,11 @@ python gemini_batch.py configs/08-aug-26-google-ads-aspects.yaml
 python gemini_batch.py configs/08-aug-26-google-ads-aspects.yaml --job 02-a-quien-le-haces-caso
 python gemini_batch.py configs/08-aug-26-google-ads-aspects.yaml --job 02-a-quien-le-haces-caso --aspect 16:9
 python gemini_batch.py configs/08-aug-26-google-ads-aspects.yaml --dry-run
+
+# Facebook 16-aug-26 (video stills, then statics, then MP4s)
+python gemini_batch.py configs/16-aug-26-facebook-video.yaml
+python gemini_batch.py configs/16-aug-26-facebook-statics.yaml
+python build_slideshow.py --config ../../ads/FacebookAds/16-aug-26/video/build.yaml
 ```
 
 ### YAML structure
@@ -77,7 +87,7 @@ Prompts use `{visual}`, `{text}`, `{id}`, etc. from job + fragment variables.
 ```bash
 python generate_scene.py 7 --aspects 1:1 9:16 16:9 --pro
 python generate_music.py
-python build_slideshow.py   # defaults to ads/08-aug-26/video/{1x1,9x16,16x9}
+python build_slideshow.py   # defaults to ads/GoogleAds/08-aug-26/video/{1x1,9x16,16x9}
 ```
 
 ## Models

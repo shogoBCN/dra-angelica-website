@@ -3,7 +3,7 @@ Canonical filesystem paths for the ads-maker toolchain.
 
 All scripts should import paths from here instead of computing ``parents[N]``
 locally — getting the repo root wrong was a recurring bug when scripts lived
-under ``ads/08-aug-26/video/`` and were later moved to ``scripts/``.
+under ``ads/GoogleAds/08-aug-26/video/`` and were later moved to ``scripts/``.
 
 Path resolution
 ---------------
@@ -12,7 +12,7 @@ Path resolution
 - ``DEFAULT_CAMPAIGN`` — active slideshow campaign folder (Aug-26). Change here when
   starting a new campaign, or pass explicit paths via CLI on build scripts.
 
-Google Ads static assets use a separate tree under ``ads/08-aug-26/samples/``;
+Google Ads static assets live under ``ads/GoogleAds/08-aug-26/``;
 only slideshow *video* scene PNGs default to ``DEFAULT_CAMPAIGN``.
 """
 
@@ -40,9 +40,14 @@ ENV_FILE = REPO_ROOT / ".env.local"
 BRAND_LOGO = REPO_ROOT / "web" / "assets" / "images" / "brand" / "logo-teal.png"
 
 # ---------------------------------------------------------------------------
-# Slideshow campaign (Aug-26) — scene PNGs, initials, audio, MP4 outputs
+# Campaign video folders
 # ---------------------------------------------------------------------------
-DEFAULT_CAMPAIGN = REPO_ROOT / "ads" / "08-aug-26" / "video"
+# Google Ads 8-scene slideshow (legacy default for generate_scene / build_slideshow)
+GOOGLE_CAMPAIGN = REPO_ROOT / "ads" / "GoogleAds" / "08-aug-26" / "video"
+# Facebook Ads short cuts (Feed 4:5 + Stories/Reels 9:16)
+FACEBOOK_CAMPAIGN = REPO_ROOT / "ads" / "FacebookAds" / "16-aug-26" / "video"
+
+DEFAULT_CAMPAIGN = GOOGLE_CAMPAIGN
 INITIALS_DIR = DEFAULT_CAMPAIGN / "initials"
 REFERENCE_PATIENT = INITIALS_DIR / "REFERENCE_patient.png"
 
@@ -60,7 +65,7 @@ def resolve(path: str | Path) -> Path:
     Resolve *path* relative to ``REPO_ROOT`` unless already absolute.
 
     Used everywhere config YAML or CLI args mention repo-relative paths like
-    ``ads/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png``.
+    ``ads/GoogleAds/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png``.
 
     Examples
     --------

@@ -101,6 +101,11 @@ def main() -> None:
         action="store_true",
         help="Print planned work without calling Gemini or copying files",
     )
+    parser.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="Skip outputs whose destination file already exists",
+    )
     args = parser.parse_args()
 
     batch = load_batch_config(args.config)
@@ -130,7 +135,12 @@ def main() -> None:
                 continue
 
             out = job.output_dir / spec.path
+            out.parent.mkdir(parents=True, exist_ok=True)
             print(f"\n[{job.id}] {spec.aspect_ratio} → {out}")
+
+            if args.skip_existing and out.exists() and not spec.copy_source:
+                print("  skip existing")
+                continue
 
             effective_source = spec.source or job.source
             call_refs = (
@@ -145,13 +155,13 @@ def main() -> None:
 
             # Fast path: 1:1 master already approved in samples/v2
             if spec.copy_source:
-                if not job.source:
+                if not effective_source:
                     raise SystemExit(f"Job {job.id}: copy_source requires source")
                 if args.dry_run:
                     print("  (copy source)")
                     continue
-                shutil.copy2(job.source, out)
-                print(f"  copied from {job.source.name}")
+                shutil.copy2(effective_source, out)
+                print(f"  copied from {effective_source.name}")
                 ran += 1
                 continue
 

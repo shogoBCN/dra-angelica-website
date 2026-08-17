@@ -112,6 +112,7 @@ def build_slideshow_prompt(*, duration: int, hopeful_at: float, finale_at: float
     finale_ts = format_timestamp(finale_at)
     end_ts = format_timestamp(duration)
     return f"""EXACTLY {duration} seconds total — hard stop at {end_ts}, no extra bars or outro beyond that.
+Start at 0:00 with the mood already going — no long intro, no empty bars before the piano.
 {duration}-second instrumental background for a Colombian family-medicine awareness video.
 Instrumental only, no vocals, no lyrics, no singing. Do not exceed {duration} seconds.
 
@@ -196,9 +197,14 @@ def _sdk_response_parts(response) -> list:
 
 def generate_via_sdk(*, api_key: str, model: str, prompt: str) -> tuple[bytes, str | None]:
     from google import genai
+    from google.genai import types
 
     client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(model=model, contents=prompt)
+    response = client.models.generate_content(
+        model=model,
+        contents=prompt,
+        config=types.GenerateContentConfig(response_modalities=["AUDIO"]),
+    )
     description: str | None = None
     for part in _sdk_response_parts(response):
         if part.text:
@@ -208,10 +214,46 @@ def generate_via_sdk(*, api_key: str, model: str, prompt: str) -> tuple[bytes, s
     raise SystemExit("No audio in SDK response")
 
 
+def _audio_from_interactions(interaction) -> tuple[bytes | None, str | None]:
+    text = getattr(interaction, "output_text", None)
+    audio = getattr(interaction, "output_audio", None)
+    data = getattr(audio, "data", None) if audio is not None else None
+    if data:
+        return _decode_inline_audio(data), text
+    for step in getattr(interaction, "steps", None) or []:
+        if getattr(step, "type", None) != "model_output":
+            continue
+        for block in getattr(step, "content", None) or []:
+            if getattr(block, "type", None) == "audio" and getattr(block, "data", None):
+                return _decode_inline_audio(block.data), text
+            if getattr(block, "type", None) == "text" and getattr(block, "text", None):
+                text = block.text
+    return None, text
+
+
+def generate_via_interactions(*, api_key: str, model: str, prompt: str) -> tuple[bytes, str | None]:
+    from google import genai
+
+    client = genai.Client(api_key=api_key)
+    interaction = client.interactions.create(model=model, input=prompt)
+    audio_bytes, description = _audio_from_interactions(interaction)
+    if audio_bytes:
+        return audio_bytes, description
+    raise RuntimeError("No audio in interactions response")
+
+
 def generate(*, api_key: str, model: str, prompt: str) -> tuple[bytes, str | None]:
+    try:
+        print("  via Interactions API")
+        return generate_via_interactions(api_key=api_key, model=model, prompt=prompt)
+    except Exception as exc:
+        print(f"  Interactions failed ({exc}) — trying generateContent…")
     try:
         return generate_via_sdk(api_key=api_key, model=model, prompt=prompt)
     except ImportError:
+        return generate_via_rest(api_key=api_key, model=model, prompt=prompt)
+    except Exception as exc:
+        print(f"  SDK failed ({exc}) — retrying REST…")
         return generate_via_rest(api_key=api_key, model=model, prompt=prompt)
 
 
@@ -238,6 +280,18 @@ def main() -> None:
         help=f"Target track length in seconds (default: {target})",
     )
     parser.add_argument(
+        "--hopeful-at",
+        type=float,
+        default=None,
+        help="Seconds when the hopeful shift lands (default: Google scene 7)",
+    )
+    parser.add_argument(
+        "--finale-at",
+        type=float,
+        default=None,
+        help="Seconds when the golden-hour finale lands (default: Google scene 8)",
+    )
+    parser.add_argument(
         "-o",
         "--output",
         type=Path,
@@ -254,7 +308,18 @@ def main() -> None:
         default=None,
         help="Music generation prompt (default: auto from slideshow timing)",
     )
+    parser.add_argument(
+        "--prompt-file",
+        type=Path,
+        default=None,
+        help="Read prompt from a text file",
+    )
     args = parser.parse_args()
+    output = args.output.expanduser()
+    if not output.is_absolute():
+        output = (Path.cwd() / output).resolve()
+    hopeful_at = args.hopeful_at if args.hopeful_at is not None else scene_start_second(7)
+    finale_at = args.finale_at if args.finale_at is not None else scene_start_second(8)
 
     load_env()
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -276,21 +341,25 @@ def main() -> None:
             file=sys.stderr,
         )
 
+    if args.prompt and args.prompt_file:
+        raise SystemExit("Use --prompt or --prompt-file, not both")
+    if args.prompt_file:
+        prompt_path = args.prompt_file if args.prompt_file.is_absolute() else Path.cwd() / args.prompt_file
+        args.prompt = prompt_path.read_text()
+
     prompt = args.prompt or build_slideshow_prompt(
         duration=args.duration,
         hopeful_at=hopeful_at,
         finale_at=finale_at,
     )
 
-    print(f"Generating music → {args.output}")
+    print(f"Generating music → {output}")
     print(f"  model: {model}")
     print(
-        f"  slideshow: {hold_seconds():.1f}s holds · "
-        f"{playback_seconds():.1f}s playback · "
-        f"hopeful ~{hopeful_at:.1f}s (scene 7) · "
-        f"finale ~{finale_at:.1f}s (scene 8)"
+        f"  hopeful ~{hopeful_at:.1f}s · "
+        f"finale ~{finale_at:.1f}s · "
+        f"target track {args.duration}s"
     )
-    print(f"  target track: {args.duration}s")
 
     audio_bytes, description = generate(api_key=api_key, model=model, prompt=prompt)
     raw_duration = probe_duration(audio_bytes)
@@ -302,8 +371,8 @@ def main() -> None:
         audio_bytes = trim_audio(audio_bytes, args.duration)
 
     final_duration = probe_duration(audio_bytes)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_bytes(audio_bytes)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(audio_bytes)
     print(f"  saved {len(audio_bytes) // 1024} KB", end="")
     if final_duration is not None:
         print(f" · {final_duration:.1f}s")

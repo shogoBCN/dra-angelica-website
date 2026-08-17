@@ -19,7 +19,7 @@
 defaults:
   model: pro
   references:
-    - ads/08-aug-26/video/initials/REFERENCE_patient.png
+    - ads/GoogleAds/08-aug-26/video/initials/REFERENCE_patient.png
     - web/assets/images/brand/logo-teal.png
 
 fragments:
@@ -54,11 +54,11 @@ fragments:
 jobs:
   # -------------------------------------------------------------------------
   # Ad 02 — conflicting specialist advice (SÍ / NO papers)
-  # Master 1:1: ads/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png
+  # Master 1:1: ads/GoogleAds/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png
   # -------------------------------------------------------------------------
   - id: 02-a-quien-le-haces-caso
-    source: ads/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png
-    output_dir: ads/08-aug-26/google-ads-assets
+    source: ads/GoogleAds/08-aug-26/samples/v2/02-a-quien-le-haces-caso.png
+    output_dir: ads/GoogleAds/08-aug-26/google-ads-assets
     outputs:
       # 1:1 is copied from v2 master (no API spend); other aspects are generated
       - aspect_ratio: "1:1"
@@ -126,11 +126,11 @@ jobs:
 
   # -------------------------------------------------------------------------
   # Ad 03 — repeating your story to every specialist (waiting room)
-  # Master 1:1: ads/08-aug-26/samples/v2/03-misma-historia.png
+  # Master 1:1: ads/GoogleAds/08-aug-26/samples/v2/03-misma-historia.png
   # -------------------------------------------------------------------------
   - id: 03-misma-historia
-    source: ads/08-aug-26/samples/v2/03-misma-historia.png
-    output_dir: ads/08-aug-26/google-ads-assets
+    source: ads/GoogleAds/08-aug-26/samples/v2/03-misma-historia.png
+    output_dir: ads/GoogleAds/08-aug-26/google-ads-assets
     fragments:
       text: |
         TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
@@ -225,11 +225,11 @@ jobs:
 
   # -------------------------------------------------------------------------
   # Ad 04 — contradictory treatment plans (three PLAN DE TRATAMIENTO slips)
-  # Master 1:1: ads/08-aug-26/samples/v2/04-planes-contradictorios.png
+  # Master 1:1: ads/GoogleAds/08-aug-26/samples/v2/04-planes-contradictorios.png
   # -------------------------------------------------------------------------
   - id: 04-planes-contradictorios
-    source: ads/08-aug-26/samples/v2/04-planes-contradictorios.png
-    output_dir: ads/08-aug-26/google-ads-assets
+    source: ads/GoogleAds/08-aug-26/samples/v2/04-planes-contradictorios.png
+    output_dir: ads/GoogleAds/08-aug-26/google-ads-assets
     fragments:
       text: |
         TYPOGRAPHY — MUST BE IDENTICAL across 1:1, 4:5, 9:16, 16:9:
@@ -332,15 +332,15 @@ jobs:
 
   # -------------------------------------------------------------------------
   # Ad 05 — Dra. Angélica coordinates care (full-color solution ad)
-  # Master 1:1: ads/08-aug-26/samples/v2/05-angelica-coordina.png
+  # Master 1:1: ads/GoogleAds/08-aug-26/samples/v2/05-angelica-coordina.png
   # -------------------------------------------------------------------------
   - id: 05-angelica-coordina
-    source: ads/08-aug-26/samples/v2/05-angelica-coordina.png
-    output_dir: ads/08-aug-26/google-ads-assets
+    source: ads/GoogleAds/08-aug-26/samples/v2/05-angelica-coordina.png
+    output_dir: ads/GoogleAds/08-aug-26/google-ads-assets
     use_default_references: false
     references:
       # Face crop from the same v2 master — NOT scene7 (different woman)
-      - ads/08-aug-26/samples/v2/REFERENCE_angelica-ad05-face.png
+      - ads/GoogleAds/08-aug-26/samples/v2/REFERENCE_angelica-ad05-face.png
       - web/assets/images/brand/logo-teal.png
     fragments:
       text: |
@@ -464,11 +464,11 @@ jobs:
 
   # -------------------------------------------------------------------------
   # Ad 06 — too many appointments, too much stress (hallway / doorway)
-  # Master 1:1: ads/08-aug-26/samples/v2/06-demasiadas-citas.png
+  # Master 1:1: ads/GoogleAds/08-aug-26/samples/v2/06-demasiadas-citas.png
   # -------------------------------------------------------------------------
   - id: 06-demasiadas-citas
-    source: ads/08-aug-26/samples/v2/06-demasiadas-citas.png
-    output_dir: ads/08-aug-26/google-ads-assets
+    source: ads/GoogleAds/08-aug-26/samples/v2/06-demasiadas-citas.png
+    output_dir: ads/GoogleAds/08-aug-26/google-ads-assets
     use_default_references: false
     references:
       - web/assets/images/brand/logo-teal.png
@@ -588,15 +588,15 @@ jobs:
   # Recreated from real photo + slim doorway refs — NOT the chubby v2 master face.
   # -------------------------------------------------------------------------
   - id: 07-cta-vida-mejor
-    source: ads/08-aug-26/google-ads-assets/07-cta-vida-mejor_1x1.png
-    output_dir: ads/08-aug-26/google-ads-assets
+    source: ads/GoogleAds/08-aug-26/google-ads-assets/07-cta-vida-mejor_1x1.png
+    output_dir: ads/GoogleAds/08-aug-26/google-ads-assets
     use_default_references: false
     references:
       - web/assets/images/about/angelica.jpg
-      - ads/08-aug-26/google-ads-assets/06-demasiadas-citas_1x1.png
-      - ads/08-aug-26/samples/v2/05-angelica-coordina.png
-      - ads/08-aug-26/samples/v2/REFERENCE_angelica-ad05-face.png
-      - ads/08-aug-26/samples/v2/07-cta-vida-mejor.png
+      - ads/GoogleAds/08-aug-26/google-ads-assets/06-demasiadas-citas_1x1.png
+      - ads/GoogleAds/08-aug-26/samples/v2/05-angelica-coordina.png
+      - ads/GoogleAds/08-aug-26/samples/v2/REFERENCE_angelica-ad05-face.png
+      - ads/GoogleAds/08-aug-26/samples/v2/07-cta-vida-mejor.png
       - web/assets/images/brand/logo-teal.png
     fragments:
       identity: |
@@ -696,7 +696,7 @@ jobs:
 
       - aspect_ratio: "9:16"
         path: "{id}_9x16.png"
-        source: ads/08-aug-26/google-ads-assets/07-cta-vida-mejor_4x5.png
+        source: ads/GoogleAds/08-aug-26/google-ads-assets/07-cta-vida-mejor_4x5.png
         source_only_refs: true
         prompt: |
           TASK: Adapt attachment #1 (APPROVED PERFECT 4:5 ad) to 9:16 vertical. NOT a new illustration.
@@ -722,7 +722,7 @@ jobs:
 
       - aspect_ratio: "16:9"
         path: "{id}_16x9.png"
-        source: ads/08-aug-26/google-ads-assets/07-cta-vida-mejor_4x5.png
+        source: ads/GoogleAds/08-aug-26/google-ads-assets/07-cta-vida-mejor_4x5.png
         source_only_refs: true
         prompt: |
           TASK: Adapt attachment #1 (APPROVED PERFECT 4:5 ad) to 16:9 landscape. NOT a new illustration.
