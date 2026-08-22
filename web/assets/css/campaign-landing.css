@@ -265,6 +265,12 @@
   padding-bottom: 1.15rem;
 }
 
+@media (min-width: 768px) {
+  .campaign-page .cita-moment--promise .cita-prop:last-child {
+    padding-bottom: 0;
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /* Desktop — landscape-friendly columns                                       */
 /* -------------------------------------------------------------------------- */

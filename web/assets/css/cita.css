@@ -449,18 +449,36 @@
   .cita-props {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.5rem;
+    grid-template-rows: auto auto auto;
+    column-gap: 1.5rem;
+    row-gap: 0.5rem;
   }
 
   .cita-prop {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: subgrid;
+    grid-row: span 3;
+    gap: 0;
     padding: 0;
     border-bottom: 0;
   }
 
+  .cita-prop__body {
+    display: contents;
+  }
+
   .cita-prop__index {
     font-size: 2rem;
+  }
+
+  .cita-prop__title {
+    margin: 0;
+    min-width: 0;
+  }
+
+  .cita-prop__text {
+    min-width: 0;
   }
 }
 
