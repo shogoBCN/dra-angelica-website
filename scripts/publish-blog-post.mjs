@@ -229,7 +229,7 @@ if (!existing) {
 
 const result = await patchDoc(slug, fields);
 console.log("Published:", result.name);
-console.log("URL: https://medicina-familiar.co/blog/articulo?slug=" + slug);
+console.log("URL: https://medicina-familiar.co/blog/articulo/" + slug + "/");
 
 await writeBlogPostsManifest();
 console.log("Updated: web/assets/data/blog-posts.json");
@@ -272,6 +272,8 @@ async function listPublishedPosts() {
     if (!doc?.name) continue;
     const docSlug = doc.name.split("/").pop();
     const f = doc.fields ?? {};
+    const bodyHtml = firestoreValue(f.bodyHtml) || "";
+    const hero = extractCoverFromHtml(bodyHtml);
     posts.push({
       slug: docSlug,
       title: firestoreValue(f.title) || "",
@@ -279,6 +281,8 @@ async function listPublishedPosts() {
       publishedAt: firestoreValue(f.publishedAt) || "",
       coverImageUrl: firestoreValue(f.coverImageUrl) || "",
       coverImageAlt: firestoreValue(f.coverImageAlt) || "",
+      shareImageUrl: hero?.url || "",
+      shareImageAlt: hero?.alt || firestoreValue(f.coverImageAlt) || "",
     });
   }
   return posts;

@@ -32,6 +32,13 @@
           "functionId": "submitContact",
           "region": "southamerica-east1"
         }
+      },
+      {
+        "source": "/blog/articulo",
+        "function": {
+          "functionId": "blogArticleRedirect",
+          "region": "southamerica-east1"
+        }
       }
     ],
     "redirects": [
@@ -47,7 +54,7 @@
       },
       {
         "source": "/medicina-familiar-colombia",
-        "destination": "/blog/articulo?slug=medicina-familiar-en-colombia",
+        "destination": "/blog/articulo/medicina-familiar-en-colombia/",
         "type": 301
       },
       {

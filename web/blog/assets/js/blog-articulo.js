@@ -1,6 +1,40 @@
 (() => {
-  const params = new URLSearchParams(window.location.search);
-  const slugParam = params.get("slug");
+  const SITE_ORIGIN = "https://medicina-familiar.co";
+
+  function readSlug() {
+    const fromQuery = new URLSearchParams(window.location.search).get("slug");
+    if (fromQuery?.trim()) return fromQuery.trim().toLowerCase();
+    const match = window.location.pathname.replace(/\/+$/, "").match(
+      /\/blog\/articulo\/([a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)$/,
+    );
+    return match ? match[1].toLowerCase() : "";
+  }
+
+  function setMetaContent(id, value) {
+    if (!value) return;
+    const el = document.getElementById(id);
+    if (el) el.content = value;
+  }
+
+  function articleUrl(slug) {
+    return `${SITE_ORIGIN}/blog/articulo/${encodeURIComponent(slug)}/`;
+  }
+
+  function coverFromPost(d, assets) {
+    const html = d.bodyHtml || "";
+    const match = html.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i);
+    if (!match) return "";
+    const imgPath = assets.normalizeAssetUrl(match[1]);
+    return imgPath ? `${SITE_ORIGIN}${imgPath}` : "";
+  }
+
+  function coverAltFromPost(d) {
+    const html = d.bodyHtml || "";
+    const match = html.match(/<img\b[^>]*\balt=["']([^"']*)["']/i);
+    return match?.[1] || d.coverImageAlt || d.title || "";
+  }
+
+  const slugParam = readSlug();
 
   const stateEl = document.getElementById("blog-articulo-state");
   const wrap = document.getElementById("blog-article-shell");
@@ -77,14 +111,26 @@
       const body = document.getElementById("blog-article-body");
       body.innerHTML = normalizeBodyHtml(d.bodyHtml || "");
 
+      const excerpt = d.excerpt ? String(d.excerpt).slice(0, 155) : "";
       const desc = document.querySelector('meta[name="description"]');
-      if (desc && d.excerpt) desc.content = String(d.excerpt).slice(0, 155);
+      if (desc && excerpt) desc.content = excerpt;
       const canon = document.querySelector('link[rel="canonical"]');
-      if (canon) canon.href = `https://medicina-familiar.co/blog/articulo?slug=${encodeURIComponent(slug)}`;
-      const ot = document.getElementById("og-title");
-      if (ot && d.title) ot.content = d.title;
-      const od = document.getElementById("og-description");
-      if (od && d.excerpt) od.content = d.excerpt;
+      if (canon) canon.href = articleUrl(slug);
+      if (d.title) {
+        setMetaContent("og-title", d.title);
+        setMetaContent("twitter-title", d.title);
+      }
+      if (excerpt) {
+        setMetaContent("og-description", excerpt);
+        setMetaContent("twitter-description", excerpt);
+      }
+      setMetaContent("og-url", articleUrl(slug));
+      const coverAbs = coverFromPost(d, assets);
+      if (coverAbs) {
+        setMetaContent("og-image", coverAbs);
+        setMetaContent("twitter-image", coverAbs);
+        setMetaContent("og-image-alt", coverAltFromPost(d));
+      }
     })
     .catch(() => {
       wrap.hidden = true;

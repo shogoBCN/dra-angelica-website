@@ -4,6 +4,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import { Resend } from "resend";
 import { buildContactEmail, parseContactPayload } from "./contact.js";
 import { corsHeaders, isAllowedOrigin } from "./cors.js";
+import { handleBlogArticleRedirect } from "./blog-redirect.js";
 
 initializeApp();
 

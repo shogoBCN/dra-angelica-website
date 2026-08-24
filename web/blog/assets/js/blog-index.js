@@ -59,7 +59,7 @@
         : "";
 
       const a = document.createElement("a");
-      a.href = `/blog/articulo?slug=${encodeURIComponent(d.slug)}`;
+      a.href = `/blog/articulo/${encodeURIComponent(d.slug)}/`;
       a.className = "blog-card";
       a.innerHTML =
         `${media}<div class="blog-card__body">` +

@@ -6,7 +6,9 @@
       "excerpt": "La hipertensión suele ser silenciosa: puedes sentirte perfectamente bien y aun así tener la presión alta. Por qué hay que medirla, qué órganos puede dañar y qué hacer si no tienes síntomas.",
       "publishedAt": "2026-08-23T23:35:02.611Z",
       "coverImageUrl": "/assets/images/blog/blog-presion-alta-sin-sintomas-cover.jpg",
-      "coverImageAlt": "Hombre midiéndose la presión en casa; el tensiómetro marca 159/96 mmHg y, en un globo de pensamiento, dice: Pero me siento bien!!!"
+      "coverImageAlt": "Hombre midiéndose la presión en casa; el tensiómetro marca 159/96 mmHg y, en un globo de pensamiento, dice: Pero me siento bien!!!",
+      "shareImageUrl": "/assets/images/blog/blog-presion-alta-sin-sintomas.jpg",
+      "shareImageAlt": "Hombre midiéndose la presión en casa; el tensiómetro marca 159/96 mmHg y, en un globo de pensamiento, dice: Pero me siento bien!!!"
     },
     {
       "slug": "como-tomar-presion-arterial-casa",
@@ -14,7 +16,9 @@
       "excerpt": "Medir la presión en casa es sencillo si sigues unos pasos: buen tensiómetro, reposo previo, colocación correcta del brazalete y registros durante varios días. Guía práctica paso a paso.",
       "publishedAt": "2026-08-09T21:30:02.024Z",
       "coverImageUrl": "/assets/images/blog/blog-presion-arterial-casa-cover.jpg",
-      "coverImageAlt": "Hombre midiéndose la presión arterial en casa con un tensiómetro digital de brazo, sentado en una mesa con luz natural"
+      "coverImageAlt": "Hombre midiéndose la presión arterial en casa con un tensiómetro digital de brazo, sentado en una mesa con luz natural",
+      "shareImageUrl": "/assets/images/blog/blog-presion-arterial-casa-cover.jpg",
+      "shareImageAlt": "Hombre midiéndose la presión arterial en casa con un tensiómetro digital de brazo, sentado en una mesa con luz natural"
     },
     {
       "slug": "hipertension-arterial",
@@ -22,7 +26,9 @@
       "excerpt": "La presión alta es frecuente y muchas veces no da síntomas, pero sin control aumenta el riesgo cardiovascular. Qué es, cómo prevenirla, cuándo hacen falta medicamentos y cuándo acudir al médico.",
       "publishedAt": "2026-07-29T21:32:06.036Z",
       "coverImageUrl": "/assets/images/blog/blog-hipertension-arterial-cover.jpg",
-      "coverImageAlt": "Médica tomando la presión arterial a una paciente en consulta; el tensiómetro muestra 149/98 mmHg"
+      "coverImageAlt": "Médica tomando la presión arterial a una paciente en consulta; el tensiómetro muestra 149/98 mmHg",
+      "shareImageUrl": "/assets/images/blog/blog-hipertension-arterial-cover.jpg",
+      "shareImageAlt": "Médica tomando la presión arterial a una paciente en consulta; el tensiómetro muestra 149/98 mmHg"
     },
     {
       "slug": "medico-familiar-que-hace-en-consulta",
@@ -30,7 +36,9 @@
       "excerpt": "Imagina un médico que te conoce, recuerda tu historia y te dedica el tiempo necesario. Qué es la medicina familiar, por qué en Colombia aún es poco conocida y qué ofrece el consultorio en La Mesa.",
       "publishedAt": "2026-06-13T20:09:42.860Z",
       "coverImageUrl": "/assets/images/blog/blog-medico-familiar-consulta.jpg",
-      "coverImageAlt": "Dra. Angélica Granados Silva en consulta de medicina familiar con una paciente y su acompañante"
+      "coverImageAlt": "Dra. Angélica Granados Silva en consulta de medicina familiar con una paciente y su acompañante",
+      "shareImageUrl": "/assets/images/blog/blog-medico-familiar-consulta.jpg",
+      "shareImageAlt": "Dra. Angélica Granados Silva en consulta de medicina familiar con una paciente y su acompañante"
     }
   ]
 }

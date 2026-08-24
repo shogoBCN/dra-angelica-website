@@ -1,4 +1,5 @@
 import { cp, mkdir, rm, readFile, writeFile, readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -24,6 +25,111 @@ const SITEMAP_STATIC_URLS = [
   { loc: "https://medicina-familiar.co/blog/", priority: "0.7", changefreq: "weekly" },
 ];
 
+const SITE_ORIGIN = "https://medicina-familiar.co";
+
+function escapeHtmlAttr(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;");
+}
+
+function truncateMeta(s, max = 155) {
+  const t = String(s || "").trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
+function normalizeCoverPath(url) {
+  let src = String(url || "").trim();
+  if (!src) return "";
+  src = src.replace(/^https:\/\/medicina-familiar\.co(?=\/)/i, "");
+  if (src === "/assets/images/blog-medico-familiar-consulta.jpg") {
+    return "/assets/images/blog/blog-medico-familiar-consulta.jpg";
+  }
+  return src.split("?")[0];
+}
+
+function extractCoverFromBodyHtml(html) {
+  const srcMatch = String(html || "").match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i);
+  return srcMatch ? normalizeCoverPath(srcMatch[1]) : "";
+}
+
+async function resolvePostShareImage(post) {
+  let path = normalizeCoverPath(post.shareImageUrl);
+  if (!path) {
+    const bodyPath = join(root, "blogs", post.slug, "body.html");
+    if (existsSync(bodyPath)) {
+      const body = await readFile(bodyPath, "utf8");
+      path = extractCoverFromBodyHtml(body);
+    }
+  }
+  return path ? `${SITE_ORIGIN}${path}` : "";
+}
+
+function replaceMetaContent(html, id, newContent) {
+  const escaped = escapeHtmlAttr(newContent);
+  const re = new RegExp(`(<meta id="${id}"[^>]*content=")[^"]*(")`, "i");
+  if (!re.test(html)) {
+    throw new Error(`build-site: missing <meta id="${id}"> in articulo.html`);
+  }
+  return html.replace(re, `$1${escaped}$2`);
+}
+
+function applyBlogArticleMeta(html, post, coverAbs) {
+  const slug = String(post.slug || "").trim();
+  const title = escapeHtmlAttr(post.title || "Artículo");
+  const excerpt = escapeHtmlAttr(truncateMeta(post.excerpt));
+  const pageUrl = `${SITE_ORIGIN}/blog/articulo/${slug}/`;
+  const coverAlt = escapeHtmlAttr(post.shareImageAlt || post.coverImageAlt || post.title || "");
+
+  let out = html;
+  out = out.replace(
+    /<title>[^<]*<\/title>/,
+    `<title>${title} | Blog — Dra. Angélica Granados Silva</title>`,
+  );
+  out = replaceMetaContent(out, "blog-meta-desc", excerpt);
+  out = out.replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${pageUrl}" />`);
+  out = replaceMetaContent(out, "og-title", post.title || "Artículo");
+  out = replaceMetaContent(out, "og-description", truncateMeta(post.excerpt));
+  out = replaceMetaContent(out, "og-url", pageUrl);
+  out = replaceMetaContent(out, "twitter-title", post.title || "Artículo");
+  out = replaceMetaContent(out, "twitter-description", truncateMeta(post.excerpt));
+  if (coverAbs) {
+    out = replaceMetaContent(out, "og-image", coverAbs);
+    out = replaceMetaContent(out, "twitter-image", coverAbs);
+    out = replaceMetaContent(out, "og-image-alt", coverAlt);
+  }
+  return out;
+}
+
+async function generateBlogArticlePages(distBlogDir) {
+  const manifestPath = join(src, "assets", "data", "blog-posts.json");
+  let posts = [];
+  try {
+    const raw = await readFile(manifestPath, "utf8");
+    posts = JSON.parse(raw)?.posts ?? [];
+  } catch {
+    return;
+  }
+  if (!posts.length) return;
+
+  const templatePath = join(src, "blog", "articulo.html");
+  const template = await readFile(templatePath, "utf8");
+
+  for (const post of posts) {
+    if (!post?.slug) continue;
+    const shareAbs = await resolvePostShareImage(post);
+    if (!shareAbs) {
+      console.warn(`build-site: post "${post.slug}" has no article image for social preview`);
+    }
+    const html = applyBlogArticleMeta(template, post, shareAbs);
+    const outDir = join(distBlogDir, "articulo", post.slug);
+    await mkdir(outDir, { recursive: true });
+    await writeFile(join(outDir, "index.html"), html, "utf8");
+  }
+}
+
 async function loadBlogSitemapUrls() {
   const manifestPath = join(src, "assets", "data", "blog-posts.json");
   try {
@@ -33,7 +139,7 @@ async function loadBlogSitemapUrls() {
     return posts
       .filter((post) => post?.slug)
       .map((post) => ({
-        loc: `https://medicina-familiar.co/blog/articulo?slug=${encodeURIComponent(post.slug)}`,
+        loc: `https://medicina-familiar.co/blog/articulo/${post.slug}/`,
         priority: "0.75",
         changefreq: "monthly",
       }));
@@ -161,6 +267,7 @@ for (const htmlPath of await walkHtmlFiles(join(dist, "blog"))) {
   html = injectAssetVersion(html, buildId);
   await writeFile(htmlPath, html, "utf8");
 }
+await generateBlogArticlePages(join(dist, "blog"));
 
 await cp(join(src, "cita"), join(dist, "cita"), { recursive: true });
 for (const htmlPath of await walkHtmlFiles(join(dist, "cita"))) {
