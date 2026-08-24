@@ -25,6 +25,9 @@ firebase/functions/node_modules/
 # ads folder
 ads/
 
+# scripts folder
+scripts/
+
 # social folder
 social/
 
