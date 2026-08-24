@@ -1,6 +1,14 @@
 {
   "posts": [
     {
+      "slug": "tengo-la-presion-alta-y-no-siento-nada",
+      "title": "Tengo la presión alta y no siento nada. ¿Es realmente peligroso?",
+      "excerpt": "La hipertensión suele ser silenciosa: puedes sentirte perfectamente bien y aun así tener la presión alta. Por qué hay que medirla, qué órganos puede dañar y qué hacer si no tienes síntomas.",
+      "publishedAt": "2026-08-23T23:35:02.611Z",
+      "coverImageUrl": "/assets/images/blog/blog-presion-alta-sin-sintomas-cover.jpg",
+      "coverImageAlt": "Hombre midiéndose la presión en casa; el tensiómetro marca 159/96 mmHg y, en un globo de pensamiento, dice: Pero me siento bien!!!"
+    },
+    {
       "slug": "como-tomar-presion-arterial-casa",
       "title": "¿Cómo tomarme la presión arterial en casa?",
       "excerpt": "Medir la presión en casa es sencillo si sigues unos pasos: buen tensiómetro, reposo previo, colocación correcta del brazalete y registros durante varios días. Guía práctica paso a paso.",
