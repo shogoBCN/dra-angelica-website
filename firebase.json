@@ -39,6 +39,13 @@
           "functionId": "blogArticleRedirect",
           "region": "southamerica-east1"
         }
+      },
+      {
+        "source": "/blog/articulo/",
+        "function": {
+          "functionId": "blogArticleRedirect",
+          "region": "southamerica-east1"
+        }
       }
     ],
     "redirects": [

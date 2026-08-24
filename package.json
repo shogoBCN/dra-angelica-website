@@ -8,7 +8,7 @@
     "dev": "npm run build && npx --yes serve dist -l 3000",
     "firebase": "firebase",
     "deploy": "npm run build && firebase deploy",
-    "deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting,functions:blogArticleRedirect",
     "functions:install": "npm install --prefix firebase/functions",
     "deploy:functions": "firebase deploy --only functions",
     "deploy:contact": "npm run build && firebase deploy --only functions,hosting",

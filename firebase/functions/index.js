@@ -131,5 +131,15 @@ export const submitContact = onRequest(
         cors
       );
     }
-  }
+  },
+);
+
+export const blogArticleRedirect = onRequest(
+  {
+    region: "southamerica-east1",
+    timeoutSeconds: 10,
+    memory: "128MiB",
+    maxInstances: 10,
+  },
+  handleBlogArticleRedirect,
 );

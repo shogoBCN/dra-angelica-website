@@ -269,6 +269,13 @@ for (const htmlPath of await walkHtmlFiles(join(dist, "blog"))) {
 }
 await generateBlogArticlePages(join(dist, "blog"));
 
+const legacyArticleShell = join(dist, "blog", "articulo.html");
+try {
+  await rm(legacyArticleShell);
+} catch {
+  /* already absent */
+}
+
 await cp(join(src, "cita"), join(dist, "cita"), { recursive: true });
 for (const htmlPath of await walkHtmlFiles(join(dist, "cita"))) {
   let html = await readFile(htmlPath, "utf8");
