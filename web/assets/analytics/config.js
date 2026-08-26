@@ -4,12 +4,13 @@
  * Enablement requires at least one valid tag ID meta:
  *   - google-analytics-measurement-id  (GA4, format G-XXXXXXXX)
  *   - google-ads-tag-id                (Google Ads, format AW-XXXXXXXX)
+ *   - meta-pixel-id                    (Meta Pixel, numeric ID)
  *
  * Optional kill switch per page:
  *   <meta name="site-analytics" content="disabled">
  */
 
-/** @typedef {{ enabled: boolean; hasGa4: boolean; hasGoogleAds: boolean; ga4MeasurementId: string; googleAdsTagId: string }} SiteAnalyticsConfig */
+/** @typedef {{ enabled: boolean; hasGa4: boolean; hasGoogleAds: boolean; hasMetaPixel: boolean; ga4MeasurementId: string; googleAdsTagId: string; metaPixelId: string }} SiteAnalyticsConfig */
 
 /** sessionStorage keys (first-touch attribution for the browser tab session). */
 export const SESSION_STORAGE_KEYS = Object.freeze({
@@ -83,6 +84,7 @@ export const SECTION_VISIBILITY_THRESHOLD = 0.35;
 
 const GA4_MEASUREMENT_ID_PATTERN = /^G-[A-Z0-9]+$/i;
 const GOOGLE_ADS_TAG_ID_PATTERN = /^AW-[0-9]+$/i;
+const META_PIXEL_ID_PATTERN = /^\d{10,}$/;
 
 /**
  * Reads analytics IDs and enablement from document meta tags.
@@ -91,12 +93,15 @@ const GOOGLE_ADS_TAG_ID_PATTERN = /^AW-[0-9]+$/i;
 export function readSiteAnalyticsConfig() {
   const ga4Meta = document.querySelector('meta[name="google-analytics-measurement-id"]');
   const googleAdsMeta = document.querySelector('meta[name="google-ads-tag-id"]');
+  const metaPixelMeta = document.querySelector('meta[name="meta-pixel-id"]');
   const enablementMeta = document.querySelector('meta[name="site-analytics"]');
 
   const ga4MeasurementId = ga4Meta?.getAttribute("content")?.trim() || "";
   const googleAdsTagId = googleAdsMeta?.getAttribute("content")?.trim() || "";
+  const metaPixelId = metaPixelMeta?.getAttribute("content")?.trim() || "";
   const hasGa4 = GA4_MEASUREMENT_ID_PATTERN.test(ga4MeasurementId);
   const hasGoogleAds = GOOGLE_ADS_TAG_ID_PATTERN.test(googleAdsTagId);
+  const hasMetaPixel = META_PIXEL_ID_PATTERN.test(metaPixelId);
 
   const enablementFlag = enablementMeta?.getAttribute("content")?.trim().toLowerCase();
   if (enablementFlag === "disabled" || enablementFlag === "off") {
@@ -104,16 +109,20 @@ export function readSiteAnalyticsConfig() {
       enabled: false,
       hasGa4: false,
       hasGoogleAds: false,
+      hasMetaPixel: false,
       ga4MeasurementId: "",
       googleAdsTagId: "",
+      metaPixelId: "",
     };
   }
 
   return {
-    enabled: hasGa4 || hasGoogleAds,
+    enabled: hasGa4 || hasGoogleAds || hasMetaPixel,
     hasGa4,
     hasGoogleAds,
+    hasMetaPixel,
     ga4MeasurementId,
     googleAdsTagId,
+    metaPixelId,
   };
 }

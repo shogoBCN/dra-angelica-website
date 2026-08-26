@@ -22,6 +22,14 @@ Leave empty or omit to disable GA4 on that page (Google Ads alone can still enab
 
 Used for campaign conversion tracking alongside GA4.
 
+### Meta Pixel
+
+```html
+<meta name="meta-pixel-id" content="1425980472767300" />
+```
+
+Loaded from `<head>` via `pixel-init.js` (CSP-safe; Meta’s inline snippet is not used). PageView fires on load. WhatsApp and email clicks send `Contact`; the contact form sends `Lead`.
+
 ### Disable analytics on a specific page
 
 ```html
@@ -40,7 +48,7 @@ Google tag in `<head>` (required for Google Ads verification):
 <script src="/assets/analytics/gtag-init.js"></script>
 ```
 
-`gtag-init.js` reads the meta tags and calls `gtag('config', …)` for GA4 and Google Ads. Init logic is in an external file (not inline) to satisfy Content-Security-Policy.
+`gtag-init.js` reads the meta tags and calls `gtag('config', …)` for GA4 and Google Ads. `pixel-init.js` inits Pixel `1425980472767300` and fires PageView. Both are external files (not inline) to satisfy Content-Security-Policy.
 
 Custom event tracking loads at the end of `<body>`:
 
@@ -55,8 +63,8 @@ Tracked pages must allow Google Tag Manager in CSP:
 
 | Directive | Required hosts |
 |-----------|----------------|
-| `script-src` | `'self'` `https://www.googletagmanager.com` |
-| `connect-src` | `'self'` `https://www.google-analytics.com` `https://*.google-analytics.com` `https://analytics.google.com` `https://*.analytics.google.com` `https://www.googletagmanager.com` `https://www.google.com` `https://google.com` `https://www.googleadservices.com` `https://ad.doubleclick.net` `https://googleads.g.doubleclick.net` `https://stats.g.doubleclick.net` |
+| `script-src` | `'self'` `https://www.googletagmanager.com` `https://connect.facebook.net` |
+| `connect-src` | `'self'` `https://www.google-analytics.com` `https://*.google-analytics.com` `https://analytics.google.com` `https://*.analytics.google.com` `https://www.googletagmanager.com` `https://www.google.com` `https://google.com` `https://www.googleadservices.com` `https://ad.doubleclick.net` `https://googleads.g.doubleclick.net` `https://stats.g.doubleclick.net` `https://www.facebook.com` `https://connect.facebook.net` `https://*.facebook.com` `https://*.facebook.net` |
 
 Google Ads sends conversion data to `https://www.google.com/ccm/collect` (not `google-analytics.com`). GA4 also posts to `https://analytics.google.com/g/collect`, and conversion pings may go to `ad.doubleclick.net` / `googleads.g.doubleclick.net`. Without those hosts in `connect-src`, the browser blocks the requests.
 

@@ -22,6 +22,8 @@ firebase/functions/node_modules/
 .DS_Store
 *.log
 
+reels/
+
 # ads folder
 ads/
 

@@ -11,7 +11,14 @@ import {
   readContentEngagedThresholds,
   SESSION_STORAGE_KEYS,
 } from "./config.js";
-import { trackEvent, trackGoogleAdsConversion } from "./transport.js";
+import { trackEvent, trackGoogleAdsConversion, trackMetaPixelEvent } from "./transport.js";
+
+/** Standard Meta Pixel events mapped from the same conversion keys as Google Ads. */
+const META_PIXEL_EVENTS = Object.freeze({
+  contactForm: "Lead",
+  whatsappClick: "Contact",
+  emailClick: "Contact",
+});
 
 /** @typedef {keyof typeof GOOGLE_ADS_CONVERSIONS} GoogleAdsConversionKey */
 
@@ -63,10 +70,21 @@ function markConversionFiredThisSession(conversionKey) {
 
 /**
  * @param {GoogleAdsConversionKey} conversionKey
+ */
+function fireMetaPixelConversion(conversionKey) {
+  const eventName = META_PIXEL_EVENTS[conversionKey];
+  if (!eventName) return;
+  trackMetaPixelEvent(eventName);
+}
+
+/**
+ * @param {GoogleAdsConversionKey} conversionKey
  * @param {{ value?: number; currency?: string }} [options]
  * @returns {boolean} true when a conversion hit was sent
  */
 export function fireGoogleAdsConversion(conversionKey, options = {}) {
+  fireMetaPixelConversion(conversionKey);
+
   const sendTo = GOOGLE_ADS_CONVERSIONS[conversionKey];
   if (!isConfiguredConversionSendTo(sendTo)) return false;
 

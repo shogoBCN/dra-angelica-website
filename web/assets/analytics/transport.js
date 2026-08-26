@@ -29,12 +29,19 @@ function sendEventToGtag(eventName, eventParams) {
 }
 
 /**
- * Sends a custom event to GA4 (and Google Ads when linked).
- * Automatically attaches page_path and page_title unless overridden.
- *
+ * Meta Pixel standard event (PageView is fired from pixel-init.js).
  * @param {string} eventName
  * @param {Record<string, unknown>} [eventParams]
  */
+export function trackMetaPixelEvent(eventName, eventParams) {
+  if (typeof window.fbq !== "function") return;
+  if (eventParams && Object.keys(eventParams).length > 0) {
+    window.fbq("track", eventName, eventParams);
+    return;
+  }
+  window.fbq("track", eventName);
+}
+
 export function trackEvent(eventName, eventParams = {}) {
   const payloadWithPageContext = {
     ...eventParams,
