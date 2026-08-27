@@ -387,6 +387,20 @@
   transform: translateY(-1px);
 }
 
+.blog-body .blog-article__figure {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  clear: both;
+}
+
+.blog-body .blog-article__figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
 .blog-body .blog-article__float {
   margin: 0.15rem 0 0.75rem;
   padding: 0;

@@ -1,6 +1,16 @@
 {
   "posts": [
     {
+      "slug": "golpe-de-calor",
+      "title": "Golpe de calor: cómo reconocerlo, prevenirlo y actuar a tiempo",
+      "excerpt": "En La Mesa y municipios de clima cálido, un día muy caluroso puede ser un riesgo real para la salud. Cómo reconocer un golpe de calor, qué hacer de inmediato y cómo prevenirlo, sobre todo en adultos mayores.",
+      "publishedAt": "2026-08-27T19:37:21.941Z",
+      "coverImageUrl": "/assets/images/blog/blog-golpe-de-calor-cover.jpg",
+      "coverImageAlt": "Mujer agotada por el calor al aire libre; un termómetro digital marca 35,0 °C",
+      "shareImageUrl": "/assets/images/blog/blog-golpe-de-calor-itshot.jpg",
+      "shareImageAlt": "Mujer agotada por el calor al aire libre; un termómetro digital marca 35,0 °C"
+    },
+    {
       "slug": "tengo-la-presion-alta-y-no-siento-nada",
       "title": "Tengo la presión alta y no siento nada. ¿Es realmente peligroso?",
       "excerpt": "La hipertensión suele ser silenciosa: puedes sentirte perfectamente bien y aun así tener la presión alta. Por qué hay que medirla, qué órganos puede dañar y qué hacer si no tienes síntomas.",
