@@ -17,6 +17,7 @@ firebase/functions/node_modules/
 !.env.example
 .env.local
 *.pem
+service_accounts/
 
 # OS / editor
 .DS_Store

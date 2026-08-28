@@ -20,41 +20,8 @@
     return `${SITE_ORIGIN}/blog/articulo/${encodeURIComponent(slug)}/`;
   }
 
-  /** @type {Record<string, { slug: string; title: string }[]>} */
-  const RELATED_OVERRIDES = {
-    "hipertension-arterial": [
-      {
-        slug: "como-tomar-presion-arterial-casa",
-        title: "¿Cómo tomarme la presión arterial en casa?",
-      },
-      {
-        slug: "tengo-la-presion-alta-y-no-siento-nada",
-        title: "Tengo la presión alta y no siento nada. ¿Es realmente peligroso?",
-      },
-    ],
-    "como-tomar-presion-arterial-casa": [
-      {
-        slug: "hipertension-arterial",
-        title: "Hipertensión arterial: qué es, cómo se diagnostica y cuál es el tratamiento",
-      },
-      {
-        slug: "tengo-la-presion-alta-y-no-siento-nada",
-        title: "Tengo la presión alta y no siento nada. ¿Es realmente peligroso?",
-      },
-    ],
-    "tengo-la-presion-alta-y-no-siento-nada": [
-      {
-        slug: "hipertension-arterial",
-        title: "Hipertensión arterial: qué es, cómo se diagnostica y cuál es el tratamiento",
-      },
-      {
-        slug: "como-tomar-presion-arterial-casa",
-        title: "¿Cómo tomarme la presión arterial en casa?",
-      },
-    ],
-  };
-
   const MANIFEST_PATH = "/assets/data/blog-posts.json";
+  const RELATED_PATH = "/assets/data/blog-post-related.json";
 
   function resolveCategories(slug, fromDoc, manifestPosts) {
     const cats = window.__blogCategories;
@@ -64,29 +31,18 @@
     return cats?.normalize(fromManifest) || [];
   }
 
-  function relatedFromCategories(currentSlug, categories, manifestPosts) {
-    const topicCategories = window.__blogCategories?.relatedTopics(categories) || [];
-    if (!topicCategories.length || !manifestPosts.length) return [];
-    return manifestPosts
-      .filter((post) => post.slug !== currentSlug)
-      .map((post) => {
-        const postTopics = window.__blogCategories?.relatedTopics(post.categories) || [];
-        const sharedCount = topicCategories.filter((cat) => postTopics.includes(cat)).length;
-        return { slug: post.slug, title: post.title || "", sharedCount, publishedAt: post.publishedAt || "" };
-      })
-      .filter((post) => post.sharedCount > 0)
-      .sort((a, b) => {
-        if (b.sharedCount !== a.sharedCount) return b.sharedCount - a.sharedCount;
-        return new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0);
-      })
-      .map(({ slug, title }) => ({ slug, title }));
-  }
+  function resolveRelatedArticles(currentSlug, relatedMap, manifestPosts) {
+    const relatedSlugs = relatedMap?.[currentSlug];
+    if (!Array.isArray(relatedSlugs) || !relatedSlugs.length) return [];
 
-  function resolveRelatedArticles(currentSlug, categories, manifestPosts) {
-    if (RELATED_OVERRIDES[currentSlug]?.length) {
-      return RELATED_OVERRIDES[currentSlug];
-    }
-    return relatedFromCategories(currentSlug, categories, manifestPosts);
+    const titleBySlug = new Map(
+      manifestPosts.filter((post) => post.slug).map((post) => [post.slug, post.title || ""]),
+    );
+
+    return relatedSlugs
+      .map((slug) => String(slug || "").trim())
+      .filter((slug) => slug && slug !== currentSlug && titleBySlug.has(slug))
+      .map((slug) => ({ slug, title: titleBySlug.get(slug) || slug }));
   }
 
   async function loadManifest() {
@@ -94,6 +50,17 @@
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data?.posts) ? data.posts : [];
+  }
+
+  async function loadRelatedMap() {
+    try {
+      const res = await fetch(`${RELATED_PATH}${assets.assetCacheQuery()}`);
+      if (!res.ok) return {};
+      const data = await res.json();
+      return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+    } catch {
+      return {};
+    }
   }
 
   function renderCategoryTags(categories) {
@@ -194,8 +161,8 @@
     return ref.get();
   }
 
-  Promise.all([loadPost(), loadManifest()])
-    .then(([doc, manifestPosts]) => {
+  Promise.all([loadPost(), loadManifest(), loadRelatedMap()])
+    .then(([doc, manifestPosts, relatedMap]) => {
       if (!doc.exists) throw new Error("missing");
       const d = doc.data();
       if (!d.published) throw new Error("hidden");
@@ -210,7 +177,7 @@
       h.textContent = d.title || "Sin título";
 
       const categories = resolveCategories(slug, d.categories, manifestPosts);
-      const related = resolveRelatedArticles(slug, categories, manifestPosts);
+      const related = resolveRelatedArticles(slug, relatedMap, manifestPosts);
       renderRelatedArticles(related);
       renderCategoryTags(categories);
 

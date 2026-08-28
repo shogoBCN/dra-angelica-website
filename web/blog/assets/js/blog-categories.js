@@ -8,8 +8,6 @@
   };
 
   const ORDER = ["hipertension", "diabetes", "prevencion", "medicina-familiar"];
-  /** Broad filter tags — not used to suggest "Ver también" links. */
-  const RELATED_TOPIC_SLUGS = ["hipertension", "diabetes", "medicina-familiar"];
 
   function normalize(categories) {
     if (!Array.isArray(categories)) return [];
@@ -33,10 +31,6 @@
     return ORDER.filter((slug) => set.has(slug));
   }
 
-  function relatedTopics(categories) {
-    return normalize(categories).filter((slug) => RELATED_TOPIC_SLUGS.includes(slug));
-  }
-
   function tagsHtml(categories, { link = false } = {}) {
     const slugs = sortedUnique(categories);
     if (!slugs.length) return "";
@@ -57,7 +51,6 @@
     normalize,
     label,
     sortedUnique,
-    relatedTopics,
     collectFromPosts,
     tagsHtml,
   };

@@ -20,3 +20,5 @@ Images live under `web/assets/images/` (`brand/`, `about/`, `medfam/`, `cita/`, 
 The `blogs/` folder is not deployed: hosting serves `dist/` only (built from `web/`).
 
 Category slugs for `post.json` / `web/assets/data/blog-post-categories.json`: `hipertension`, `diabetes`, `prevencion`, `medicina-familiar`. After editing categories, run `node scripts/sync-blog-categories.mjs` then `node scripts/publish-blog-post.mjs --refresh-manifest`.
+
+Related articles (“Ver también”) are curated manually in `web/assets/data/blog-post-related.json`: each key is a post slug, value is an array of 2–3 related post slugs (titles are resolved from the manifest at runtime). Edit the JSON, then `npm run deploy:hosting`.

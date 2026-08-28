@@ -8,12 +8,13 @@
     "dev": "npm run build && npx --yes serve dist -l 3000",
     "firebase": "firebase",
     "deploy": "npm run build && firebase deploy",
-    "deploy:hosting": "npm run build && firebase deploy --only hosting,functions:blogArticleRedirect",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting,functions:blogArticleRedirect && node scripts/post-deploy-index.mjs",
     "functions:install": "npm install --prefix firebase/functions",
     "deploy:functions": "firebase deploy --only functions",
     "deploy:contact": "npm run build && firebase deploy --only functions,hosting",
     "deploy:firestore": "firebase deploy --only firestore",
-    "publish:blog": "node scripts/publish-blog-post.mjs"
+    "publish:blog": "node scripts/publish-blog-post.mjs",
+    "index:google": "node scripts/request-google-indexing.mjs"
   },
   "engines": {
     "node": ">=18"

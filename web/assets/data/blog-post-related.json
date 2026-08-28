@@ -1,0 +1,14 @@
+{
+  "hipertension-arterial": [
+    "como-tomar-presion-arterial-casa",
+    "tengo-la-presion-alta-y-no-siento-nada"
+  ],
+  "como-tomar-presion-arterial-casa": [
+    "hipertension-arterial",
+    "tengo-la-presion-alta-y-no-siento-nada"
+  ],
+  "tengo-la-presion-alta-y-no-siento-nada": [
+    "hipertension-arterial",
+    "como-tomar-presion-arterial-casa"
+  ]
+}
