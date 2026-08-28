@@ -2,48 +2,52 @@
 
 Notifies Google when pages are updated. Uses service account **`blog-indexing@dra-angelica-website.iam.gserviceaccount.com`** (Owner in Search Console).
 
-## Key file (local only, gitignored)
+**Conservative use:** we only auto-submit **new/changed blog URLs** on publish — not the whole site on every deploy (Google documents this API for job/livestream pages; low-volume, targeted use is safer).
 
-Place the JSON key here (already set up):
+## Key file (local only, gitignored)
 
 ```text
 service_accounts/dra-angelica-website-2760f27f7288.json
 ```
 
-Or set `GOOGLE_INDEXING_KEY=/path/to/key.json`.
-
-**Never commit** `service_accounts/` — it is in `.gitignore`.
+Or set `GOOGLE_INDEXING_KEY=/path/to/key.json`. Never commit `service_accounts/`.
 
 ## What runs automatically
 
-| Action | Indexing |
+| Action | URLs submitted |
 |---|---|
-| `node scripts/publish-blog-post.mjs <slug>` | Article URL + `/blog/` |
-| `npm run deploy:hosting` | All sitemap URLs (home, cita, blog, landings, every published article) |
+| `node scripts/publish-blog-post.mjs <slug>` | **New** article (+ `/blog/` only on first publish). Re-publishing an existing post sends only that article URL (content update). |
+| `npm run deploy:hosting` | **Nothing** (deploy only) |
 
-## Manual commands
+## Manual commands (when you choose)
 
 ```bash
-# One article
+# One new article (same as publish hook)
 npm run index:google -- --slug que-es-la-diabetes
 
-# Any URL
+# One new landing page or static page
 npm run index:google -- https://medicina-familiar.co/campana/un-solo-plan/
 
-# Everything in sitemap.xml
+# Full sitemap — only after a big launch or bulk catch-up (use sparingly)
 npm run index:google -- --sitemap
 ```
 
-## GCP / Search Console setup (done)
+Typical workflows:
 
-1. Indexing API enabled on project `dra-angelica-website`
-2. Service account `blog-indexing` created with JSON key
-3. **`blog-indexing@dra-angelica-website.iam.gserviceaccount.com`** added as **Owner** in Search Console
+- **New blog:** `publish-blog-post` → `deploy:hosting` (indexing runs on publish)
+- **New landing page:** `deploy:hosting` then `npm run index:google -- <that-url>`
+- **Many new pages at once:** deploy, then once: `npm run index:google -- --sitemap`
 
-No extra GCP IAM roles are required on the service account — authorization is via Search Console ownership.
+## Setup (done)
+
+1. Indexing API enabled on `dra-angelica-website`
+2. Service account `blog-indexing` + JSON key
+3. SA email added as **Owner** in Search Console
+
+No extra GCP IAM roles needed — authorization is via Search Console ownership.
 
 ## Expectations
 
-- API `OK` = Google received the notification, not guaranteed indexing
-- Submit **canonical** URLs: `/blog/articulo/<slug>/` (not `?slug=…`)
+- API `OK` = notification received, not guaranteed indexing
+- Use **canonical** URLs: `/blog/articulo/<slug>/`
 - Recheck Search Console in 1–3 days
