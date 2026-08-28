@@ -1,10 +1,27 @@
 {
   "posts": [
     {
+      "slug": "que-es-la-diabetes",
+      "title": "¿Qué es la diabetes y por qué es importante que la conozcas?",
+      "excerpt": "La diabetes tipo 2 puede estar presente años sin síntomas. Qué es, por qué importa detectarla a tiempo, quién tiene más riesgo y cómo se puede prevenir con hábitos saludables.",
+      "publishedAt": "2026-08-28T12:42:46.947Z",
+      "categories": [
+        "diabetes",
+        "prevencion"
+      ],
+      "coverImageUrl": "/assets/images/blog/blog-diabetes-comida-sana-cover.jpg",
+      "coverImageAlt": "Pareja comiendo una comida saludable con ensalada, proteína y agua en casa",
+      "shareImageUrl": "/assets/images/blog/blog-diabetes-riesgo-alimentacion.jpg",
+      "shareImageAlt": "Pareja comiendo pizza, hamburguesa y refresco; globos de texto señalan antecedentes familiares de diabetes y falta de ejercicio"
+    },
+    {
       "slug": "golpe-de-calor",
       "title": "Golpe de calor: cómo reconocerlo, prevenirlo y actuar a tiempo",
       "excerpt": "En La Mesa y municipios de clima cálido, un día muy caluroso puede ser un riesgo real para la salud. Cómo reconocer un golpe de calor, qué hacer de inmediato y cómo prevenirlo, sobre todo en adultos mayores.",
       "publishedAt": "2026-08-27T19:37:21.941Z",
+      "categories": [
+        "prevencion"
+      ],
       "coverImageUrl": "/assets/images/blog/blog-golpe-de-calor-cover.jpg",
       "coverImageAlt": "Mujer agotada por el calor al aire libre; un termómetro digital marca 35,0 °C",
       "shareImageUrl": "/assets/images/blog/blog-golpe-de-calor-itshot.jpg",
@@ -15,6 +32,9 @@
       "title": "Tengo la presión alta y no siento nada. ¿Es realmente peligroso?",
       "excerpt": "La hipertensión suele ser silenciosa: puedes sentirte perfectamente bien y aun así tener la presión alta. Por qué hay que medirla, qué órganos puede dañar y qué hacer si no tienes síntomas.",
       "publishedAt": "2026-08-23T23:35:02.611Z",
+      "categories": [
+        "hipertension"
+      ],
       "coverImageUrl": "/assets/images/blog/blog-presion-alta-sin-sintomas-cover.jpg",
       "coverImageAlt": "Hombre midiéndose la presión en casa; el tensiómetro marca 159/96 mmHg y, en un globo de pensamiento, dice: Pero me siento bien!!!",
       "shareImageUrl": "/assets/images/blog/blog-presion-alta-sin-sintomas.jpg",
@@ -25,6 +45,9 @@
       "title": "¿Cómo tomarme la presión arterial en casa?",
       "excerpt": "Medir la presión en casa es sencillo si sigues unos pasos: buen tensiómetro, reposo previo, colocación correcta del brazalete y registros durante varios días. Guía práctica paso a paso.",
       "publishedAt": "2026-08-09T21:30:02.024Z",
+      "categories": [
+        "hipertension"
+      ],
       "coverImageUrl": "/assets/images/blog/blog-presion-arterial-casa-cover.jpg",
       "coverImageAlt": "Hombre midiéndose la presión arterial en casa con un tensiómetro digital de brazo, sentado en una mesa con luz natural",
       "shareImageUrl": "/assets/images/blog/blog-presion-arterial-casa-cover.jpg",
@@ -35,6 +58,9 @@
       "title": "Hipertensión arterial: qué es, cómo se diagnostica y cuál es el tratamiento",
       "excerpt": "La presión alta es frecuente y muchas veces no da síntomas, pero sin control aumenta el riesgo cardiovascular. Qué es, cómo prevenirla, cuándo hacen falta medicamentos y cuándo acudir al médico.",
       "publishedAt": "2026-07-29T21:32:06.036Z",
+      "categories": [
+        "hipertension"
+      ],
       "coverImageUrl": "/assets/images/blog/blog-hipertension-arterial-cover.jpg",
       "coverImageAlt": "Médica tomando la presión arterial a una paciente en consulta; el tensiómetro muestra 149/98 mmHg",
       "shareImageUrl": "/assets/images/blog/blog-hipertension-arterial-cover.jpg",
@@ -45,6 +71,9 @@
       "title": "Qué hace un médico familiar en consulta (y por qué importa en Colombia)",
       "excerpt": "Imagina un médico que te conoce, recuerda tu historia y te dedica el tiempo necesario. Qué es la medicina familiar, por qué en Colombia aún es poco conocida y qué ofrece el consultorio en La Mesa.",
       "publishedAt": "2026-06-13T20:09:42.860Z",
+      "categories": [
+        "medicina-familiar"
+      ],
       "coverImageUrl": "/assets/images/blog/blog-medico-familiar-consulta.jpg",
       "coverImageAlt": "Dra. Angélica Granados Silva en consulta de medicina familiar con una paciente y su acompañante",
       "shareImageUrl": "/assets/images/blog/blog-medico-familiar-consulta.jpg",

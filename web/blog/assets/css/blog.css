@@ -20,11 +20,86 @@
   margin-bottom: 0;
 }
 
+.blog-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem;
+}
+
+.blog-filter__btn {
+  appearance: none;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 0.42rem 0.9rem;
+  font: inherit;
+  font-size: 0.84rem;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.blog-filter__btn:hover,
+.blog-filter__btn:focus-visible {
+  border-color: rgba(26, 111, 120, 0.35);
+  color: var(--color-text);
+}
+
+.blog-filter__btn.is-active {
+  border-color: rgba(26, 111, 120, 0.45);
+  background: rgba(26, 111, 120, 0.08);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.blog-filter__btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.blog-tag {
+  display: inline-block;
+  margin: 0 0.35rem 0.35rem 0;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(26, 111, 120, 0.08);
+  color: var(--color-accent);
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+a.blog-tag:hover,
+a.blog-tag:focus-visible {
+  background: rgba(26, 111, 120, 0.14);
+  text-decoration: none;
+}
+
+.blog-card__tags {
+  margin: 0 0 0.45rem;
+}
+
 .blog-list {
   display: grid;
   gap: 1.25rem;
   list-style: none;
   padding: 0;
+  margin: 0;
+}
+
+.blog-load-more {
+  margin: 1rem 0 0;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.blog-scroll-sentinel {
+  width: 100%;
+  height: 1px;
   margin: 0;
 }
 
@@ -188,6 +263,27 @@
   font-size: 0.88rem;
   color: var(--color-text-muted);
   margin: 0 0 0.65rem;
+}
+
+.blog-article__related {
+  margin: -0.75rem 0 0.75rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.blog-article__related a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.blog-article__related a:hover,
+.blog-article__related a:focus-visible {
+  text-decoration: underline;
+}
+
+.blog-article__categories {
+  margin: 0 0 1.1rem;
 }
 
 .blog-article h1 {

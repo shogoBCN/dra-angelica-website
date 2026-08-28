@@ -98,9 +98,13 @@
           <h1 class="section__title">Blog</h1>
         </div>
 
+        <div id="blog-filter" class="blog-filter" role="toolbar" aria-label="Filtrar por tema" hidden></div>
+
         <p id="blog-state" class="blog-muted blog-state" aria-live="polite">Cargando artículos…</p>
 
         <div id="blog-list-root" class="blog-list"></div>
+        <p id="blog-load-more" class="blog-load-more" hidden aria-live="polite"></p>
+        <div id="blog-scroll-sentinel" class="blog-scroll-sentinel" aria-hidden="true"></div>
       </div>
     </main>
 
@@ -206,6 +210,7 @@
     ></script>
     <script defer src="/blog/assets/js/firebase-config.js"></script>
     <script defer src="/blog/assets/js/blog-init.js"></script>
+    <script defer src="/blog/assets/js/blog-categories.js"></script>
     <script defer src="/blog/assets/js/blog-index.js"></script>
     <script type="module" src="/assets/analytics/index.js"></script>
     <script src="/assets/js/main.js" defer></script>
