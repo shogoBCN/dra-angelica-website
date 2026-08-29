@@ -14,7 +14,8 @@
     "deploy:contact": "npm run build && firebase deploy --only functions,hosting",
     "deploy:firestore": "firebase deploy --only firestore",
     "publish:blog": "node scripts/publish-blog-post.mjs",
-    "index:google": "node scripts/request-google-indexing.mjs"
+    "index:google": "node scripts/request-google-indexing.mjs",
+    "index:google:check": "node scripts/check-google-index-status.mjs"
   },
   "engines": {
     "node": ">=18"

@@ -9,7 +9,8 @@ Static **frontend** (visitor-facing copy in **Colombian Spanish**) and **Firebas
 | --------------- | -------------------------------------------------------------- |
 | `web/`          | Site **source**: `index.html`, **`blog/`** subtree, shared **`assets/`** |
 | `dist/`         | **Build output** (generated; do not edit). Deploy this folder. |
-| `scripts/`      | Build tooling (`build-site.mjs`)                               |
+| `scripts/`      | Build + blog publish + Google indexing (local; gitignored)     |
+| `docs/`         | Setup guides (contact form, analytics, **Google indexing**)    |
 | `firebase/`     | `firestore.rules`, `firestore.indexes.json`, `functions/` (contact email) |
 | `firebase.json` | Firebase Hosting + Firestore paths, security **headers**       |
 
@@ -41,6 +42,8 @@ npm run deploy:contact   # functions + hosting (contact form)
 ```
 
 Contact form setup (Resend DNS, secrets, first deploy): **`docs/contact-form.md`**.
+
+Google indexing (notify Google on blog publish, check indexed URLs): **`docs/google-indexing-api.md`**.
 
 ## Run locally
 
@@ -160,6 +163,7 @@ Add or keep records **exactly** as **Firebase Hosting** shows for each connected
 **Search Console**
 
 - Prefer a **Domain** property for `medicina-familiar.co` (covers `www` and apex). Submit **`sitemap.xml`** after deploy.
+- **Indexing scripts:** `npm run publish:blog` auto-notifies Google for new/changed articles; **`npm run deploy:hosting` does not**. Check coverage with `npm run index:google:check`. Full workflow: **`docs/google-indexing-api.md`**.
 
 ### 5. Blog (Firestore + `/blog` pages)
 
@@ -250,6 +254,10 @@ Public queries only **`where('published','==', true)`**, which aligns with Fires
 - **`auth/api-key-not-valid`** / **`auth/invalid-api-key`:** Google's Identity Toolkit is rejecting your **Browser API key**. This is unrelated to CSP. In **Google Cloud Console** → **APIs & Services** → **Credentials**, open your project’s browser key (same `apiKey` as in **`firebase-config.js`**).
   - **Application restrictions:** If **HTTP referrers** is enabled, **every origin you use must match**, including **`localhost` vs `127.0.0.1`** and the **exact port** (e.g. `http://127.0.0.1:5500`). Or set restrictions to **None** briefly to confirm that was the cause.
   - **API restrictions:** If the key uses **Restrict key**, the allow-list must include **Identity Toolkit API** (and usually **Token Service API** / Firebase-related APIs). If that list was edited and dropped Identity Toolkit, sign-in returns **400** / **API key not valid**. For a quick check, choose **Don't restrict key** on that credential, verify login works, then narrow again deliberately.
+
+#### Publish from local drafts (CLI)
+
+For posts authored under gitignored `blogs/<slug>/`, use **`blogs.example/README.md`**. After `node scripts/publish-blog-post.mjs <slug>`, run **`npm run deploy:hosting`** so live HTML matches Firestore. Indexing API pings run on publish (not on deploy) — see **`docs/google-indexing-api.md`**.
 
 #### Optional next steps
 
