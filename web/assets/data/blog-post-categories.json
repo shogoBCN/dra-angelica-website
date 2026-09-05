@@ -6,5 +6,5 @@
   "hipertension-arterial": ["hipertension"],
   "medico-familiar-que-hace-en-consulta": ["medicina-familiar"],
   "senales-adulto-mayor-valoracion-medica": ["medicina-familiar", "prevencion", "pacientes-mayores"],
-  "chequeos-despues-de-los-40": ["medicina-familiar", "prevencion"]
+  "chequeos-despues-de-los-40": ["medicina-familiar", "prevencion", "pacientes-mayores"]
 }
