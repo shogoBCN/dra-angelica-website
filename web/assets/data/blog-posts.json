@@ -1,6 +1,35 @@
 {
   "posts": [
     {
+      "slug": "chequeos-despues-de-los-40",
+      "title": "¿Qué chequeos necesito después de los 40?",
+      "excerpt": "Cumplir 40 no significa que algo esté mal: es una buena edad para adelantarse a problemas silenciosos. Presión, glucosa, colesterol, tamizajes y más — explicado sin tecnicismos.",
+      "publishedAt": "2026-09-05T11:42:42.682Z",
+      "categories": [
+        "medicina-familiar",
+        "prevencion"
+      ],
+      "coverImageUrl": "/assets/images/blog/blog-chequeos-despues-40-cover.jpg",
+      "coverImageAlt": "Consulta preventiva con médico de cabecera después de los 40 años",
+      "shareImageUrl": "/assets/images/blog/blog-chequeos-despues-40.jpg",
+      "shareImageAlt": "Consulta preventiva con médico de cabecera después de los 40 años"
+    },
+    {
+      "slug": "senales-adulto-mayor-valoracion-medica",
+      "title": "5 señales de que un adulto mayor necesita una valoración médica",
+      "excerpt": "Caminar más despacio o olvidar cosas no siempre es «normal de la edad». Cinco cambios que conviene no dejar pasar en papás o abuelos, y cuándo pedir una valoración médica.",
+      "publishedAt": "2026-09-05T11:42:38.139Z",
+      "categories": [
+        "medicina-familiar",
+        "prevencion",
+        "pacientes-mayores"
+      ],
+      "coverImageUrl": "/assets/images/blog/blog-adulto-mayor-valoracion-cover.jpg",
+      "coverImageAlt": "Adulto mayor recibiendo acompañamiento y valoración médica",
+      "shareImageUrl": "/assets/images/blog/blog-adulto-mayor-valoracion.jpg",
+      "shareImageAlt": "Adulto mayor recibiendo acompañamiento y valoración médica"
+    },
+    {
       "slug": "que-es-la-diabetes",
       "title": "¿Qué es la diabetes y por qué es importante que la conozcas?",
       "excerpt": "La diabetes tipo 2 puede estar presente años sin síntomas. Qué es, por qué importa detectarla a tiempo, quién tiene más riesgo y cómo se puede prevenir con hábitos saludables.",
@@ -20,7 +49,8 @@
       "excerpt": "En La Mesa y municipios de clima cálido, un día muy caluroso puede ser un riesgo real para la salud. Cómo reconocer un golpe de calor, qué hacer de inmediato y cómo prevenirlo, sobre todo en adultos mayores.",
       "publishedAt": "2026-08-27T19:37:21.941Z",
       "categories": [
-        "prevencion"
+        "prevencion",
+        "pacientes-mayores"
       ],
       "coverImageUrl": "/assets/images/blog/blog-golpe-de-calor-cover.jpg",
       "coverImageAlt": "Mujer agotada por el calor al aire libre; un termómetro digital marca 35,0 °C",

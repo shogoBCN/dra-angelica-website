@@ -1,8 +1,10 @@
 {
   "que-es-la-diabetes": ["diabetes", "prevencion"],
-  "golpe-de-calor": ["prevencion"],
+  "golpe-de-calor": ["prevencion", "pacientes-mayores"],
   "tengo-la-presion-alta-y-no-siento-nada": ["hipertension"],
   "como-tomar-presion-arterial-casa": ["hipertension"],
   "hipertension-arterial": ["hipertension"],
-  "medico-familiar-que-hace-en-consulta": ["medicina-familiar"]
+  "medico-familiar-que-hace-en-consulta": ["medicina-familiar"],
+  "senales-adulto-mayor-valoracion-medica": ["medicina-familiar", "prevencion", "pacientes-mayores"],
+  "chequeos-despues-de-los-40": ["medicina-familiar", "prevencion"]
 }

@@ -5,9 +5,16 @@
     diabetes: "Diabetes",
     prevencion: "Prevención",
     "medicina-familiar": "Medicina familiar",
+    "pacientes-mayores": "Pacientes mayores",
   };
 
-  const ORDER = ["hipertension", "diabetes", "prevencion", "medicina-familiar"];
+  const ORDER = [
+    "hipertension",
+    "diabetes",
+    "prevencion",
+    "medicina-familiar",
+    "pacientes-mayores",
+  ];
 
   function normalize(categories) {
     if (!Array.isArray(categories)) return [];
