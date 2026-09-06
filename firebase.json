@@ -85,23 +85,23 @@
         "type": 301
       },
       {
-        "source": "/blog",
+        "regex": "^/blog$",
         "destination": "/blog/",
         "type": 301
       },
       {
-        "source": "/cita",
+        "regex": "^/cita$",
         "destination": "/cita/",
         "type": 301
       },
       {
-        "source": "/campana/un-solo-plan",
+        "regex": "^/campana/un-solo-plan$",
         "destination": "/campana/un-solo-plan/",
         "type": 301
       },
       {
-        "source": "/blog/articulo/:slug",
-        "destination": "/blog/articulo/:slug/",
+        "regex": "^/blog/articulo/([^/]+)$",
+        "destination": "/blog/articulo/:1/",
         "type": 301
       }
     ],
