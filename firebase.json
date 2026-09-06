@@ -51,17 +51,27 @@
     "redirects": [
       {
         "source": "/08-aug-26",
-        "destination": "/campana/un-solo-plan",
+        "destination": "/campana/un-solo-plan/",
         "type": 301
       },
       {
         "source": "/08-aug-26/**",
-        "destination": "/campana/un-solo-plan",
+        "destination": "/campana/un-solo-plan/",
         "type": 301
       },
       {
         "source": "/medicina-familiar-colombia",
-        "destination": "/blog/articulo/medicina-familiar-en-colombia/",
+        "destination": "/blog/articulo/medico-familiar-que-hace-en-consulta/",
+        "type": 301
+      },
+      {
+        "source": "/blog/articulo/medicina-familiar-en-colombia",
+        "destination": "/blog/articulo/medico-familiar-que-hace-en-consulta/",
+        "type": 301
+      },
+      {
+        "source": "/blog/articulo/medicina-familiar-en-colombia/",
+        "destination": "/blog/articulo/medico-familiar-que-hace-en-consulta/",
         "type": 301
       },
       {
@@ -72,6 +82,26 @@
       {
         "source": "/assets/images/blog-medico-familiar-consulta.jpg",
         "destination": "/assets/images/blog/blog-medico-familiar-consulta.jpg",
+        "type": 301
+      },
+      {
+        "source": "/blog",
+        "destination": "/blog/",
+        "type": 301
+      },
+      {
+        "source": "/cita",
+        "destination": "/cita/",
+        "type": 301
+      },
+      {
+        "source": "/campana/un-solo-plan",
+        "destination": "/campana/un-solo-plan/",
+        "type": 301
+      },
+      {
+        "source": "/blog/articulo/:slug",
+        "destination": "/blog/articulo/:slug/",
         "type": 301
       }
     ],
