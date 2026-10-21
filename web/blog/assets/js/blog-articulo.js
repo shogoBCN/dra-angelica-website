@@ -206,6 +206,12 @@
       }
     })
     .catch(() => {
+      const body = document.getElementById("blog-article-body");
+      if (body && body.textContent.trim()) {
+        wrap.hidden = false;
+        stateEl.hidden = true;
+        return;
+      }
       wrap.hidden = true;
       stateEl.hidden = false;
       stateEl.className = "blog-muted blog-state";

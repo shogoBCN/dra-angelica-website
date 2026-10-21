@@ -50,6 +50,11 @@
     ],
     "redirects": [
       {
+        "regex": "^/(.+)/index\\.html$",
+        "destination": "/:1/",
+        "type": 301
+      },
+      {
         "source": "/08-aug-26",
         "destination": "/campana/un-solo-plan/",
         "type": 301

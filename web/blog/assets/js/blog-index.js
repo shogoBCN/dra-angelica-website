@@ -281,7 +281,10 @@
   }
 
   async function init() {
-    showState("blog-muted blog-state", "Cargando artículos…");
+    const hasStaticList = listRoot.querySelector("a.blog-card");
+    if (!hasStaticList) {
+      showState("blog-muted blog-state", "Cargando artículos…");
+    }
     bindFilterClicks();
 
     const registry = await loadCategoryRegistry();
