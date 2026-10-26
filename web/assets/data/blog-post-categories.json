@@ -1,4 +1,6 @@
 {
+  "medicamentos-para-la-diabetes": ["diabetes"],
+  "azucar-un-poquito-alta": ["diabetes", "prevencion"],
   "que-es-la-diabetes": ["diabetes", "prevencion"],
   "golpe-de-calor": ["prevencion", "pacientes-mayores"],
   "tengo-la-presion-alta-y-no-siento-nada": ["hipertension"],

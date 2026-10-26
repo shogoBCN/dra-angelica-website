@@ -1,4 +1,18 @@
 {
+  "medicamentos-para-la-diabetes": [
+    "que-es-la-diabetes",
+    "azucar-un-poquito-alta"
+  ],
+  "azucar-un-poquito-alta": [
+    "que-es-la-diabetes",
+    "medicamentos-para-la-diabetes",
+    "chequeos-despues-de-los-40"
+  ],
+  "que-es-la-diabetes": [
+    "medicamentos-para-la-diabetes",
+    "azucar-un-poquito-alta",
+    "chequeos-despues-de-los-40"
+  ],
   "hipertension-arterial": [
     "como-tomar-presion-arterial-casa",
     "tengo-la-presion-alta-y-no-siento-nada"

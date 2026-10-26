@@ -1,6 +1,33 @@
 {
   "posts": [
     {
+      "slug": "medicamentos-para-la-diabetes",
+      "title": "Medicamentos para la diabetes: metformina, insulina y otros tratamientos",
+      "excerpt": "Para qué sirven la metformina, la insulina y otros tratamientos, y por qué necesitar insulina no es un castigo ni un fracaso.",
+      "publishedAt": "2026-10-25T16:19:18.971Z",
+      "categories": [
+        "diabetes"
+      ],
+      "coverImageUrl": "/assets/images/blog/blog-medicamentos-diabetes.jpg",
+      "coverImageAlt": "Hombre mayor preocupado frente a metformina, sitagliptina, un frasco de insulina y una pluma de semaglutida",
+      "shareImageUrl": "/assets/images/blog/blog-medicamentos-diabetes.jpg",
+      "shareImageAlt": "Hombre mayor preocupado frente a metformina, sitagliptina, un frasco de insulina y una pluma de semaglutida"
+    },
+    {
+      "slug": "azucar-un-poquito-alta",
+      "title": "¿Cómo saber si estoy empezando a tener diabetes si solo tengo el azúcar “un poquito alta”?",
+      "excerpt": "La glucosa un poquito alta se llama prediabetes: qué números la definen, quién debe hacerse el examen y cómo frenarla con hábitos.",
+      "publishedAt": "2026-10-22T22:53:20.733Z",
+      "categories": [
+        "diabetes",
+        "prevencion"
+      ],
+      "coverImageUrl": "/assets/images/blog/blog-azucar-un-poquito-alta.jpg",
+      "coverImageAlt": "Hombre en su casa leyendo un resultado de glucosa en ayunas de 114 mg/dL, pedido por otro médico",
+      "shareImageUrl": "/assets/images/blog/blog-azucar-un-poquito-alta.jpg",
+      "shareImageAlt": "Hombre en su casa leyendo un resultado de glucosa en ayunas de 114 mg/dL, pedido por otro médico"
+    },
+    {
       "slug": "chequeos-despues-de-los-40",
       "title": "¿Qué chequeos necesito después de los 40?",
       "excerpt": "Cumplir 40 no significa que algo esté mal: es una buena edad para adelantarse a problemas silenciosos. Presión, glucosa, colesterol, tamizajes y más — explicado sin tecnicismos.",
