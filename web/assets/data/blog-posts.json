@@ -1,6 +1,19 @@
 {
   "posts": [
     {
+      "slug": "alimentacion-en-diabetes",
+      "title": "Alimentación en diabetes: qué comer sin vivir haciendo dieta",
+      "excerpt": "Comer con diabetes no es pasar hambre ni eliminar el arroz: mitad del plato en verduras, proteína en cada comida y carbohidratos en porción.",
+      "publishedAt": "2026-10-27T16:11:39.188Z",
+      "categories": [
+        "diabetes"
+      ],
+      "coverImageUrl": "/assets/images/blog/blog-alimentacion-en-diabetes.jpg",
+      "coverImageAlt": "Dos platos comparados: uno con papa, arroz, pasta, poco pollo y gaseosa, y otro con ensalada, pollo, arroz y un vaso de agua",
+      "shareImageUrl": "/assets/images/blog/blog-alimentacion-en-diabetes.jpg",
+      "shareImageAlt": "Dos platos comparados: uno con papa, arroz, pasta, poco pollo y gaseosa, y otro con ensalada, pollo, arroz y un vaso de agua"
+    },
+    {
       "slug": "medicamentos-para-la-diabetes",
       "title": "Medicamentos para la diabetes: metformina, insulina y otros tratamientos",
       "excerpt": "Para qué sirven la metformina, la insulina y otros tratamientos, y por qué necesitar insulina no es un castigo ni un fracaso.",

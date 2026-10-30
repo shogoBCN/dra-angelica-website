@@ -1,17 +1,23 @@
 {
+  "alimentacion-en-diabetes": [
+    "que-es-la-diabetes",
+    "medicamentos-para-la-diabetes",
+    "azucar-un-poquito-alta"
+  ],
   "medicamentos-para-la-diabetes": [
+    "alimentacion-en-diabetes",
     "que-es-la-diabetes",
     "azucar-un-poquito-alta"
   ],
   "azucar-un-poquito-alta": [
+    "alimentacion-en-diabetes",
     "que-es-la-diabetes",
-    "medicamentos-para-la-diabetes",
-    "chequeos-despues-de-los-40"
+    "medicamentos-para-la-diabetes"
   ],
   "que-es-la-diabetes": [
+    "alimentacion-en-diabetes",
     "medicamentos-para-la-diabetes",
-    "azucar-un-poquito-alta",
-    "chequeos-despues-de-los-40"
+    "azucar-un-poquito-alta"
   ],
   "hipertension-arterial": [
     "como-tomar-presion-arterial-casa",
