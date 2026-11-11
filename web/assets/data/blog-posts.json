@@ -1,6 +1,36 @@
 {
   "posts": [
     {
+      "slug": "bajar-de-peso-despues-de-los-40",
+      "title": "¿Por qué después de los 40 cuesta tanto bajar de peso?",
+      "excerpt": "Comes igual que hace diez años y la báscula no se mueve. Qué cambia después de los 40 y qué sí funciona para bajar grasa sin perder músculo.",
+      "publishedAt": "2026-11-09T20:59:34.622Z",
+      "categories": [
+        "prevencion",
+        "medicina-familiar",
+        "diabetes"
+      ],
+      "coverImageUrl": "/assets/images/blog/blog-bajar-de-peso-despues-40.jpg",
+      "coverImageAlt": "Mujer en la cocina, con ensalada y pollo, mira pensativa una báscula cuya aguja sube; un globo dice: ¿No entiendo… si estoy haciendo dieta?",
+      "shareImageUrl": "/assets/images/blog/blog-bajar-de-peso-despues-40.jpg",
+      "shareImageAlt": "Mujer en la cocina, con ensalada y pollo, mira pensativa una báscula cuya aguja sube; un globo dice: ¿No entiendo… si estoy haciendo dieta?"
+    },
+    {
+      "slug": "es-normal-roncar",
+      "title": "¿Es normal roncar?",
+      "excerpt": "Roncar es común, pero no siempre es inofensivo. Cuándo es solo ruido, cuándo puede ser apnea del sueño y qué puedes hacer en casa.",
+      "publishedAt": "2026-11-09T20:50:48.626Z",
+      "categories": [
+        "prevencion",
+        "medicina-familiar",
+        "hipertension"
+      ],
+      "coverImageUrl": "/assets/images/blog/blog-es-normal-roncar.jpg",
+      "coverImageAlt": "Mujer despierta e incómoda mira a su pareja, que duerme boca arriba con la boca abierta",
+      "shareImageUrl": "/assets/images/blog/blog-es-normal-roncar.jpg",
+      "shareImageAlt": "Mujer despierta e incómoda mira a su pareja, que duerme boca arriba con la boca abierta"
+    },
+    {
       "slug": "alimentacion-en-diabetes",
       "title": "Alimentación en diabetes: qué comer sin vivir haciendo dieta",
       "excerpt": "Comer con diabetes no es pasar hambre ni eliminar el arroz: mitad del plato en verduras, proteína en cada comida y carbohidratos en porción.",

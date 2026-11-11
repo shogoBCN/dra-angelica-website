@@ -1,4 +1,14 @@
 {
+  "bajar-de-peso-despues-de-los-40": [
+    "chequeos-despues-de-los-40",
+    "alimentacion-en-diabetes",
+    "es-normal-roncar"
+  ],
+  "es-normal-roncar": [
+    "tengo-la-presion-alta-y-no-siento-nada",
+    "hipertension-arterial",
+    "chequeos-despues-de-los-40"
+  ],
   "alimentacion-en-diabetes": [
     "que-es-la-diabetes",
     "medicamentos-para-la-diabetes",
@@ -21,7 +31,8 @@
   ],
   "hipertension-arterial": [
     "como-tomar-presion-arterial-casa",
-    "tengo-la-presion-alta-y-no-siento-nada"
+    "tengo-la-presion-alta-y-no-siento-nada",
+    "es-normal-roncar"
   ],
   "como-tomar-presion-arterial-casa": [
     "hipertension-arterial",
@@ -29,7 +40,8 @@
   ],
   "tengo-la-presion-alta-y-no-siento-nada": [
     "hipertension-arterial",
-    "como-tomar-presion-arterial-casa"
+    "como-tomar-presion-arterial-casa",
+    "es-normal-roncar"
   ],
   "senales-adulto-mayor-valoracion-medica": [
     "medico-familiar-que-hace-en-consulta",
